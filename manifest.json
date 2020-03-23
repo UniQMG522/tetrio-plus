@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "name": "Tetr.io+",
+  "version": "0.0.0",
+
+  "description": "Tetr.io client enhancer",
+  "icons": { "256": "icons/tetrio-256.png" },
+
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "<all_urls>"
+  ],
+
+  "browser_action": {
+    "default_icon": "icons/tetrio-256.png",
+    "default_title": "Tetr.io+",
+    "default_popup": "popup/index.html"
+  },
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tetrio-plus@example.com"
+    }
+  }
+}
