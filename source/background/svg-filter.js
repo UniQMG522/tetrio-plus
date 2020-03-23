@@ -1,13 +1,6 @@
-browser.runtime.onMessage.addListener(function(msg) {
-  if (msg.type != 'setskin') return false;
-  browser.storage.sync.set({ skin: msg.value });
-  console.log("Set skin to " + msg.value);
-  return true;
-});
-
 browser.webRequest.onBeforeRequest.addListener(
   request => {
-    console.log("Filtering", request.url);
+    console.log("[SVG filter] Filtering", request.url);
 
     let filter = browser.webRequest.filterResponseData(request.requestId);
     let decoder = new TextDecoder("utf-8");
@@ -21,14 +14,13 @@ browser.webRequest.onBeforeRequest.addListener(
 
     filter.onstop = evt => {
       console.log("Rewriting data");
-      browser.storage.sync.get('skin').then(({ skin }) => {
+      browser.storage.local.get('skin').then(({ skin }) => {
         if (skin) {
           console.log("Writing custom skin");
           filter.write(encoder.encode(skin));
         } else {
           console.log("No custom skin, writing original buffer");
           for (let str of originalData) {
-            console.log(str);
             filter.write(encoder.encode(str))
           }
         }

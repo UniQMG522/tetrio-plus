@@ -9,19 +9,26 @@
   "permissions": [
     "webRequest",
     "webRequestBlocking",
+    "unlimitedStorage",
     "storage",
-    "<all_urls>"
+    "https://tetr.io/"
   ],
 
   "browser_action": {
     "default_icon": "icons/tetrio-256.png",
     "default_title": "Tetr.io+",
-    "default_popup": "popup/index.html"
+    "default_popup": "source/popup/index.html"
   },
 
   "background": {
-    "scripts": ["background.js"]
+    "scripts": [
+      "source/background/music-filter.js",
+      "source/background/svg-filter.js",
+      "source/background/background.js"
+    ]
   },
+
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
   "browser_specific_settings": {
     "gecko": {

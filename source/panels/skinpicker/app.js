@@ -8,10 +8,7 @@ input.addEventListener('change', evt => {
 
   reader.onload = function(evt) {
     let svg = evt.target.result;
-    browser.runtime.sendMessage(browser.runtime.id, {
-      type: 'setskin',
-      value: svg
-    });
+    browser.storage.local.set({ skin: svg });
     console.log("Setting skin", svg);
     window.close();
   }
