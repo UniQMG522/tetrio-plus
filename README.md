@@ -19,7 +19,7 @@ Installing as a temporary addon for firefox:
 Note that temporary addons disappear when you completely close firefox.
 
 Installing as a temporary addon for chrome:
-¯\_(ツ)_/¯ (todo)
+- ¯\\_(ツ)_/¯ (todo)
 
 
 I'll get around to making a proper signed addon that stays installed eventually
