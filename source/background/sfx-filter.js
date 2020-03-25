@@ -65,6 +65,14 @@ browser.webRequest.onBeforeRequest.addListener(
       return;
     }
 
+    let { customSounds } = await browser.storage.local.get('customSounds');
+    if (!customSounds) {
+      console.log("No custom sfx, not rewriting data");
+      filter.write(encoder.encode(src));
+      filter.close();
+      return;
+    }
+
     console.log("[Sfx filter] Filtering", request.url);
     let filter = browser.webRequest.filterResponseData(request.requestId);
 

@@ -95,6 +95,8 @@ const app = new Vue({
       this.encodeResult = dataUrl;
       this.encoding = false;
     },
+
+
     replace(evt, sprite) {
       let file = evt.target.files[0];
       if (!file) return;
@@ -108,66 +110,72 @@ const app = new Vue({
       });
       reader.readAsDataURL(file);
     },
+
+
     async decode() {
-      this.decodeStarted = true;
-      this.decoding = true;
+      try {
+        this.decodeStarted = true;
+        this.decoding = true;
 
-      // Fetch sfx atlas json
-      let srcRequest = await fetch('http://tetr.io/js/tetrio.js');
-      let src = await srcRequest.text();
-      let regex = /new Howl\({\s*src:\s*["']res\/se\.ogg["'],\s*sprite:\s*({[\S\s]+?})/;
-      let match = regex.exec(src);
-      if (!match) {
-        this.error = 'Failed to find sound atlas.';
-        return;
-      }
-      let json = match[1]
-        // Quote unquoted keys
-        .replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '$1"$3":');
-      let atlas = JSON.parse(json);
+        // Fetch sfx atlas json
+        let srcRequest = await fetch('https://tetr.io/js/tetrio.js');
+        let src = await srcRequest.text();
+        let regex = /new Howl\({\s*src:\s*["']res\/se\.ogg["'],\s*sprite:\s*({[\S\s]+?})/;
+        let match = regex.exec(src);
+        if (!match) {
+          this.error = 'Failed to find sound atlas.';
+          return;
+        }
+        let json = match[1]
+          // Quote unquoted keys
+          .replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '$1"$3":');
+        let atlas = JSON.parse(json);
 
-      // Fetch sfx audio file
-      let request = await fetch('http://tetr.io/res/se.ogg');
-      let encodedSfxBuffer = await request.arrayBuffer();
-      let decoderCtx = new OfflineAudioContext({
-        numberOfChannels: channels,
-        length: sampleRate * 1,
-        sampleRate: sampleRate
-      });
-      let sfxBuffer = await decoderCtx.decodeAudioData(encodedSfxBuffer);
-
-      for (let key of Object.keys(atlas)) {
-        let [offset, duration] = atlas[key];
-        // Convert milliseconds to seconds
-        offset /= 1000; duration /= 1000;
-
-        const ctx = new OfflineAudioContext({
+        // Fetch sfx audio file
+        let request = await fetch('https://tetr.io/res/se.ogg');
+        let encodedSfxBuffer = await request.arrayBuffer();
+        let decoderCtx = new OfflineAudioContext({
           numberOfChannels: channels,
-          length: sampleRate * duration,
+          length: sampleRate * 1,
           sampleRate: sampleRate
         });
+        let sfxBuffer = await decoderCtx.decodeAudioData(encodedSfxBuffer);
 
-        let source = ctx.createBufferSource();
-        source.buffer = sfxBuffer;
-        source.connect(ctx.destination);
-        source.start(0, offset, duration);
+        for (let key of Object.keys(atlas)) {
+          let [offset, duration] = atlas[key];
+          // Convert milliseconds to seconds
+          offset /= 1000; duration /= 1000;
 
-        let audioBuffer = await ctx.startRendering();
+          const ctx = new OfflineAudioContext({
+            numberOfChannels: channels,
+            length: sampleRate * duration,
+            sampleRate: sampleRate
+          });
 
-        const encoder = new OggVorbisEncoder(sampleRate, channels, quality);
-        encoder.encode([
-          audioBuffer.getChannelData(0),
-          audioBuffer.getChannelData(1)
-        ]);
-        let blob = encoder.finish();
+          let source = ctx.createBufferSource();
+          source.buffer = sfxBuffer;
+          source.connect(ctx.destination);
+          source.start(0, offset, duration);
 
-        this.sprites.push({
-          name: key,
-          src: URL.createObjectURL(blob)
-        });
+          let audioBuffer = await ctx.startRendering();
+
+          const encoder = new OggVorbisEncoder(sampleRate, channels, quality);
+          encoder.encode([
+            audioBuffer.getChannelData(0),
+            audioBuffer.getChannelData(1)
+          ]);
+          let blob = encoder.finish();
+
+          this.sprites.push({
+            name: key,
+            src: URL.createObjectURL(blob)
+          });
+        }
+
+        this.decoding = false;
+      } catch(ex) {
+        this.error = ex;
       }
-
-      this.decoding = false;
     }
   }
 });
