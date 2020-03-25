@@ -301,9 +301,7 @@ const app = new Vue({
       });
     },
     resetSkin() {
-      resetSkin.addEventListener('click', evt => {
-        browser.storage.local.remove(['skin']).then(() => showCurrentSkin());
-      });
+      browser.storage.local.remove(['skin']).then(() => this.cache.skin = null);
     },
     refreshSongs() {
       this.cache.songs = null;
