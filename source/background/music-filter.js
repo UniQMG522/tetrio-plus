@@ -61,7 +61,7 @@ browser.webRequest.onBeforeRequest.addListener(
           .replace(/!0/g, 'true')
           .replace(/!1/g, 'false')
           // Quote unquoted keys
-          .replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":');
+          .replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '$1"$3":');
 
         let music;
         if (disableVanillaMusic) {

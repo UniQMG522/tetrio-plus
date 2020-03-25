@@ -11,7 +11,7 @@
     "webRequestBlocking",
     "unlimitedStorage",
     "storage",
-    "https://tetr.io/"
+    "*://*.tetr.io/*"
   ],
 
   "browser_action": {
@@ -23,6 +23,7 @@
   "background": {
     "scripts": [
       "source/background/music-filter.js",
+      "source/background/sfx-filter.js",
       "source/background/svg-filter.js",
       "source/background/background.js"
     ]

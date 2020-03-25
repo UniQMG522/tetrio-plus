@@ -1,4 +1,4 @@
-let html = arg => arg.join(''); // NOOP, for editor integration.
+const html = arg => arg.join(''); // NOOP, for editor integration.
 
 const AudioEditor = {
   template: html`
@@ -147,6 +147,22 @@ const app = new Vue({
         <span id="noSkin" v-else>No skin set</span>
       </fieldset>
 
+      <button @click="openSfxEditor">Open sfx editor</button>
+      <div>
+        <input type="checkbox" v-model="sfxEnabled" />
+        <label>Enable custom sfx (may break the game)</label>
+      </div>
+      <fieldset>
+        <legend>Current sfx atlas</legend>
+        <div v-if="!sfxEnabled">
+          Custom sfx disabled
+        </div>
+        <audio :src="sfxAtlasSrc" v-else-if="sfxAtlasSrc" controls></audio>
+        <div v-else>
+          Custom sfx not set up
+        </div>
+      </fieldset>
+
       <fieldset v-if="editing">
         <legend>Audio Editor</legend>
         <audio-editor :targetSong="editing" @change="refreshSongs"/>
@@ -171,13 +187,16 @@ const app = new Vue({
       </div>
       <fieldset>
         <legend>Custom music</legend>
-        <div class="music" v-for="song of music">
+        <div v-if="!musicEnabled">
+          Custom music disabled
+        </div>
+        <div v-else-if="music.length == 0">
+          No custom music
+        </div>
+        <div class="music" v-else v-for="song of music">
           <span style="font-family: monospace;">{{ song.filename }}</span>
           <button @click="editSong(song)">Edit</button>
           <button @click="deleteSong(song)">Delete</button>
-        </div>
-        <div v-if="music.length == 0">
-          No custom music
         </div>
       </fieldset>
       <strong>Refresh your game after making any changes.</strong>
@@ -190,11 +209,33 @@ const app = new Vue({
       music: null,
       editingSrc: null,
       musicEnabled: null,
-      disableVanillaMusic: null
+      disableVanillaMusic: null,
+      sfxAtlasSrc: null,
+      sfxEnabled: null
     },
     editing: null
   },
   computed: {
+    sfxAtlasSrc() {
+      browser.storage.local.get('customSounds').then(({ customSounds }) => {
+        if (this.cache.sfxAtlasSrc != customSounds)
+          this.cache.sfxAtlasSrc = customSounds;
+      });
+      return this.cache.sfxAtlasSrc;
+    },
+    sfxEnabled: {
+      get() {
+        browser.storage.local.get('sfxEnabled').then(({ sfxEnabled }) => {
+          this.cache.sfxEnabled = sfxEnabled;
+        });
+        return this.cache.sfxEnabled;
+      },
+      set(val) {
+        browser.storage.local.set({ sfxEnabled: val }).then(() => {
+          this.cache.sfxEnabled = val;
+        });
+      }
+    },
     skinUrl() {
       browser.storage.local.get('skin').then(({ skin: newSkin }) => {
         if (newSkin != this.skin) this.cache.skin = newSkin;
@@ -237,6 +278,12 @@ const app = new Vue({
     }
   },
   methods: {
+    openSfxEditor() {
+      browser.tabs.create({
+        url: browser.extension.getURL('source/panels/sfxcomposer/index.html'),
+        active: true
+      });
+    },
     openImageChanger() {
       browser.windows.create({
         type: 'detached_panel',
