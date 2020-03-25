@@ -199,7 +199,8 @@ const app = new Vue({
           <button @click="deleteSong(song)">Delete</button>
         </div>
       </fieldset>
-      <strong>Refresh your game after making any changes.</strong>
+      <strong>Refresh your game after making any changes.</strong><br>
+      <a href="https://gitlab.com/UniQMG/tetrio-plus">Source code and readme</a>
     </div>
   `,
   components: { AudioEditor },

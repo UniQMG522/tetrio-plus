@@ -14,10 +14,11 @@
     "*://*.tetr.io/*"
   ],
 
-  "browser_action": {
+  "page_action": {
     "default_icon": "icons/tetrio-256.png",
     "default_title": "Tetr.io+",
-    "default_popup": "source/popup/index.html"
+    "default_popup": "source/popup/index.html",
+    "show_matches": ["*://*.tetr.io/*"]
   },
 
   "background": {
