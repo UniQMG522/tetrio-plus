@@ -18,6 +18,14 @@ input.addEventListener('change', async evt => {
       })
       .join('');
 
+    let audio = new Audio();
+    audio.src = songDataUrl;
+    await new Promise(res => {
+      audio.addEventListener('canplaythrough', res);
+      audio.load();
+    });
+    let loopLength = Math.floor(audio.duration * 1000);
+
     let music = (await browser.storage.local.get('music')).music || [];
     music.push({
       id: id,
@@ -29,9 +37,9 @@ input.addEventListener('change', async evt => {
         jpartist: '<Unknown>',
         genre: 'CALM',
         source: 'Custom song',
-        loop: false,
+        loop: true,
         loopStart: 0,
-        loopLength: 0
+        loopLength: loopLength
       }
     });
     browser.storage.local.set({ music });
