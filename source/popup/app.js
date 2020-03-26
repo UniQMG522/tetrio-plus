@@ -289,8 +289,8 @@ const app = new Vue({
       browser.windows.create({
         type: 'detached_panel',
         url: browser.extension.getURL('source/panels/skinpicker/index.html'),
-        width: 300,
-        height: 50
+        width: 600,
+        height: 285
       });
     },
     openMusicUploader() {
