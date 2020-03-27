@@ -11,13 +11,15 @@ bugs, remove the extension and try again *before* reporting it**
 
 ## Custom block skins
 Tetr.io+ allows you to use a custom block skin. It's client side only and
-applies to all players. Currently, only SVGs are supported, and they must match
-the format of [minos.svg](https://tetr.io/res/minos.svg) used by Tetr.io.
-Other image formats may be supported in the future
+applies to all players. Accepted formats:
+
+- Tetrio-format SVGs ([minos.svg](https://tetr.io/res/minos.svg), exact size)
+- Tetrio-format PNGs ([minos.svg](https://tetr.io/res/minos.svg), same aspect ratio)
+- JStris-format PNGs
 
 ### How-to
 1. Extension menu -> Click "Change skin"
-2. Click "Browse" in popup
+2. Click "Browse" in popup under the correct format entry
 3. Select the skin you'd like to use
 
 ## Custom music
@@ -50,5 +52,3 @@ Installing as a temporary addon for firefox:
 * Click 'Load Temporary Addon' and select the manifest.json file
 
 **Note that temporary addons disappear when you completely close firefox.**
-
-I'll get around to making a proper signed addon that stays installed eventually
