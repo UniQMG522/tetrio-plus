@@ -3,7 +3,7 @@ input.addEventListener('change', async evt => {
 
   for (let file of input.files) {
     var reader = new FileReader();
-    reader.readAsDataURL(input.files[0], "UTF-8");
+    reader.readAsDataURL(file, "UTF-8");
     reader.onerror = evt => alert('Failed to load song');
 
     let evt = await new Promise(res => reader.onload = res);
