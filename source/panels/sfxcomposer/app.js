@@ -29,6 +29,11 @@ const app = new Vue({
       </div>
       <div v-else>
         <button @click="save">Re-encode and save changes</button>
+        <fieldset>
+          <legend>Replace multiple by filename</legend>
+          <em>sfx name must match file name without extension.</em><br>
+          <input type="file" @change="replaceMultiple($event, sprite)" accept="audio/*" multiple/>
+        </fieldset>
         <div v-if="encodeResult">
           Encode completed. Result:
           <audio :src="encodeResult" controls></audio>
@@ -109,6 +114,34 @@ const app = new Vue({
         evt.target.type = 'file';
       });
       reader.readAsDataURL(file);
+    },
+    async replaceMultiple(evt) {
+      let replaced = [];
+      for (let file of evt.target.files) {
+        let noExt = file.name.split('.').slice(0, -1).join('.');
+        let sprite = this.sprites.filter(sprite => {
+          return sprite.name == noExt;
+        })[0];
+
+        console.log(noExt, sprite);
+
+        if (!sprite) {
+          replaced.push(`FAILED: Unknown sound effect ${noExt}`)
+          continue;
+        }
+
+        let reader = new FileReader();
+        await new Promise(res => {
+          reader.addEventListener('load', res);
+          reader.readAsDataURL(file);
+        });
+        sprite.src = reader.result;
+        replaced.push(`Success: ${noExt}`)
+      }
+      alert(replaced.join('\n'));
+      // reset the handler
+      evt.target.type = '';
+      evt.target.type = 'file';
     },
 
 
