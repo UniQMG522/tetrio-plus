@@ -194,9 +194,9 @@ const app = new Vue({
           No custom music
         </div>
         <div class="music" v-else v-for="song of music">
-          <span style="font-family: monospace;">{{ song.filename }}</span>
-          <button @click="editSong(song)">Edit</button>
           <button @click="deleteSong(song)">Delete</button>
+          <button @click="editSong(song)">Edit</button>
+          <span style="font-family: monospace;">{{ song.filename }}</span>
         </div>
       </fieldset>
       <strong>Refresh your game after making any changes.</strong><br>
