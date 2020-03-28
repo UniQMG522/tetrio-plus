@@ -1,0 +1,14 @@
+#app {
+  font-family: sans-serif;
+}
+
+h1 {
+  margin: 0px;
+  font-size: 16pt;
+}
+
+.missingMusicWarning {
+  display: inline-block;
+  max-width: 400px;
+  font-weight: bold;
+}

@@ -107,7 +107,6 @@ browser.webRequest.onBeforeRequest.addListener(
         let rewrite = musicVar + newMusicJson + musicpoolVar + newMusicPoolJson;
         console.log("Rewriting", fullmatch, "to", rewrite);
         replaced = true;
-
         return rewrite;
       });
 
@@ -116,6 +115,29 @@ browser.webRequest.onBeforeRequest.addListener(
         "Custom music rewrite failed. " +
         "Please update your plugin. "
       );
+
+
+
+      let cfgMMP = await browser.storage.local.get('enableMissingMusicPatch');
+      if (cfgMMP.enableMissingMusicPatch) {
+        // Adds a default value any time a song is grabbed from the OST object
+        let patches = 0;
+        src = src.replace(/(\w+\.ost\[\w+\])/g, (match, $1) => {
+          patches++;
+          return `(${$1} || {
+            name: "<Tetr.io+ missing music patch>",
+            jpname: "<Tetr.io+ missing music patch>",
+            artist: "?",
+            jpartist: "?",
+            genre: 'INTERFACE',
+            source: 'Tetr.io+',
+            loop: false,
+            loopStart: 0,
+            loopLength: 0
+          })`.replace(/\s+/g, ' ');
+        });
+        console.log(`Missing music patch applied to ${patches} locations.`);
+      }
 
       filter.write(encoder.encode(src));
       filter.close();

@@ -132,10 +132,8 @@ const AudioEditor = {
 
 const app = new Vue({
   template: html`
-    <div style="font-family: sans-serif">
-      <h1 style="font-family: sans-serif; margin: 0px; font-size: 16pt;">
-        Tetr.io+
-      </h1>
+    <div id="app">
+      <h1>Tetr.io+</h1>
       <div>
         <button @click="openImageChanger">Change skin</button>
         <button @click="resetSkin">Remove skin</button>
@@ -177,13 +175,17 @@ const app = new Vue({
         <input type="checkbox" v-model="disableVanillaMusic" />
         <label>Disable built in music (may break the game)</label>
       </div>
-      <div v-if="disableVanillaMusic">
-        <strong>
-          Missing songs may render the game unplayable.<br>
-          Make sure to set a specific song or have at least one<br>
-          'calm' song and one 'battle' song. If you see "Ae.ost[e]<br>
-          is undefined" in your console, this setting is causing it!<br>
-        </strong>
+      <div>
+        <input type="checkbox" v-model="enableMissingMusicPatch" />
+        <label>Enable missing music patch (may break the game)</label>
+      </div>
+      <div v-if="disableVanillaMusic && !enableMissingMusicPatch"
+           class="missingMusicWarning">
+        Missing songs may render the game unplayable. Make sure
+        to set a specific song, have at least one 'calm' song and
+        one 'battle' song, or enable the missing music patch above.
+        If you see "**.ost[*] is undefined" in your console, these
+        settings are causing it!
       </div>
       <fieldset>
         <legend>Custom music</legend>
@@ -211,6 +213,7 @@ const app = new Vue({
       editingSrc: null,
       musicEnabled: null,
       disableVanillaMusic: null,
+      enableMissingMusicPatch: null,
       sfxAtlasSrc: null,
       sfxEnabled: null
     },
@@ -274,6 +277,21 @@ const app = new Vue({
       set(val) {
         browser.storage.local.set({ disableVanillaMusic: val }).then(() => {
           this.cache.disableVanillaMusic = val;
+        });
+      }
+    },
+    enableMissingMusicPatch: {
+      get() {
+        browser.storage.local.get('enableMissingMusicPatch').then(({
+          enableMissingMusicPatch
+        }) => {
+          this.cache.enableMissingMusicPatch = enableMissingMusicPatch;
+        });
+        return this.cache.enableMissingMusicPatch;
+      },
+      set(val) {
+        browser.storage.local.set({ enableMissingMusicPatch: val }).then(() => {
+          this.cache.enableMissingMusicPatch = val;
         });
       }
     }
