@@ -1,191 +1,108 @@
+import AudioEditor from './AudioEditor.js'
 const html = arg => arg.join(''); // NOOP, for editor integration.
-
-const AudioEditor = {
-  template: html`
-    <div>
-      <div>
-        <audio ref="player" :src="editingSrc" controls></audio>
-      </div>
-      <div style="font-family: monospace;">
-        Current time: {{ msTime }}ms
-      </div>
-      <div>
-        <button @click="setLoopStart()">Set loop start</button>
-        <button @click="setLoopEnd()" :disabled="!canSetEnd">Set loop end</button>
-      </div>
-      <div>
-        <label>Loop enabled</label>
-        <input type="checkbox" v-model.boolean="song.metadata.loop"/>
-      </div>
-      <div>
-        <label>Loop start (milliseconds)</label>
-        <input type="number" v-model.number="song.metadata.loopStart"></input>
-      </div>
-      <div>
-        <label>Loop length (milliseconds)</label>
-        <input type="number" v-model.number="song.metadata.loopLength"></input>
-      </div>
-      <strong v-if="!song.metadata.loop">
-        These still apply if looping is off, once you reach<br>
-        {{ song.metadata.loopStart + song.metadata.loopLength }}ms your song
-        will stop playing.
-      </strong>
-      <div>
-        <label>Name</label>
-        <input type="text" v-model="song.metadata.name"></input>
-      </div>
-      <div>
-        <label>Name (jp)</label>
-        <input type="text" v-model="song.metadata.jpname"></input>
-      </div>
-      <div>
-        <label>Artist</label>
-        <input type="text" v-model="song.metadata.artist"></input>
-      </div>
-      <div>
-        <label>Artist (jp)</label>
-        <input type="text" v-model="song.metadata.jpartist"></input>
-      </div>
-      <div>
-        Genre
-        <select v-model="song.metadata.genre">
-          <option value="CALM">Calm</option>
-          <option value="BATTLE">Battle</option>
-          <option value="INTERFACE">Interface</option>
-        </select>
-      </div>
-      <div>
-        <button @click="saveChanges()">Save changes</button>
-      </div>
-    </div>
-  `,
-  props: ['targetSong'],
-  data: () => ({
-    localSong: null,
-    cachedSrc: null,
-    updateInterval: null,
-    currentTime: 0
-  }),
-  mounted() {
-    this.updateInterval = setInterval(() => {
-      this.currentTime = this.$refs.player.currentTime;
-    }, 16);
-  },
-  beforeDestroy() {
-    clearInterval(this.updateInterval);
-  },
-  watch: {
-    targetSong() {
-      this.reloadSong();
-    }
-  },
-  computed: {
-    song() {
-      if (!this.localSong) this.reloadSong();
-      return this.localSong;
-    },
-    editingSrc() {
-      let key = 'song-' + this.song.id;
-      browser.storage.local.get(key).then(result => {
-        this.cachedSrc = result[key];
-      });
-      return this.cachedSrc;
-    },
-    msTime() {
-      return Math.floor(this.currentTime * 1000);
-    },
-    canSetEnd() {
-      return this.msTime > this.song.metadata.loopStart;
-    }
-  },
-  methods: {
-    reloadSong() {
-      this.localSong = JSON.parse(JSON.stringify(this.targetSong));
-      console.log("New song -> ", this.song);
-    },
-    setLoopStart() {
-      this.song.metadata.loop = true;
-      this.song.metadata.loopStart = this.msTime;
-    },
-    setLoopEnd() {
-      this.song.metadata.loop = true;
-      this.song.metadata.loopLength = this.msTime - this.song.metadata.loopStart;
-    },
-    stopLooping() {
-      this.song.metadata.loop = false;
-      this.song.metadata.loopStart = 0;
-      this.song.metadata.loopLength = 0;
-    },
-    saveChanges() {
-      browser.storage.local.get('music').then(({ music }) => {
-        let target = music.filter(song => song.id == this.song.id)[0];
-        if (!target) {
-          alert('Song not found?');
-          return;
-        }
-        Object.assign(target, JSON.parse(JSON.stringify(this.song)));
-        return browser.storage.local.set({ music });
-      }).then(() => this.$emit('change'));
-    }
-  }
-}
 
 const app = new Vue({
   template: html`
     <div id="app">
       <h1>Tetr.io+</h1>
+
+      <hr>
+
       <div>
-        <button @click="openImageChanger">Change skin</button>
-        <button @click="resetSkin">Remove skin</button>
+        <button @click="openImageChanger" title="Opens the skin changer window">
+          Change skin
+        </button>
+        <button @click="resetSkin" title="Removes the existing custom skin">
+          Remove skin
+        </button>
       </div>
 
       <fieldset>
         <legend>Current skin</legend>
-        <img id="preview" :src="skinUrl" v-if="skinUrl">
+        <img
+          title="This is the current block skin you are using."
+          :src="skinUrl"
+          v-if="skinUrl">
         <span id="noSkin" v-else>No skin set</span>
       </fieldset>
 
-      <button @click="openSfxEditor">Open sfx editor</button>
+      <hr>
+
+      <button @click="openSfxEditor" title="Opens the sfx editor tab">
+        Open sfx editor
+      </button>
       <div>
         <input type="checkbox" v-model="sfxEnabled" />
-        <label>Enable custom sfx (may break the game)</label>
+        <label
+          @click="sfxEnabled = !sfxEnabled"
+          title="Enables custom sound effects">
+          Enable custom sfx (may break the game)
+        </label>
       </div>
       <fieldset>
         <legend>Current sfx atlas</legend>
         <div v-if="!sfxEnabled">
           Custom sfx disabled
         </div>
-        <audio :src="sfxAtlasSrc" v-else-if="sfxAtlasSrc" controls></audio>
+        <audio
+          v-else-if="sfxAtlasSrc"
+          title="All the game's sound effects are loaded from this audio file."
+          :src="sfxAtlasSrc"
+          controls></audio>
         <div v-else>
           Custom sfx not set up
         </div>
       </fieldset>
+
+      <hr>
 
       <fieldset v-if="editing">
         <legend>Audio Editor</legend>
         <audio-editor :targetSong="editing" @change="refreshSongs"/>
       </fieldset>
 
-      <button @click="openMusicUploader">Add new music</button>
+      <button @click="openMusicUploader" title="Opens the music uploader window">
+        Add new music
+      </button>
       <div>
-        <input type="checkbox" v-model="musicEnabled" />
-        <label>Enable custom music (may break the game)</label>
+        <input
+          type="checkbox"
+          v-model="musicEnabled" />
+        <label
+          @click="musicEnabled = !musicEnabled"
+          title="Enables custom music">
+          Enable custom music (may break the game)
+        </label>
       </div>
       <div>
-        <input type="checkbox" v-model="disableVanillaMusic" />
-        <label>Disable built in music (may break the game)</label>
+        <input
+          type="checkbox"
+          v-model="disableVanillaMusic"
+          :disabled="!musicEnabled" />
+        <label
+          @click="disableVanillaMusic = !disableVanillaMusic"
+          title="Removes the music's existing soundtrack">
+          Disable built in music (may break the game)
+        </label>
       </div>
       <div>
-        <input type="checkbox" v-model="enableMissingMusicPatch" />
-        <label>Enable missing music patch (may break the game)</label>
+        <input
+          type="checkbox"
+          v-model="enableMissingMusicPatch"
+          :disabled="!musicEnabled" />
+        <label
+          @click="enableMissingMusicPatch = !enableMissingMusicPatch"
+          title="Stops softlocks associated with missing music">
+          Enable missing music patch (may break the game)
+        </label>
       </div>
       <div v-if="disableVanillaMusic && !enableMissingMusicPatch"
            class="missingMusicWarning">
-        Missing songs may render the game unplayable. Make sure
-        to set a specific song, have at least one 'calm' song and
-        one 'battle' song, or enable the missing music patch above.
-        If you see "**.ost[*] is undefined" in your console, these
-        settings are causing it!
+        Missing songs may render the game unplayable. This often manifests as a
+        softlock once a game starts where pieces won't fall. Make sure to set a
+        specific song, have at least one 'calm' song and one 'battle' song, or
+        enable the missing music patch above. If you see "**.ost[*] is
+        undefined" in your console, these settings are causing it!
       </div>
       <fieldset>
         <legend>Custom music</legend>
@@ -196,11 +113,20 @@ const app = new Vue({
           No custom music
         </div>
         <div class="music" v-else v-for="song of music">
-          <button @click="deleteSong(song)">Delete</button>
-          <button @click="editSong(song)">Edit</button>
-          <span style="font-family: monospace;">{{ song.filename }}</span>
+          <button @click="deleteSong(song)" title="Removes this song">
+            Delete
+          </button>
+          <button @click="editSong(song)" title="Shows the editor for this song">
+            Edit
+          </button>
+          <span class="songName" :title="JSON.stringify(song, null, 2)">
+            {{ song.filename }}
+          </span>
         </div>
       </fieldset>
+
+      <hr>
+
       <strong>Refresh your game after making any changes.</strong><br>
       <a href="https://gitlab.com/UniQMG/tetrio-plus">Source code and readme</a>
     </div>
