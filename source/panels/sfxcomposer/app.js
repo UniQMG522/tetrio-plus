@@ -7,15 +7,43 @@ const quality = 0.5;
 
 const app = new Vue({
   template: html`
+    <!-- Error screen -->
     <div v-if="error">
       <h1>Error</h1>
       <pre>{{ error }}</pre>
       Try updating your plugin
     </div>
+
+    <!-- Preload -->
+    <div v-else-if="loading">
+      <em>Please wait...</em>
+    </div>
+
+    <!-- Pre-decode -->
     <div v-else-if="!decodeStarted">
+      <div v-if="editExisting">
+        Starting from current configuration.
+        Repeatedly editing your current configuration may degrade audio
+        quality. It's recommended that you start fresh and re-upload all
+        custom sound effects once you're satisfied with them.<br>
+        <button @click="editExisting = false">Start fresh</button><br>
+      </div>
+      <div v-else>
+        Starting from default configuration. This will overwrite any existing
+        sound effects you have configured.<br>
+        <button @click="editExisting = true" v-if="hasExisting">
+          Edit existing configuration
+        </button>
+        <button disabled v-else>
+          No existing configuration
+        </button>
+      </div>
+      <hr>
       <button @click="decode()">Decode sfx atlas</button><br>
       This may freeze your browser for a bit.
     </div>
+
+    <!-- Editor -->
     <div v-else>
       <fieldset>
         <legend>res/se.ogg</legend>
@@ -50,11 +78,23 @@ const app = new Vue({
   `,
   data: {
     error: null,
+
+    loading: true,
+    hasExisting: false,
+    editExisting: false,
+
     decoding: false,
     decodeStarted: false,
     encoding: false,
     encodeResult: null,
-    sprites: []
+
+    sprites: [],
+  },
+  async mounted() {
+    let { customSounds } = await browser.storage.local.get('customSounds');
+    this.hasExisting = !!customSounds;
+    this.editExisting = !!customSounds;
+    this.loading = false;
   },
   methods: {
     async save() {
@@ -101,7 +141,6 @@ const app = new Vue({
       this.encoding = false;
     },
 
-
     replace(evt, sprite) {
       let file = evt.target.files[0];
       if (!file) return;
@@ -115,6 +154,7 @@ const app = new Vue({
       });
       reader.readAsDataURL(file);
     },
+
     async replaceMultiple(evt) {
       let replaced = [];
       for (let file of evt.target.files) {
@@ -122,8 +162,6 @@ const app = new Vue({
         let sprite = this.sprites.filter(sprite => {
           return sprite.name == noExt;
         })[0];
-
-        console.log(noExt, sprite);
 
         if (!sprite) {
           replaced.push(`FAILED: Unknown sound effect ${noExt}`)
@@ -144,11 +182,14 @@ const app = new Vue({
       evt.target.type = 'file';
     },
 
-
     async decode() {
       try {
         this.decodeStarted = true;
         this.decoding = true;
+
+        // Set sfx enabled flag temporarily, to fetch the appropriate content.
+        let { sfxEnabled } = await browser.storage.local.get('sfxEnabled');
+        await browser.storage.local.set({ sfxEnabled: this.editExisting });
 
         // Fetch sfx atlas json
         let srcRequest = await fetch('https://tetr.io/js/tetrio.js');
@@ -167,6 +208,10 @@ const app = new Vue({
         // Fetch sfx audio file
         let request = await fetch('https://tetr.io/res/se.ogg');
         let encodedSfxBuffer = await request.arrayBuffer();
+
+        // Reset the sfx enabled flag since we're now done fetching data
+        await browser.storage.local.set({ sfxEnabled });
+
         let decoderCtx = new OfflineAudioContext({
           numberOfChannels: channels,
           length: sampleRate * 1,
