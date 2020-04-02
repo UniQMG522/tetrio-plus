@@ -1,3 +1,8 @@
+/*
+  This filter rewrites some language definitions to what they
+  were during Tetrio's 2020 April Fools event.
+*/
+
 const aprilFoolsSpeens = JSON.stringify({
   cleartypes: ["ZERO", "ONE", "TWO", "THREE", "FOUR"],
   tspins: {
@@ -21,44 +26,30 @@ const aprilFoolsSpeens = JSON.stringify({
   }
 });
 
-browser.webRequest.onBeforeRequest.addListener(
-  async request => {
-    let result = await browser.storage.local.get('enableSpeens');
-    if (result.enableSpeens) {
-      console.log("[Speen filter] Filtering", request.url);
-      let filter = browser.webRequest.filterResponseData(request.requestId);
-      let decoder = new TextDecoder("utf-8");
-      let encoder = new TextEncoder();
-
-      let originalData = [];
-      filter.ondata = event => {
-        let str = decoder.decode(event.data, {stream: true});
-        originalData.push(str);
-      }
-      filter.onstop = async evt => {
-        let src = originalData.join('');
-        let patched = false;
-
-        /*
-          The target text contains nested brackets but ends on a double-bracket,
-          so while this regex is a bit more fragile than others in thsi project
-          it works well enough (for the importance of this feature, at least). 
-        */
-        let regex = /(const \w+\s*=)\s*{(\s*cleartypes.+?)}\s*}/;
-        src = src.replace(regex, (match, $1) => {
-          patched = true;
-          console.log("Rewrote\n" + match + "\nto\n" + $1 + aprilFoolsSpeens)
-          return $1 + aprilFoolsSpeens;
-        });
-
-        if (!patched)
-          console.log('Failed to apply april fools filter');
-
-        filter.write(encoder.encode(src));
-        filter.close();
-      }
-    }
+createRewriteFilter("April Fools", "https://tetr.io/js/tetrio.js", {
+  enabledFor: async request => {
+    let { enableSpeens } = await browser.storage.local.get('enableSpeens');
+    return enableSpeens;
   },
-  { urls: ["https://tetr.io/js/tetrio.js"] },
-  ["blocking"]
-);
+  onStop: async (request, filter, src) => {
+    /*
+      The target text contains nested brackets but ends on a double-bracket,
+      so while this regex is a bit more fragile than others in this project
+      it works well enough (for the importance of this feature, at least).
+    */
+    let regex = /(const \w+\s*=)\s*{(\s*cleartypes.+?)}\s*}/;
+    src = src.replace(regex, (match, $1) => {
+      patched = true;
+      console.log("Rewriting april fools text", {
+        from: match,
+        to: $1 + aprilFoolsSpeens
+      });
+      return $1 + aprilFoolsSpeens;
+    });
+
+    if (!patched)
+      console.log('Failed to apply april fools filter');
+
+    filter.write(new TextEncoder().encode(src));
+  }
+});
