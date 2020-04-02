@@ -153,6 +153,7 @@ const app = new Vue({
               <span class="bgName">
                 {{ bg.filename }}
               </span>
+              <br />
               <background-embed :background="bg"></background-embed>
             </div>
           </option-toggle>
