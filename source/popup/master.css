@@ -14,7 +14,11 @@ hr {
   border-bottom: 2px solid black;
 }
 
-.missingMusicWarning {
+.custom-background {
+  width: 200px;
+}
+
+.extendedWarningText {
   display: inline-block;
   max-width: 400px;
   font-style: italic;

@@ -1,5 +1,6 @@
 import AudioEditor from './components/AudioEditor.js'
 import OptionToggle from './components/OptionToggle.js'
+import BackgroundEmbed from './components/BackgroundEmbed.js';
 const html = arg => arg.join(''); // NOOP, for editor integration.
 
 const app = new Vue({
@@ -120,6 +121,45 @@ const app = new Vue({
 
       <hr>
 
+      <button @click="openBgUploader" title="Opens the BG uploader window">
+        Add local custom backgrounds
+      </button>
+      <div title="Enables custom backgrounds">
+        <option-toggle storageKey="bgEnabled">
+          Enable local custom backgrounds (may break the game)
+        </option-toggle>
+        <option-toggle storageKey="bgEnabled" mode="show">
+          <div class="extendedWarningText">
+            Tetrio already supports custom backgrounds. This feature serves them
+            from the extension instead of requiring an external file host. This
+            option will be overriden by a custom background set through the
+            game's options menu.
+          </div>
+        </option-toggle>
+        <fieldset>
+          <legend>Custom backgrounds</legend>
+          <option-toggle storageKey="bgEnabled" mode="hide">
+            Custom music disabled
+          </option-toggle>
+          <option-toggle storageKey="bgEnabled" mode="show">
+            <div v-if="backgrounds.length == 0">
+              No custom backgrounds
+            </div>
+            <div class="background" v-else v-for="bg of backgrounds">
+              <button @click="deleteBackground(bg)" title="Removes this background">
+                Delete
+              </button>
+              <span class="bgName">
+                {{ bg.filename }}
+              </span>
+              <background-embed :background="bg"></background-embed>
+            </div>
+          </option-toggle>
+        </fieldset>
+      </div>
+
+      <hr>
+
       <fieldset>
         <legend>Just for fun...</legend>
         <div title="LARGE O SPEEN TWO MANY TIMES">
@@ -133,13 +173,14 @@ const app = new Vue({
       <a href="https://gitlab.com/UniQMG/tetrio-plus">Source code and readme</a>
     </div>
   `,
-  components: { AudioEditor, OptionToggle },
+  components: { AudioEditor, OptionToggle, BackgroundEmbed },
   data: {
     cache: {
       skin: null,
       music: null,
       editingSrc: null,
-      sfxAtlasSrc: null
+      sfxAtlasSrc: null,
+      backgrounds: null
     },
     editing: null
   },
@@ -164,6 +205,13 @@ const app = new Vue({
       });
       if (!this.cache.music) return [];
       return this.cache.music;
+    },
+    backgrounds() {
+      browser.storage.local.get('backgrounds').then(({ backgrounds }) => {
+        this.cache.backgrounds = backgrounds;
+      });
+      if (!this.cache.backgrounds) return [];
+      return this.cache.backgrounds;
     }
   },
   methods: {
@@ -171,6 +219,14 @@ const app = new Vue({
       browser.tabs.create({
         url: browser.extension.getURL('source/panels/sfxcomposer/index.html'),
         active: true
+      });
+    },
+    openBgUploader() {
+      browser.windows.create({
+        type: 'detached_panel',
+        url: browser.extension.getURL('source/panels/bgpicker/index.html'),
+        width: 600,
+        height: 285
       });
     },
     openImageChanger() {
@@ -191,6 +247,22 @@ const app = new Vue({
     },
     resetSkin() {
       browser.storage.local.remove(['skin']).then(() => this.cache.skin = null);
+    },
+    deleteBackground(toDelete) {
+      browser.storage.local.get('backgrounds').then(({ backgrounds }) => {
+        backgrounds = backgrounds.filter(bg => {
+          if (bg.id == toDelete.id) {
+            browser.storage.local.remove('background-' + bg.id);
+            return false;
+          }
+          return true;
+        });
+        return browser.storage.local.set({ backgrounds });
+      }).then(() => {
+        return browser.storage.local.get('backgrounds');
+      }).then(({ backgrounds }) => {
+        this.cache.backgrounds = backgrounds;
+      });
     },
     refreshSongs() {
       this.cache.songs = null;

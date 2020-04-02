@@ -21,7 +21,7 @@ const ensureReactive = {
 
 export default {
   template: html`
-    <div class="optionToggle" @click="optionValue = !optionValue">
+    <div class="optionToggle" @click="toggleValue">
       <div v-if="optionValue && mode == 'show'">
         <slot></slot>
       </div>
@@ -65,6 +65,13 @@ export default {
   watch: {
     storageKey: ensureReactive,
     enabledIfKey: ensureReactive
+  },
+  methods: {
+    toggleValue() {
+      if (this.disabled) return;
+      if (this.mode != 'toggle') return;
+      this.optionValue = !this.optionValue;
+    }
   },
   computed: {
     optionValue: {
