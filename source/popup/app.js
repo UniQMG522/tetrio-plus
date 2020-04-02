@@ -1,4 +1,5 @@
-import AudioEditor from './AudioEditor.js'
+import AudioEditor from './components/AudioEditor.js'
+import OptionToggle from './components/OptionToggle.js'
 const html = arg => arg.join(''); // NOOP, for editor integration.
 
 const app = new Vue({
@@ -31,27 +32,26 @@ const app = new Vue({
       <button @click="openSfxEditor" title="Opens the sfx editor tab">
         Open sfx editor
       </button>
-      <div>
-        <input type="checkbox" v-model="sfxEnabled" />
-        <label
-          @click="sfxEnabled = !sfxEnabled"
-          title="Enables custom sound effects">
+      <div title="Enables custom sound effects">
+        <option-toggle storageKey="sfxEnabled">
           Enable custom sfx (may break the game)
-        </label>
+        </option-toggle>
       </div>
       <fieldset>
         <legend>Current sfx atlas</legend>
-        <div v-if="!sfxEnabled">
+        <option-toggle storageKey="sfxEnabled" mode="hide">
           Custom sfx disabled
-        </div>
-        <audio
-          v-else-if="sfxAtlasSrc"
-          title="All the game's sound effects are loaded from this audio file."
-          :src="sfxAtlasSrc"
-          controls></audio>
-        <div v-else>
-          Custom sfx not set up
-        </div>
+        </option-toggle>
+        <option-toggle storageKey="sfxEnabled" mode="show">
+          <div v-if="!sfxAtlasSrc">
+            Custom sfx not set up
+          </div>
+          <audio
+            v-else
+            title="All the game's sound effects are loaded from this audio file."
+            :src="sfxAtlasSrc"
+            controls></audio>
+        </option-toggle>
       </fieldset>
 
       <hr>
@@ -64,78 +64,68 @@ const app = new Vue({
       <button @click="openMusicUploader" title="Opens the music uploader window">
         Add new music
       </button>
-      <div>
-        <input
-          type="checkbox"
-          v-model="musicEnabled" />
-        <label
-          @click="musicEnabled = !musicEnabled"
-          title="Enables custom music">
+      <div title="Enables custom music">
+        <option-toggle storageKey="musicEnabled">
           Enable custom music (may break the game)
-        </label>
+        </option-toggle>
       </div>
-      <div>
-        <input
-          type="checkbox"
-          v-model="disableVanillaMusic"
-          :disabled="!musicEnabled" />
-        <label
-          @click="disableVanillaMusic = !disableVanillaMusic"
-          title="Removes the music's existing soundtrack">
+      <div title="Removes the game's existing soundtrack">
+        <option-toggle storageKey="disableVanillaMusic" enabledIfKey="musicEnabled">
           Disable built in music (may break the game)
-        </label>
+        </option-toggle>
       </div>
-      <div>
-        <input
-          type="checkbox"
-          v-model="enableMissingMusicPatch"
-          :disabled="!musicEnabled" />
-        <label
-          @click="enableMissingMusicPatch = !enableMissingMusicPatch"
-          title="Stops softlocks associated with missing music">
+      <div title="Removes the game's existing soundtrack">
+        <option-toggle storageKey="enableMissingMusicPatch" enabledIfKey="musicEnabled">
           Enable missing music patch (may break the game)
-        </label>
+        </option-toggle>
       </div>
-      <div v-if="disableVanillaMusic && !enableMissingMusicPatch"
-           class="missingMusicWarning">
-        Missing songs may render the game unplayable. This often manifests as a
-        softlock once a game starts where pieces won't fall. Make sure to set a
-        specific song, have at least one 'calm' song and one 'battle' song, or
-        enable the missing music patch above. If you see "**.ost[*] is
-        undefined" in your console, these settings are causing it!
-      </div>
+
+      <option-toggle storageKey="musicEnabled" mode="show">
+        <option-toggle storageKey="disableVanillaMusic" mode="show">
+          <option-toggle storageKey="enableMissingMusicPatch" mode="hide">
+            <div class="missingMusicWarning">
+              Missing songs may render the game unplayable. This often manifests
+              as a softlock once a game starts where pieces won't fall. Make
+              sure to set a specific song, have at least one 'calm' song and one
+              'battle' song, or enable the missing music patch above. If you see
+              "**.ost[*] is undefined" in your console, these settings are
+              causing it!
+            </div>
+          </option-toggle>
+        </option-toggle>
+      </option-toggle>
+
       <fieldset>
         <legend>Custom music</legend>
-        <div v-if="!musicEnabled">
+        <option-toggle storageKey="musicEnabled" mode="hide">
           Custom music disabled
-        </div>
-        <div v-else-if="music.length == 0">
-          No custom music
-        </div>
-        <div class="music" v-else v-for="song of music">
-          <button @click="deleteSong(song)" title="Removes this song">
-            Delete
-          </button>
-          <button @click="editSong(song)" title="Shows the editor for this song">
-            Edit
-          </button>
-          <span class="songName" :title="JSON.stringify(song, null, 2)">
-            {{ song.filename }}
-          </span>
-        </div>
+        </option-toggle>
+        <option-toggle storageKey="musicEnabled" mode="show">
+          <div v-if="music.length == 0">
+            No custom music
+          </div>
+          <div class="music" v-else v-for="song of music">
+            <button @click="deleteSong(song)" title="Removes this song">
+              Delete
+            </button>
+            <button @click="editSong(song)" title="Shows the editor for this song">
+              Edit
+            </button>
+            <span class="songName" :title="JSON.stringify(song, null, 2)">
+              {{ song.filename }}
+            </span>
+          </div>
+        </option-toggle>
       </fieldset>
 
       <hr>
 
       <fieldset>
         <legend>Just for fun...</legend>
-        <div>
-          <input type="checkbox" v-model="enableSpeens" />
-          <label
-            @click="enableSpeens = !enableSpeens"
-            title="LARGE O SPIN TWO MANY TIMES">
-            Enable april fools text (may break the game)
-          </label>
+        <div title="LARGE O SPEEN TWO MANY TIMES">
+          <option-toggle storageKey="enableSpeens">
+          Enable april fools text (may break the game)
+          </option-toggle>
         </div>
       </fieldset>
 
@@ -143,18 +133,13 @@ const app = new Vue({
       <a href="https://gitlab.com/UniQMG/tetrio-plus">Source code and readme</a>
     </div>
   `,
-  components: { AudioEditor },
+  components: { AudioEditor, OptionToggle },
   data: {
     cache: {
       skin: null,
       music: null,
       editingSrc: null,
-      musicEnabled: null,
-      disableVanillaMusic: null,
-      enableMissingMusicPatch: null,
-      sfxAtlasSrc: null,
-      sfxEnabled: null,
-      enableSpeens: null
+      sfxAtlasSrc: null
     },
     editing: null
   },
@@ -165,32 +150,6 @@ const app = new Vue({
           this.cache.sfxAtlasSrc = customSounds;
       });
       return this.cache.sfxAtlasSrc;
-    },
-    enableSpeens: {
-      get() {
-        browser.storage.local.get('enableSpeens').then(({ enableSpeens }) => {
-          this.cache.enableSpeens = enableSpeens;
-        });
-        return this.cache.enableSpeens;
-      },
-      set(val) {
-        browser.storage.local.set({ enableSpeens: val }).then(() => {
-          this.cache.enableSpeens = val;
-        });
-      }
-    },
-    sfxEnabled: {
-      get() {
-        browser.storage.local.get('sfxEnabled').then(({ sfxEnabled }) => {
-          this.cache.sfxEnabled = sfxEnabled;
-        });
-        return this.cache.sfxEnabled;
-      },
-      set(val) {
-        browser.storage.local.set({ sfxEnabled: val }).then(() => {
-          this.cache.sfxEnabled = val;
-        });
-      }
     },
     skinUrl() {
       browser.storage.local.get('skin').then(({ skin: newSkin }) => {
@@ -205,47 +164,6 @@ const app = new Vue({
       });
       if (!this.cache.music) return [];
       return this.cache.music;
-    },
-    musicEnabled: {
-      get() {
-        browser.storage.local.get('musicEnabled').then(({ musicEnabled }) => {
-          this.cache.musicEnabled = musicEnabled;
-        });
-        return this.cache.musicEnabled;
-      },
-      set(val) {
-        browser.storage.local.set({ musicEnabled: val }).then(() => {
-          this.cache.musicEnabled = val;
-        });
-      }
-    },
-    disableVanillaMusic: {
-      get() {
-        browser.storage.local.get('disableVanillaMusic').then(({ disableVanillaMusic }) => {
-          this.cache.disableVanillaMusic = disableVanillaMusic;
-        });
-        return this.cache.disableVanillaMusic;
-      },
-      set(val) {
-        browser.storage.local.set({ disableVanillaMusic: val }).then(() => {
-          this.cache.disableVanillaMusic = val;
-        });
-      }
-    },
-    enableMissingMusicPatch: {
-      get() {
-        browser.storage.local.get('enableMissingMusicPatch').then(({
-          enableMissingMusicPatch
-        }) => {
-          this.cache.enableMissingMusicPatch = enableMissingMusicPatch;
-        });
-        return this.cache.enableMissingMusicPatch;
-      },
-      set(val) {
-        browser.storage.local.set({ enableMissingMusicPatch: val }).then(() => {
-          this.cache.enableMissingMusicPatch = val;
-        });
-      }
     }
   },
   methods: {
