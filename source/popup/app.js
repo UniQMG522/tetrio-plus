@@ -1,6 +1,7 @@
 import AudioEditor from './components/AudioEditor.js'
 import OptionToggle from './components/OptionToggle.js'
 import BackgroundEmbed from './components/BackgroundEmbed.js';
+import ThemeManager from './components/ThemeManager.js';
 const html = arg => arg.join(''); // NOOP, for editor integration.
 
 const app = new Vue({
@@ -161,11 +162,12 @@ const app = new Vue({
       <hr>
 
       <fieldset>
-        <legend>Just for fun...</legend>
+        <legend>Miscellaneous options</legend>
         <div title="LARGE O SPEEN TWO MANY TIMES">
           <option-toggle storageKey="enableSpeens">
-          Enable april fools text (may break the game)
+            Enable april fools text (may break the game)
           </option-toggle>
+          <theme-manager />
         </div>
       </fieldset>
 
@@ -173,7 +175,7 @@ const app = new Vue({
       <a href="https://gitlab.com/UniQMG/tetrio-plus">Source code and readme</a>
     </div>
   `,
-  components: { AudioEditor, OptionToggle, BackgroundEmbed },
+  components: { AudioEditor, OptionToggle, BackgroundEmbed, ThemeManager },
   data: {
     cache: {
       skin: null,
