@@ -127,6 +127,18 @@ const app = new Vue({
 
       <hr>
 
+      <fieldset>
+        <legend>Just for fun...</legend>
+        <div>
+          <input type="checkbox" v-model="enableSpeens" />
+          <label
+            @click="enableSpeens = !enableSpeens"
+            title="LARGE O SPIN TWO MANY TIMES">
+            Enable april fools text (may break the game)
+          </label>
+        </div>
+      </fieldset>
+
       <strong>Refresh your game after making any changes.</strong><br>
       <a href="https://gitlab.com/UniQMG/tetrio-plus">Source code and readme</a>
     </div>
@@ -141,7 +153,8 @@ const app = new Vue({
       disableVanillaMusic: null,
       enableMissingMusicPatch: null,
       sfxAtlasSrc: null,
-      sfxEnabled: null
+      sfxEnabled: null,
+      enableSpeens: null
     },
     editing: null
   },
@@ -152,6 +165,19 @@ const app = new Vue({
           this.cache.sfxAtlasSrc = customSounds;
       });
       return this.cache.sfxAtlasSrc;
+    },
+    enableSpeens: {
+      get() {
+        browser.storage.local.get('enableSpeens').then(({ enableSpeens }) => {
+          this.cache.enableSpeens = enableSpeens;
+        });
+        return this.cache.enableSpeens;
+      },
+      set(val) {
+        browser.storage.local.set({ enableSpeens: val }).then(() => {
+          this.cache.enableSpeens = val;
+        });
+      }
     },
     sfxEnabled: {
       get() {

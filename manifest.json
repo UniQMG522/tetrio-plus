@@ -26,6 +26,7 @@
       "source/background/music-filter.js",
       "source/background/sfx-filter.js",
       "source/background/svg-filter.js",
+      "source/background/april-fools-filter.js",
       "source/background/background.js"
     ]
   },
