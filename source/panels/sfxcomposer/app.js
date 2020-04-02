@@ -60,7 +60,7 @@ const app = new Vue({
         <fieldset>
           <legend>Replace multiple by filename</legend>
           <em>sfx name must match file name without extension.</em><br>
-          <input type="file" @change="replaceMultiple($event, sprite)" accept="audio/*" multiple/>
+          <input type="file" @change="replaceMultiple($event)" accept="audio/*" multiple/>
         </fieldset>
         <div v-if="encodeResult">
           Encode completed. Result:
