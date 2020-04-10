@@ -222,6 +222,7 @@ const app = new Vue({
         sprite.buffer = sfxBuffer;
         sprite.duration = sprite.buffer.duration;
         sprite.offset = -1;
+        sprite.modified = true;
 
         replaced.push(`Success: ${noExt}`)
       }
