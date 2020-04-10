@@ -172,7 +172,7 @@ const app = new Vue({
         </div>
       </fieldset>
 
-      <strong>Refresh your game after making any changes.</strong><br>
+      <strong>Hard refresh (<kbd>ctrl-F5</kbd>) Tetrio after making changes.</strong><br>
       <a href="https://gitlab.com/UniQMG/tetrio-plus">Source code and readme</a>
     </div>
   `,
