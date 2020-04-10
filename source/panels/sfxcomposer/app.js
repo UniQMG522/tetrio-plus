@@ -5,6 +5,12 @@ const sampleRate = 44100;
 const channels = 2;
 const quality = 0.5;
 
+let decoderCtx = new OfflineAudioContext({
+  numberOfChannels: channels,
+  length: sampleRate * 1,
+  sampleRate: sampleRate
+});
+
 const app = new Vue({
   template: html`
     <!-- Error screen -->
@@ -40,7 +46,6 @@ const app = new Vue({
       </div>
       <hr>
       <button @click="decode()">Decode sfx atlas</button><br>
-      This may freeze your browser for a bit.
     </div>
 
     <!-- Editor -->
@@ -50,27 +55,53 @@ const app = new Vue({
         <audio src="http://tetr.io/res/se.ogg" controls></audio>
       </fieldset>
       <div v-if="decoding">
-        Decoding <code>res/se.ogg</code>...<br>
+        Decoding: {{ decodeStatus }}...<br>
       </div>
       <div v-else-if="encoding">
         Encoding new sfx file...
       </div>
       <div v-else>
-        <button @click="save">Re-encode and save changes</button>
+        <fieldset>
+          <legend>Save changes</legend>
+          <button @click="save">Re-encode and save changes</button><br>
+          This may freeze your browser for a bit.
+          <div v-if="encodeResult">
+            Encode completed. Result:<br>
+            <audio :src="encodeResult" controls></audio>
+          </div>
+        </fieldset>
         <fieldset>
           <legend>Replace multiple by filename</legend>
           <em>sfx name must match file name without extension.</em><br>
           <input type="file" @change="replaceMultiple($event)" accept="audio/*" multiple/>
         </fieldset>
-        <div v-if="encodeResult">
-          Encode completed. Result:
-          <audio :src="encodeResult" controls></audio>
-        </div>
       </div>
 
       <fieldset v-for="sprite of sprites">
         <legend>{{ sprite.name }}</legend>
-        <audio :src="sprite.src" controls></audio><br>
+        <div v-if="sprite.error" :title="sprite.error">
+          Encountered an error while encoding this sprite.
+          This sprite must be replaced or else it will be empty.<br>
+          <button @click="sprite.showError = !sprite.showError">
+            Show/hide
+          </button>
+          <pre v-if="sprite.showError">{{ sprite.error }}</pre>
+        </div>
+        <button @click="play(sprite)">Play</button>
+        <span v-if="sprite.modified">
+          ( Modified,
+            Duration: <code>{{ sprite.duration.toFixed(3) }}s</code>
+          )
+        </span>
+        <span v-else>
+          (
+            Duration: <code>{{ sprite.duration.toFixed(3) }}s</code>.
+            Offset: <code>{{ sprite.offset.toFixed(3) }}s</code>
+          )
+        </span>
+
+        <br>
+
         Replace:
         <input type="file" @change="replace($event, sprite)" accept="audio/*"/>
       </fieldset>
@@ -85,8 +116,12 @@ const app = new Vue({
 
     decoding: false,
     decodeStarted: false,
+    decodeStatus: "",
+
     encoding: false,
     encodeResult: null,
+
+    audioContext: null,
 
     sprites: [],
   },
@@ -95,34 +130,34 @@ const app = new Vue({
     this.hasExisting = !!customSounds;
     this.editExisting = !!customSounds;
     this.loading = false;
+
+    this.audioContext = new AudioContext();
   },
   methods: {
+    play(sprite) {
+      let source = this.audioContext.createBufferSource();
+      source.connect(this.audioContext.destination);
+      source.buffer = sprite.buffer;
+      source.start();
+    },
+
     async save() {
       this.encoding = true;
-      let decoderCtx = new OfflineAudioContext({
-        numberOfChannels: channels,
-        length: sampleRate * 1,
-        sampleRate: sampleRate
-      });
-
       let encoder = new OggVorbisEncoder(sampleRate, channels, quality);
 
       let atlas = {};
       let currentOffset = 0;
-      for (let { name, src } of this.sprites) {
-        let encodedSfxBuffer = await (await fetch(src)).arrayBuffer();
-        let sfxBuffer = await decoderCtx.decodeAudioData(encodedSfxBuffer);
-        console.log(sfxBuffer);
-        let duration = sfxBuffer.duration * 1000;
+      for (let { name, buffer } of this.sprites) {
+        let duration = buffer.duration * 1000;
         let offset = currentOffset;
         currentOffset += duration;
 
         atlas[name] = [offset, duration];
         encoder.encode([
-          sfxBuffer.getChannelData(0),
-          encodedSfxBuffer.numberOfChannels >= 2
-            ? sfxBuffer.getChannelData(1)
-            : sfxBuffer.getChannelData(0)
+          buffer.getChannelData(0),
+          buffer.numberOfChannels >= 2
+            ? buffer.getChannelData(1) // use 2nd channel if stereo
+            : buffer.getChannelData(0) // duplicate 1st channel if mono
         ]);
       }
 
@@ -141,18 +176,27 @@ const app = new Vue({
       this.encoding = false;
     },
 
-    replace(evt, sprite) {
+    async replace(evt, sprite) {
       let file = evt.target.files[0];
       if (!file) return;
 
       let reader = new FileReader();
-      reader.addEventListener('load', () => {
-        sprite.src = reader.result;
-        // reset the handler
-        evt.target.type = '';
-        evt.target.type = 'file';
+      await new Promise(res => {
+        reader.addEventListener('load', res);
+        reader.readAsArrayBuffer(file);
       });
-      reader.readAsDataURL(file);
+
+      let sfxBuffer = await decoderCtx.decodeAudioData(reader.result);
+      sprite.buffer = sfxBuffer;
+      sprite.duration = sprite.buffer.duration;
+      sprite.offset = -1;
+      sprite.modified = true;
+
+      console.log("Sprite buffer replaced", sprite.buffer);
+
+      // reset the handler
+      evt.target.type = '';
+      evt.target.type = 'file';
     },
 
     async replaceMultiple(evt) {
@@ -171,9 +215,14 @@ const app = new Vue({
         let reader = new FileReader();
         await new Promise(res => {
           reader.addEventListener('load', res);
-          reader.readAsDataURL(file);
+          reader.readAsArrayBuffer(file);
         });
-        sprite.src = reader.result;
+
+        let sfxBuffer = await decoderCtx.decodeAudioData(reader.result);
+        sprite.buffer = sfxBuffer;
+        sprite.duration = sprite.buffer.duration;
+        sprite.offset = -1;
+
         replaced.push(`Success: ${noExt}`)
       }
       alert(replaced.join('\n'));
@@ -186,12 +235,14 @@ const app = new Vue({
       try {
         this.decodeStarted = true;
         this.decoding = true;
+        this.decodeStatus = "Starting";
 
         // Set sfx enabled flag temporarily, to fetch the appropriate content.
         let { sfxEnabled } = await browser.storage.local.get('sfxEnabled');
         await browser.storage.local.set({ sfxEnabled: this.editExisting });
 
         // Fetch sfx atlas json
+        this.decodeStatus = "Fetching sound atlas (res/tetrio.js)";
         let srcRequest = await fetch('https://tetr.io/js/tetrio.js');
         let src = await srcRequest.text();
         let regex = /new Howl\({\s*src:\s*["']res\/se\.ogg["'],\s*sprite:\s*({[\S\s]+?})/;
@@ -206,17 +257,14 @@ const app = new Vue({
         let atlas = JSON.parse(json);
 
         // Fetch sfx audio file
+        this.decodeStatus = "Fetching sound buffer (res/se.ogg)";
         let request = await fetch('https://tetr.io/res/se.ogg');
         let encodedSfxBuffer = await request.arrayBuffer();
 
         // Reset the sfx enabled flag since we're now done fetching data
         await browser.storage.local.set({ sfxEnabled });
 
-        let decoderCtx = new OfflineAudioContext({
-          numberOfChannels: channels,
-          length: sampleRate * 1,
-          sampleRate: sampleRate
-        });
+        this.decodeStatus = "Decoding sound buffer";
         let sfxBuffer = await decoderCtx.decodeAudioData(encodedSfxBuffer);
 
         for (let key of Object.keys(atlas)) {
@@ -234,22 +282,18 @@ const app = new Vue({
           source.buffer = sfxBuffer;
           source.connect(ctx.destination);
           source.start(0, offset, duration);
-
           let audioBuffer = await ctx.startRendering();
-
-          const encoder = new OggVorbisEncoder(sampleRate, channels, quality);
-          encoder.encode([
-            audioBuffer.getChannelData(0),
-            audioBuffer.getChannelData(1)
-          ]);
-          let blob = encoder.finish();
 
           this.sprites.push({
             name: key,
-            src: URL.createObjectURL(blob)
+            buffer: audioBuffer,
+            offset,
+            duration,
+            modified: false
           });
         }
 
+        this.decodeStatus = null;
         this.decoding = false;
       } catch(ex) {
         this.error = ex;
