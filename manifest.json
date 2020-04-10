@@ -32,9 +32,16 @@
       "source/background/bg/bg-tetriojs-filter.js",
       "source/background/bg/bg-request-filter.js",
       "source/background/april-fools-filter.js",
-      "source/background/svg-filter.js"
+      "source/background/svg-filter.js",
+      "source/background/content-script-communicator.js"
     ]
   },
+
+  "content_scripts": [{
+    "matches": ["https://tetr.io/"],
+    "js": ["source/content/content-script.js"],
+    "run_at": "document_idle"
+  }],
 
   "web_accessible_resources": [
     "resource/template.svg"
