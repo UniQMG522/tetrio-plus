@@ -15,7 +15,8 @@ browser.runtime.onConnect.addListener(port => {
           'enableMissingMusicPatch',
           'enableSpeens',
           'sfxEnabled',
-          'skin'
+          'skin',
+          'enableOSD'
         ]);
 
         let features = [];
@@ -41,6 +42,9 @@ browser.runtime.onConnect.addListener(port => {
 
         if (config.enableSpeens)
           features.push('april fools text');
+
+        if (config.enableOSD)
+          features.push('key OSD');
 
         let featureString = features.length > 0
           ? features.join(', ')

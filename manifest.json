@@ -33,18 +33,26 @@
       "source/background/bg/bg-request-filter.js",
       "source/background/april-fools-filter.js",
       "source/background/svg-filter.js",
-      "source/background/content-script-communicator.js"
+      "source/background/content-script-communicator.js",
+      "source/background/osd-request-filter.js"
     ]
   },
 
   "content_scripts": [{
     "matches": ["https://tetr.io/"],
-    "js": ["source/content/content-script.js"],
+    "css": [
+      "source/content/osd.css"
+    ],
+    "js": [
+      "source/content/content-script.js",
+      "source/content/osd.js"
+    ],
     "run_at": "document_idle"
   }],
 
   "web_accessible_resources": [
-    "resource/template.svg"
+    "resource/template.svg",
+    "source/injected/osd.js"
   ],
 
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",

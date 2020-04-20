@@ -168,6 +168,13 @@ const app = new Vue({
           <option-toggle storageKey="enableSpeens">
             Enable april fools text (may break the game)
           </option-toggle>
+        </div>
+        <div title="Shows what keys are pressed, for streaming or recording. Works on replays too!">
+          <option-toggle storageKey="enableOSD">
+            Enable key OSD (may break the game)
+          </option-toggle>
+        </div>
+        <div title="Changes the look of Tetr.io+ based on your browser theme. May look awful with some themes.">
           <theme-manager />
         </div>
       </fieldset>

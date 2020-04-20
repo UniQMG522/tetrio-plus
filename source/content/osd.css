@@ -1,0 +1,48 @@
+.tetrio-plus-osd {
+  position: fixed;
+  z-index: 9999999999999999;
+  user-select: none;
+
+  display: grid;
+  grid-template:
+    "-1   softdrop -2    spin-cw   spin-ccw spin-180"
+    "left harddrop right hold      -3       resizer";
+}
+
+.tetrio-plus-osd-handle-container {
+  color: white;
+  grid-area: resizer;
+  font-size: 16px;
+}
+
+.tetrio-plus-osd-drag-handle {
+  right: 0px;
+  bottom: 0px;
+  position: absolute;
+  padding-right: 20px;
+  display: inline-block;
+}
+.tetrio-plus-osd-resize-handle {
+  right: 0px;
+  bottom: 0px;
+  position: absolute;
+  padding-right: 4px;
+  display: inline-block;
+}
+
+.tetrio-plus-osd-key {
+  color: white;
+  margin: 1px;
+  border: 1px solid white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 2rem;
+}
+
+.tetrio-plus-osd-key.active {
+  background-color: white;
+  color: black;
+}
