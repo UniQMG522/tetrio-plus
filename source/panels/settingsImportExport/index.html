@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Tetr.io+: Settings import/export</title>
+    <style>
+      body {
+        max-width: 600px;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <b>Make sure you trust the content pack you're importing</b>
+    <p>
+      Due to the ever-changing nature of Tetr.io's source code, outdated content
+      packs can break the game in unexpected ways. Note that content packs may
+      become enourmously large with a lot of songs, and you may have trouble
+      importing packs that are more than a few hundred megabytes.
+    </p>
+    <p>
+      This is <b>only your Tetr.io+ data</b> and <em>does not include your
+      Tetrio settings</em> (e.g. DAS, ARR, graphical settings)
+    </p>
+
+    Import settings from a file:
+    <input type="file" id="import" multiple accept=".tpse"><br>
+    Export settings to a file: <button id="export">Download...</button>
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -32,6 +32,12 @@ const app = new Vue({
         <div title="Changes the look of Tetr.io+ based on your browser theme. May look awful with some themes.">
           <theme-manager />
         </div>
+        <div>
+          <button @click="openSettingsIO" title="Opens the settings import/export dialog">
+            Import/export settings
+          </button>
+        </div>
+
       </fieldset>
 
       <strong>Hard refresh (<kbd>ctrl-F5</kbd>) Tetrio after making changes.</strong><br>
@@ -51,6 +57,16 @@ const app = new Vue({
   computed: {
   },
   methods: {
+    openSettingsIO() {
+      browser.windows.create({
+        type: 'detached_panel',
+        url: browser.extension.getURL(
+          'source/panels/settingsImportExport/index.html'
+        ),
+        width: 600,
+        height: 285
+      });
+    }
   }
 });
 
