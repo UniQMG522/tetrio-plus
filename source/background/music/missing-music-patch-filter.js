@@ -5,8 +5,10 @@
 
 createRewriteFilter("Missing Music Patch", "https://tetr.io/js/tetrio.js", {
   enabledFor: async request => {
-    let cfgMMP = await browser.storage.local.get('enableMissingMusicPatch');
-    return cfgMMP.enableMissingMusicPatch;
+    let cfgMMP = await browser.storage.local.get([
+      'musicEnabled', 'enableMissingMusicPatch'
+    ]);
+    return cfgMMP.musicEnabled && cfgMMP.enableMissingMusicPatch;
   },
   onStop: async (request, filter, src) => {
     let patches = 0;
