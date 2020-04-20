@@ -4,8 +4,6 @@
   scripts, and I need to call a function on an event's detail object
 */
 (() => {
-  console.log("OSD!");
-
   [...document.getElementsByClassName('tetrio-plus-osd')].forEach(c => c.remove());
 
   let osd = document.createElement('div');
