@@ -91,7 +91,12 @@ createRewriteFilter("Tetrio.js Music", "https://tetr.io/js/tetrio.js", {
         }
         let newMusicPoolJson = JSON.stringify(newMusicPool);
 
-        let rewrite = musicVar + newMusicJson + musicpoolVar + newMusicPoolJson;
+        let rewrite = (
+          musicVar +
+          `JSON.parse(atob("${btoa(JSON.stringify(JSON.parse(newMusicJson)))}"))` +
+          musicpoolVar +
+          `JSON.parse(atob("${btoa(JSON.stringify(JSON.parse(newMusicPoolJson)))}"))`
+        );
         console.log(
           "Rewriting music definition",
           { from: fullmatch, to: rewrite }
