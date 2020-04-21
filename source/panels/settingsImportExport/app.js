@@ -29,6 +29,7 @@ const importers = {
   skinPng: async dataUri => {
     if (typeof dataUri != 'string' || !/^data:image\/.+?;base64,/.test(dataUri))
       return `ERROR: Missing/invalid image ${bg.id}`
+    await browser.storage.local.set({ skinPng: dataUri });
     return 'success';
   },
   customSoundAtlas: async (atlas, importData) => {
