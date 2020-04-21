@@ -26,6 +26,11 @@ const importers = {
     await browser.storage.local.set({ skin: svgText });
     return 'success';
   },
+  skinPng: async dataUri => {
+    if (typeof dataUri != 'string' || !/^data:image\/.+?;base64,/.test(dataUri))
+      return `ERROR: Missing/invalid image ${bg.id}`
+    return 'success';
+  },
   customSoundAtlas: async (atlas, importData) => {
     if (typeof atlas != 'object') return `ERROR: Expected object`;
     for (let [key, value] of Object.entries(atlas)) {
@@ -189,6 +194,7 @@ document.getElementById('export').addEventListener('click', async evt => {
 
   let config = await browser.storage.local.get([
     'skin',
+    'skinPng',
 
     'sfxEnabled',
     'customSoundAtlas',

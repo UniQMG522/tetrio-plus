@@ -15,8 +15,27 @@ function onReadFile(input, asText, callback) {
   }, false);
 }
 
-onReadFile(document.getElementById('tetrio-svg'), true, svg => {
-  browser.storage.local.set({ skin: svg });
+async function setSkin(svg) {
+  let canvas = document.createElement('canvas');
+  let ctx = canvas.getContext('2d');
+  canvas.width = 372;
+  canvas.height = 30;
+
+  let img = new Image();
+  img.src = URL.createObjectURL(new Blob([svg], {
+    type: "image/svg+xml;charset=utf-8"
+  }));
+  img.onerror = console.error;
+  await new Promise(res => img.onload = res);
+
+  ctx.drawImage(img, 0, 0, 372, 30);
+
+  let skinPng = canvas.toDataURL('image/png');
+  await browser.storage.local.set({ skin: svg, skinPng });
+}
+
+onReadFile(document.getElementById('tetrio-svg'), true, async svg => {
+  await setSkin(svg);
   window.close();
 });
 
@@ -24,7 +43,7 @@ onReadFile(document.getElementById('tetrio-png'), false, async png => {
   let placeholder = browser.extension.getURL('resources/template.svg');
   let template = await (await fetch(placeholder)).text();
   let svg = template.replace('<!--custom-image-embed-->', png);
-  browser.storage.local.set({ skin: svg });
+  await setSkin(svg);
   window.close();
 });
 
@@ -56,6 +75,6 @@ onReadFile(document.getElementById('jstris-png'), false, async png => {
   let placeholder = browser.extension.getURL('resources/template.svg');
   let template = await (await fetch(placeholder)).text();
   let svg = template.replace('<!--custom-image-embed-->', tetrioPng);
-  browser.storage.local.set({ skin: svg });
+  await setSkin(svg);
   window.close();
 });

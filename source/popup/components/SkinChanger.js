@@ -42,7 +42,9 @@ export default {
       });
     },
     resetSkin() {
-      browser.storage.local.remove(['skin']).then(() => this.cachedSkin = null);
+      browser.storage.local.remove(['skin', 'skinPng']).then(() => {
+        this.cachedSkin = null;
+      });
     }
   }
 }
