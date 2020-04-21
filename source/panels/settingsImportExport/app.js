@@ -60,11 +60,11 @@ const importers = {
 
     if (!Array.isArray(backgrounds)) return `ERROR: Expected array`;
     for (let bg of backgrounds) {
-      if (typeof bg.id != 'string')
-        return `ERROR: Expected string at [].id`;
+      if (typeof bg.id != 'string' || !/^[a-z]+$/.test(bg.id))
+        return `ERROR: Expected lowercase alphabetical string at [].id`;
 
       if (typeof bg.filename != 'string')
-        return `ERROR: Expected string at [].filename`;
+        return `ERROR: Expected alphabetical string at [].filename`;
 
       let img = importData['background-' + bg.id];
       if (typeof img != 'string' || !/^data:image\/.+?;base64,/.test(img))
@@ -82,8 +82,8 @@ const importers = {
 
     if (!Array.isArray(music)) return `ERROR: Expected array`;
     for (let song of music) {
-      if (typeof song.id != 'string')
-        return `ERROR: Expected string at [].id`;
+      if (typeof song.id != 'string' || !/^[a-z]+$/.test(song.id))
+        return `ERROR: Expected lowercase alphabetical string at [].id`;
 
       if (typeof song.filename != 'string')
         return `ERROR: Expected string at [].filename`;
