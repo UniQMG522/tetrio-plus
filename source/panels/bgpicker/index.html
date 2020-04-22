@@ -5,9 +5,20 @@
     <title>Tetr.io+</title>
   </head>
   <body>
-    Reload Tetr.io after adding new backgrounds!<br>
+    <b>Reload Tetr.io after adding new backgrounds!</b><br>
     Be sure to disable backgrounds configured in the game.<br>
-    <input type="file" id="input" multiple accept="image/*">
+    <fieldset>
+      <legend>Regular custom background</legend>
+      <input type="file" id="regular" multiple accept="image/*">
+      <br>Supported formats: Any image (Animated formats won't play)
+    </fieldset>
+    <fieldset>
+      <legend>Animated custom background</legend>
+      <input type="file" id="animated" accept="image/*,.apng">
+      <br>You can only have one animated background at a time.
+      <br>Supported formats: GIF, animated PNG, animated WebP.
+      <br>Animated backgrounds will be marked as <em>animated</em>.
+    </fieldset>
     <script src="app.js"></script>
   </body>
 </html>

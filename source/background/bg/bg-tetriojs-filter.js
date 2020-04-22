@@ -6,14 +6,36 @@
 
 createRewriteFilter("Tetrio.js BG", "https://tetr.io/js/tetrio.js", {
   enabledFor: async request => {
-    let {bgEnabled} = await browser.storage.local.get('bgEnabled');
-    if (!bgEnabled) return false; // Custom backgrounds disabled
-    let {backgrounds} = await browser.storage.local.get('backgrounds');
-    if (!backgrounds || backgrounds.length == 0) return false; // no backgrounds
+    let res = await browser.storage.local.get([
+      'animatedBackground',
+      'animatedBgEnabled',
+      'backgrounds',
+      'bgEnabled'
+    ]);
+    if (!res.bgEnabled) return false;
+
+    let numBackgrounds = 0;
+    if (res.animatedBgEnabled && res.animatedBackground)
+      numBackgrounds++;
+    else if (res.backgrounds)
+      numBackgrounds += res.backgrounds.length;
+
+    if (numBackgrounds == 0) return false; // no backgrounds
     return true;
   },
   onStop: async (request, filter, src) => {
-    let {backgrounds} = await browser.storage.local.get('backgrounds');
+    let res = await browser.storage.local.get([
+      'animatedBgEnabled',
+      'animatedBackground',
+      'backgrounds'
+    ]);
+
+    let backgrounds = [];
+    if (res.animatedBgEnabled && res.animatedBackground) {
+      backgrounds.push({ id: 'transparent' });
+    } else if (res.backgrounds) {
+      backgrounds.push(...res.backgrounds)
+    }
 
     let replaced = false;
     src = src.replace(
@@ -32,7 +54,6 @@ createRewriteFilter("Tetrio.js BG", "https://tetr.io/js/tetrio.js", {
       }
     );
 
-    console.log("Rewrite successful: " + replaced);
     if (!replaced) console.error(
       "Custom background rewrite failed. " +
       "Please update your plugin. "

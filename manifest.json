@@ -29,6 +29,7 @@
       "source/background/music/missing-music-patch-filter.js",
       "source/background/sfx/sfx-tetriojs-filter.js",
       "source/background/sfx/sfx-request-filter.js",
+      "source/background/bg/animated-bg-tetriojs-filter.js",
       "source/background/bg/bg-tetriojs-filter.js",
       "source/background/bg/bg-request-filter.js",
       "source/background/april-fools-filter.js",
@@ -45,6 +46,7 @@
     ],
     "js": [
       "source/content/content-script.js",
+      "source/content/animated-bg.js",
       "source/content/osd.js"
     ],
     "run_at": "document_idle"
