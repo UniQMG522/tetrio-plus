@@ -11,6 +11,7 @@ browser.runtime.onConnect.addListener(port => {
         let config = await browser.storage.local.get([
           'bgEnabled',
           'musicEnabled',
+          'animatedBgEnabled',
           'disableVanillaMusic',
           'enableMissingMusicPatch',
           'enableSpeens',
@@ -39,6 +40,9 @@ browser.runtime.onConnect.addListener(port => {
 
         if (config.bgEnabled)
           features.push('backgrounds');
+
+        if (config.animatedBgEnabled)
+          features.push('animated backgrounds');
 
         if (config.enableSpeens)
           features.push('april fools text');
