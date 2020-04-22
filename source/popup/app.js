@@ -33,8 +33,8 @@ const app = new Vue({
           <theme-manager />
         </div>
         <div>
-          <button @click="openSettingsIO" title="Opens the settings import/export dialog">
-            Import/export settings
+          <button @click="openSettingsIO" title="Opens the settings manager">
+            Manage data
           </button>
         </div>
 
@@ -64,7 +64,7 @@ const app = new Vue({
           'source/panels/settingsImportExport/index.html'
         ),
         width: 600,
-        height: 285
+        height: 520
       });
     }
   }

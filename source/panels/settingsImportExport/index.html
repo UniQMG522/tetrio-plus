@@ -23,9 +23,59 @@
       Tetrio settings</em> (e.g. DAS, ARR, graphical settings)
     </p>
 
-    Import settings from a file:
-    <input type="file" id="import" multiple accept=".tpse"><br>
-    Export settings to a file: <button id="export">Download...</button>
+    <fieldset>
+      <legend>Import settings from a file</legend>
+      <input type="file" id="import" multiple accept=".tpse">
+    </fieldset>
+    <fieldset>
+      <legend>Export settings to a file</legend>
+      <input
+        type="checkbox"
+        data-export="skin,skinPng"
+        class="export-toggle"
+        checked
+      >Export block skin<br>
+
+      <input
+        type="checkbox"
+        data-export="sfxEnabled,customSounds,customSoundAtlas"
+        class="export-toggle"
+        checked
+      >Export sound effects<br>
+
+      <input
+        type="checkbox"
+        data-export="musicEnabled,disableVanillaMusic,enableMissingMusicPatch,music"
+        class="export-toggle"
+        checked
+      >Export music<br>
+
+      <input
+        type="checkbox"
+        data-export="enableSpeens"
+        class="export-toggle"
+        checked
+      >Export april fools text setting<br>
+
+      <input
+        type="checkbox"
+        data-export="enableOSD"
+        class="export-toggle"
+        checked
+      >Export on-screen key display setting<br>
+
+      <input
+        type="checkbox"
+        data-export="bgEnabled,backgrounds,animatedBgEnabled,animatedBackground"
+        class="export-toggle"
+        checked
+      >Export backgrounds<br>
+      <button id="export">Download...</button>
+    </fieldset>
+    <fieldset>
+      <legend>Clear Tetr.io+ data</legend>
+      <button id="clearData" style="font-weight: bold">CLEAR ALL DATA</button>
+    </fieldset>
     <script src="./app.js"></script>
   </body>
 </html>

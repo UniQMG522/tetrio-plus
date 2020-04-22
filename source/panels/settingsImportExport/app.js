@@ -14,6 +14,7 @@ const importers = {
   enableSpeens: parseBoolean('enableSpeens'),
   enableOSD: parseBoolean('enableOSD'),
   bgEnabled: parseBoolean('bgEnabled'),
+  animatedBgEnabled: parseBoolean('animatedBgEnabled'),
   skin: async svgText => {
     let parser = new DOMParser();
     let svg = parser.parseFromString(svgText, 'application/xhtml+xml');
@@ -66,6 +67,9 @@ const importers = {
       if (typeof bg.filename != 'string')
         return `ERROR: Expected alphabetical string at [].filename`;
 
+      if (Object.keys(bg).length != 2)
+        return `ERROR: Unexpected extra keys at []`;
+
       let img = importData['background-' + bg.id];
       if (typeof img != 'string' || !/^data:image\/.+?;base64,/.test(img))
         return `ERROR: Missing/invalid image ${bg.id}`
@@ -75,6 +79,27 @@ const importers = {
 
     toSet.backgrounds = JSON.parse(JSON.stringify(backgrounds));
     await browser.storage.local.set(toSet);
+    return 'success';
+  },
+  animatedBackground: async (bg, importData) => {
+    if (typeof bg != 'object') return `ERROR: Expected object`;
+    if (typeof bg.id != 'string' || !/^[a-z]+$/.test(bg.id))
+      return `ERROR: Expected lowercase alphabetical string at id`;
+
+    if (typeof bg.filename != 'string')
+      return `ERROR: Expected alphabetical string at filename`;
+
+    if (Object.keys(bg).length != 2)
+      return `ERROR: Unexpected extra keys`;
+
+    let img = importData['background-' + bg.id];
+    if (typeof img != 'string' || !/^data:image\/.+?;base64,/.test(img))
+      return `ERROR: Missing/invalid image ${bg.id}`
+
+    await browser.storage.local.set({
+      animatedBackground: bg,
+      ['background-' + bg.id]: img
+    });
     return 'success';
   },
   music: async (music, importData) => {
@@ -193,25 +218,20 @@ document.getElementById('export').addEventListener('click', async evt => {
   status.innerText = 'working on export...';
   document.body.appendChild(status);
 
-  let config = await browser.storage.local.get([
-    'skin',
-    'skinPng',
+  let exportKeys = [];
+  let elems = document.getElementsByClassName('export-toggle');
+  for (let elem of elems) {
+    if (elem.checked) {
+      exportKeys.push(...elem.getAttribute('data-export').split(','));
+    }
+  }
 
-    'sfxEnabled',
-    'customSoundAtlas',
-    'customSounds',
+  let config = await browser.storage.local.get(exportKeys);
 
-    'musicEnabled',
-    'disableVanillaMusic',
-    'enableMissingMusicPatch',
-    'music',
-
-    'enableSpeens',
-    'enableOSD',
-
-    'backgrounds',
-    'bgEnabled'
-  ]);
+  if (config.animatedBackground) {
+    let key = 'background-' + config.animatedBackground.id;
+    Object.assign(config, await browser.storage.local.get(key));
+  }
 
   if (config.backgrounds) {
     let bgIds = config.backgrounds.map(({ id }) => 'background-' + id);
@@ -240,3 +260,11 @@ document.getElementById('export').addEventListener('click', async evt => {
   document.body.removeChild(a);
   status.remove();
 });
+
+document.getElementById('clearData').addEventListener('click', () => {
+  if (confirm('Are you sure you want to clear all your Tetr.io+ data?')) {
+    browser.storage.local.clear().then(() => {
+      alert('Data cleared');
+    });
+  }
+})
