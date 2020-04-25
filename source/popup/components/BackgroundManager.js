@@ -27,6 +27,7 @@ export default {
         <option-toggle storageKey="animatedBgEnabled" mode="show">
           <option-toggle storageKey="bgEnabled" mode="show">
             <div class="extendedWarningText">
+              <b>This feature is experimental and may be changed or removed.</b>
               Custom animated backgrounds are implemented differently from
               regular backgrounds, and you can't have more than one at a time.
               Animated backgrounds are incompatible with normal backgrounds,
