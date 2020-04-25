@@ -44,7 +44,7 @@ createRewriteFilter("Tetrio.js BG", "https://tetr.io/js/tetrio.js", {
         let newData = JSON.stringify(backgrounds.map(bg => {
           return `../res/bg/1.jpg?bgId=${bg.id}`
         }));
-        let rewrite = varInit + `JSON.parse(atob("${btoa(newData)}"))`;
+        let rewrite = varInit + b64Recode(newData);
         console.log(
           "Rewriting backgrounds definition",
           { from: fullmatch, to: rewrite }

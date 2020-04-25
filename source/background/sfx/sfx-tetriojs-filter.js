@@ -21,8 +21,7 @@ createRewriteFilter("Tetrio.js Sfx", "https://tetr.io/js/tetrio.js", {
     src = src.replace(
       /(new Howl\({\s*src:\s*["']res\/se\.ogg["'],\s*sprite:\s*)({[\S\s]+?})/,
       (fullmatch, howlInit, atlas) => {
-        let stringified = btoa(JSON.stringify(customSoundAtlas));
-        let rewrite = `${howlInit}JSON.parse(atob("${stringified}"))`;
+        let rewrite = `${howlInit}${b64Recode(customSoundAtlas)}`;
         console.log(
           "Rewriting sound atlas definition",
           { from: fullmatch, to: rewrite }

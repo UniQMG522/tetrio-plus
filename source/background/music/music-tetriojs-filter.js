@@ -93,9 +93,9 @@ createRewriteFilter("Tetrio.js Music", "https://tetr.io/js/tetrio.js", {
 
         let rewrite = (
           musicVar +
-          `JSON.parse(atob("${btoa(JSON.stringify(JSON.parse(newMusicJson)))}"))` +
+          b64Recode(JSON.parse(newMusicJson)) +
           musicpoolVar +
-          `JSON.parse(atob("${btoa(JSON.stringify(JSON.parse(newMusicPoolJson)))}"))`
+          b64Recode(JSON.parse(newMusicPoolJson))
         );
         console.log(
           "Rewriting music definition",

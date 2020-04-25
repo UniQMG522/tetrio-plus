@@ -23,6 +23,7 @@
 
   "background": {
     "scripts": [
+      "source/background/base64-recoder.js",
       "source/background/createRewriteFilter.js",
       "source/background/music/music-tetriojs-filter.js",
       "source/background/music/music-request-filter.js",
