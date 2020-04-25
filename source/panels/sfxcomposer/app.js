@@ -1,4 +1,3 @@
-/new Howl\({\s*src:\s*'res\/se\.ogg',\s*sprite:\s*({[\S\s]+?})/;
 const html = arg => arg.join(''); // NOOP, for editor integration.
 
 const sampleRate = 44100;
@@ -243,23 +242,25 @@ const app = new Vue({
         await browser.storage.local.set({ sfxEnabled: this.editExisting });
 
         // Fetch sfx atlas json
-        this.decodeStatus = "Fetching sound atlas (res/tetrio.js)";
+        this.decodeStatus = "Fetching sound atlas (js/tetrio.js)";
         let srcRequest = await fetch('https://tetr.io/js/tetrio.js');
         let src = await srcRequest.text();
-        let regex = /new Howl\({\s*src:\s*["']res\/se\.ogg["'],\s*sprite:\s*({[\S\s]+?})/;
+        let regex = /TETRIO_SE_SHEET\s*=\s*({[^}]+})/;
         let match = regex.exec(src);
         if (!match) {
           this.error = 'Failed to find sound atlas.';
           return;
         }
         let json = match[1]
+          // Replace quotes
+          .replace(/'/g, `"`)
           // Quote unquoted keys
           .replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '$1"$3":');
         let atlas = JSON.parse(json);
 
         // Fetch sfx audio file
-        this.decodeStatus = "Fetching sound buffer (res/se.ogg)";
-        let request = await fetch('https://tetr.io/res/se.ogg');
+        this.decodeStatus = "Fetching sound buffer (sfx/tetrio.ogg)";
+        let request = await fetch('https://tetr.io/sfx/tetrio.ogg');
         let encodedSfxBuffer = await request.arrayBuffer();
 
         // Reset the sfx enabled flag since we're now done fetching data

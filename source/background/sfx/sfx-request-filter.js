@@ -3,7 +3,7 @@
   replacing it with the user-configured custom sfx file.
 */
 
-createRewriteFilter("Sfx Request", "https://tetr.io/res/se.ogg", {
+createRewriteFilter("Sfx Request", "https://tetr.io/sfx/tetrio.ogg", {
   enabledFor: async request => {
     let {sfxEnabled} = await browser.storage.local.get('sfxEnabled');
     if (!sfxEnabled) return false; // Custom sfx disabled

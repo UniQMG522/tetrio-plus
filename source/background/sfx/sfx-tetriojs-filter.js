@@ -19,9 +19,9 @@ createRewriteFilter("Tetrio.js Sfx", "https://tetr.io/js/tetrio.js", {
 
     let replaced = false;
     src = src.replace(
-      /(new Howl\({\s*src:\s*["']res\/se\.ogg["'],\s*sprite:\s*)({[\S\s]+?})/,
-      (fullmatch, howlInit, atlas) => {
-        let rewrite = `${howlInit}${b64Recode(customSoundAtlas)}`;
+      /(TETRIO_SE_SHEET\s*=\s*){[^}]+}/,
+      (fullmatch, varInit) => {
+        let rewrite = `${varInit}${b64Recode(customSoundAtlas)}`;
         console.log(
           "Rewriting sound atlas definition",
           { from: fullmatch, to: rewrite }
