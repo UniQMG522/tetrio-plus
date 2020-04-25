@@ -5,6 +5,8 @@ input.addEventListener('change', async evt => {
   document.body.appendChild(status);
 
   for (let file of input.files) {
+    status.innerText = 'processing ' + file.name + '...';
+
     var reader = new FileReader();
     reader.readAsDataURL(file, "UTF-8");
     reader.onerror = evt => alert('Failed to load song');
@@ -22,11 +24,28 @@ input.addEventListener('change', async evt => {
 
     let audio = new Audio();
     audio.src = songDataUrl;
+
     await new Promise(res => {
       audio.addEventListener('canplaythrough', res);
       audio.load();
     });
+
+    /*
+      Audio duration is occasionally Infinity for the first frame when loading
+      certain songs. Not sure why, waiting seems to fix it
+    */
+    let wait = 0;
+    while (!isFinite(audio.duration)) {
+      if (++wait > 100) {
+        alert('Error: ' + file.name + ': Failed to parse song duration');
+        return;
+      }
+      await new Promise(r => setTimeout(r, 100));
+      console.log("Waiting for song load post-canplaythrough event", wait);
+    }
+
     let loopLength = Math.floor(audio.duration * 1000);
+    console.log("Audio", audio, audio.duration);
 
     let readableName = file.name.replace(/\..+$/, '');
     let artist = '<Unknown>';
@@ -56,10 +75,11 @@ input.addEventListener('change', async evt => {
       }
     });
     browser.storage.local.set({ music });
-    console.log("Loaded song", songDataUrl);
+    console.log("Loaded song " + id);
     browser.storage.local.set({ ['song-' + id]: songDataUrl.toString() });
   }
 
+  status.innerText = 'Done!';
   window.close();
 }, false);
 setTimeout(() => input.click());
