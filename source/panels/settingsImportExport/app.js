@@ -138,10 +138,10 @@ const importers = {
         return `ERROR: Expected boolean at [].metadata.loop`;
 
       if (typeof song.metadata.loopStart != 'number')
-        return `ERROR: Expected boolean at [].metadata.loopStart`;
+        return `ERROR: Expected number at [].metadata.loopStart`;
 
       if (typeof song.metadata.loopLength != 'number')
-        return `ERROR: Expected boolean at [].metadata.loopLength`;
+        return `ERROR: Expected number at [].metadata.loopLength`;
 
       for (let key of Object.keys(song.metadata)) {
         if (
