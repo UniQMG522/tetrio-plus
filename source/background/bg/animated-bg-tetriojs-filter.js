@@ -7,8 +7,10 @@
 */
 createRewriteFilter("Tetrio.js Animated BG", "https://tetr.io/js/tetrio.js", {
   enabledFor: async request => {
-    let res = await browser.storage.local.get('animatedBgEnabled');
-    return res.animatedBgEnabled;
+    let res = await browser.storage.local.get([
+      'bgEnabled', 'animatedBgEnabled'
+    ]);
+    return res.bgEnabled && res.animatedBgEnabled;
   },
   onStop: async (request, filter, src) => {
     let regex = /(new PIXI\.Application\({[^}]+)(transparent:[^,]+),([^}]+}\))/;
