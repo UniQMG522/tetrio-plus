@@ -23,7 +23,8 @@ input.addEventListener('change', async evt => {
       .join('');
 
     let audio = new Audio();
-    audio.src = songDataUrl;
+    audio.src = URL.createObjectURL(file);
+    audio.preload = 'auto';
 
     await new Promise(res => {
       audio.addEventListener('canplaythrough', res);
@@ -32,7 +33,8 @@ input.addEventListener('change', async evt => {
 
     /*
       Audio duration is occasionally Infinity for the first frame when loading
-      certain songs. Not sure why, waiting seems to fix it
+      certain songs. This seems to be a side effect of base64 encoding them,
+      so I switched to using URL.createObjectURL(file) temporarily.
     */
     let wait = 0;
     while (!isFinite(audio.duration)) {
