@@ -50,8 +50,8 @@ const app = new Vue({
     <!-- Editor -->
     <div v-else>
       <fieldset>
-        <legend>res/se.ogg</legend>
-        <audio src="http://tetr.io/res/se.ogg" controls></audio>
+        <legend>sfx/tetrio.ogg</legend>
+        <audio src="http://tetr.io/sfx/tetrio.ogg" controls></audio>
       </fieldset>
       <div v-if="decoding">
         Decoding: {{ decodeStatus }}...<br>
@@ -245,17 +245,29 @@ const app = new Vue({
         this.decodeStatus = "Fetching sound atlas (js/tetrio.js)";
         let srcRequest = await fetch('https://tetr.io/js/tetrio.js');
         let src = await srcRequest.text();
-        let regex = /TETRIO_SE_SHEET\s*=\s*({[^}]+})/;
+        let regex = /TETRIO_SE_SHEET\s*=\s*(?:({[^}]+})|.+?atob\("([A-Za-z0-9+/=]+)\"\))/;
         let match = regex.exec(src);
         if (!match) {
           this.error = 'Failed to find sound atlas.';
           return;
         }
-        let json = match[1]
-          // Replace quotes
-          .replace(/'/g, `"`)
-          // Quote unquoted keys
-          .replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '$1"$3":');
+
+        let json;
+        if (match[1]) {
+          json = match[1]
+            // Replace quotes
+            .replace(/'/g, `"`)
+            // Quote unquoted keys
+            .replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '$1"$3":');
+        } else if (match[2]) {
+          console.log("Loading B64", match[2]);
+          json = String.fromCharCode(
+            ...new Uint16Array(new Uint8Array(
+              [...atob(match[2])].map(v => v.charCodeAt(0))
+            ).buffer)
+          );
+          console.log("Loaded json", json);
+        }
         let atlas = JSON.parse(json);
 
         // Fetch sfx audio file
