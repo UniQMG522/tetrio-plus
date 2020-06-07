@@ -13,9 +13,14 @@ createRewriteFilter("Sfx Request", "https://tetr.io/sfx/tetrio.ogg", {
 
     return true;
   },
-  onStart: async (request, filter) => {
+  onStart: async (url, src, callback) => {
     let { customSounds } = await browser.storage.local.get('customSounds');
-    filter.write(convertDataURIToBinary(customSounds));
+    callback({
+      type: 'audio/ogg',
+      data: customSounds,
+      encoding: 'base64-data-url'
+    });
+    // filter.write(convertDataURIToBinary(customSounds));
   }
 });
 
@@ -24,7 +29,7 @@ var BASE64_MARKER = ';base64,';
 function convertDataURIToBinary(dataURI) {
   var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
   var base64 = dataURI.substring(base64Index);
-  var raw = window.atob(base64);
+  var raw = atob(base64);
   var rawLength = raw.length;
   var array = new Uint8Array(new ArrayBuffer(rawLength));
 

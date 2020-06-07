@@ -5,21 +5,28 @@
 */
 
 createRewriteFilter("Music Request", "https://tetr.io/res/bgm/*", {
-  enabledFor: async request => {
-    let match = /\?song=([^&]+)/.exec(request.url);
+  enabledFor: async url => {
+    let match = /\?song=([^&]+)/.exec(url);
     if (!match) {
-      console.log("[Music Request filter] Ignoring, no song ID:", request.url);
+      greenlog("[Music Request filter] Ignoring, no song ID:", url);
+
+      console.log("[Music Request filter] Ignoring, no song ID:", url);
       return false;
     }
     return true;
   },
-  onStart: async (request, filter) => {
-    let [_, songId] = /\?song=([^&]+)/.exec(request.url);
+  onStart: async (url, src, callback) => {
+    let [_, songId] = /\?song=([^&]+)/.exec(url);
     console.log("[Music Request filter] Song ID", songId);
 
     let key = `song-${songId}`;
-    let value = await browser.storage.local.get(key);
-    filter.write(convertDataURIToBinary(value[key]));
+    let value = (await browser.storage.local.get(key))[key];
+    callback({
+      type: 'audio/mpeg',
+      data: value,
+      encoding: 'base64-data-url'
+    });
+    // filter.write(convertDataURIToBinary(value[key]));
   }
 });
 
@@ -28,7 +35,7 @@ var BASE64_MARKER = ';base64,';
 function convertDataURIToBinary(dataURI) {
   var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
   var base64 = dataURI.substring(base64Index);
-  var raw = window.atob(base64);
+  var raw = atob(base64);
   var rawLength = raw.length;
   var array = new Uint8Array(new ArrayBuffer(rawLength));
 

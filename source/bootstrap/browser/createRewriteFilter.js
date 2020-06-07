@@ -3,7 +3,6 @@
  * @param {string} url
  * @param {Object} options
  * @param {Function<Filter, boolean>} options.enabledFor
- * @param {Function<Filter>} options.onRequest
  * @param {Function<Request, Filter, string?>} options.onStart
  * @param {Function<Request, Filter, string?>} options.onStop
  * @param {boolean} options.ignoreSource if true, doesn't pass the original
@@ -22,10 +21,6 @@ function createRewriteFilter(name, url, options) {
       }
 
       console.log(`[${name} filter] Filtering ${url}`);
-
-      if (options.onRequest) {
-        await callbacks.onRequest(request);
-      }
 
       if (options.onStart || options.onStop) {
         let filter = browser.webRequest.filterResponseData(request.requestId);

@@ -3,11 +3,11 @@
   the tetrio.js source file to facillitate adding new music.
 */
 createRewriteFilter("Tetrio.js Music", "https://tetr.io/js/tetrio.js", {
-  enabledFor: async request => {
+  enabledFor: async url => {
     let { musicEnabled } = await browser.storage.local.get('musicEnabled');
     return musicEnabled;
   },
-  onStop: async (request, filter, src) => {
+  onStop: async (url, src, callback) => {
     let { disableVanillaMusic } = await browser.storage.local.get('disableVanillaMusic');
     let songs = (await browser.storage.local.get('music')).music || [];
 
@@ -112,6 +112,12 @@ createRewriteFilter("Tetrio.js Music", "https://tetr.io/js/tetrio.js", {
       "Please update your plugin. "
     );
 
-    filter.write(new TextEncoder().encode(src));
+    callback({
+      type: 'text/javascript',
+      data: src,
+      encoding: 'text'
+    });
+
+    // filter.write(new TextEncoder().encode(src));
   }
 });

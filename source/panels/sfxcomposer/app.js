@@ -233,6 +233,8 @@ const app = new Vue({
 
     async decode() {
       try {
+        const rootUrl = browser.electron ? 'tetrio-plus://' : 'https://tetr.io/';
+
         this.decodeStarted = true;
         this.decoding = true;
         this.decodeStatus = "Starting";
@@ -243,7 +245,7 @@ const app = new Vue({
 
         // Fetch sfx atlas json
         this.decodeStatus = "Fetching sound atlas (js/tetrio.js)";
-        let srcRequest = await fetch('https://tetr.io/js/tetrio.js');
+        let srcRequest = await fetch(rootUrl + 'js/tetrio.js');
         let src = await srcRequest.text();
         let regex = /TETRIO_SE_SHEET\s*=\s*(?:({[^}]+})|.+?atob\("([A-Za-z0-9+/=]+)\"\))/;
         let match = regex.exec(src);
@@ -272,7 +274,7 @@ const app = new Vue({
 
         // Fetch sfx audio file
         this.decodeStatus = "Fetching sound buffer (sfx/tetrio.ogg)";
-        let request = await fetch('https://tetr.io/sfx/tetrio.ogg');
+        let request = await fetch(rootUrl + 'sfx/tetrio.ogg');
         let encodedSfxBuffer = await request.arrayBuffer();
 
         // Reset the sfx enabled flag since we're now done fetching data

@@ -14,7 +14,7 @@ createRewriteFilter("Tetrio.js Sfx", "https://tetr.io/js/tetrio.js", {
 
     return true;
   },
-  onStop: async (request, filter, src) => {
+  onStop: async (url, src, callback) => {
     let {customSoundAtlas} = await browser.storage.local.get('customSoundAtlas');
 
     let replaced = false;
@@ -37,6 +37,12 @@ createRewriteFilter("Tetrio.js Sfx", "https://tetr.io/js/tetrio.js", {
       "Please update your plugin. "
     );
 
-    filter.write(new TextEncoder().encode(src));
+    callback({
+      type: 'text/javascript',
+      data: src,
+      encoding: 'text'
+    });
+
+    // filter.write(new TextEncoder().encode(src));
   }
 });

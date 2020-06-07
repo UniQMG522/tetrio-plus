@@ -1,6 +1,5 @@
 (async () => {
   console.log("Tetr.io+ is installed");
-  document.body.style.border = "5px solid red";
 
   let port = browser.runtime.connect({ name: 'info-channel' });
   port.postMessage({ type: 'getInfoString' });

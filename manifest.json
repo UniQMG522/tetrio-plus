@@ -23,20 +23,21 @@
 
   "background": {
     "scripts": [
-      "source/background/base64-recoder.js",
+      "source/lib/base64-recoder.js",
       "source/background/createRewriteFilter.js",
-      "source/background/music/music-tetriojs-filter.js",
-      "source/background/music/music-request-filter.js",
-      "source/background/music/missing-music-patch-filter.js",
-      "source/background/sfx/sfx-tetriojs-filter.js",
-      "source/background/sfx/sfx-request-filter.js",
-      "source/background/bg/animated-bg-tetriojs-filter.js",
-      "source/background/bg/bg-tetriojs-filter.js",
-      "source/background/bg/bg-request-filter.js",
-      "source/background/april-fools-filter.js",
-      "source/background/svg-filter.js",
+
+      "source/filters/music/music-tetriojs-filter.js",
+      "source/filters/music/music-request-filter.js",
+      "source/filters/music/missing-music-patch-filter.js",
+      "source/filters/sfx/sfx-tetriojs-filter.js",
+      "source/filters/sfx/sfx-request-filter.js",
+      "source/filters/bg/animated-bg-tetriojs-filter.js",
+      "source/filters/bg/bg-tetriojs-filter.js",
+      "source/filters/bg/bg-request-filter.js",
+      "source/filters/svg-filter.js",
+
       "source/background/content-script-communicator.js",
-      "source/background/osd-request-filter.js"
+      "source/filters/osd-request-filter.js"
     ]
   },
 
@@ -63,6 +64,31 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "tetrio-plus@example.com"
+    },
+    "desktop_client": {
+      "scripts": [
+        "source/bootstrap/electron/createRewriteFilter.js",
+        "source/lib/base64-recoder.js",
+        "source/filters/svg-filter.js",
+        "source/filters/music/music-tetriojs-filter.js",
+        "source/filters/music/missing-music-patch-filter.js",
+        "source/filters/music/music-request-filter.js",
+        "source/filters/sfx/sfx-request-filter.js",
+        "source/filters/sfx/sfx-tetriojs-filter.js",
+        "source/filters/bg/animated-bg-tetriojs-filter.js",
+        "source/filters/bg/bg-request-filter.js",
+        "source/filters/bg/bg-tetriojs-filter.js",
+        "source/filters/osd-request-filter.js"
+      ],
+      "preload_scripts": [
+        "source/bootstrap/content-script-communicator.js",
+        "source/content/content-script.js",
+        "source/content/animated-bg.js",
+        "source/content/osd.js"
+      ],
+      "inject_css": [
+        "source/content/osd.css"
+      ]
     }
   }
 }

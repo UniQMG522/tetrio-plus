@@ -4,13 +4,13 @@
 */
 
 createRewriteFilter("Missing Music Patch", "https://tetr.io/js/tetrio.js", {
-  enabledFor: async request => {
+  enabledFor: async url => {
     let cfgMMP = await browser.storage.local.get([
       'musicEnabled', 'enableMissingMusicPatch'
     ]);
     return cfgMMP.musicEnabled && cfgMMP.enableMissingMusicPatch;
   },
-  onStop: async (request, filter, src) => {
+  onStop: async (url, src, callback) => {
     let patches = 0;
     src = src.replace(/(\w+\.ost\[\w+\])/g, (match, $1) => {
       patches++;
@@ -28,6 +28,10 @@ createRewriteFilter("Missing Music Patch", "https://tetr.io/js/tetrio.js", {
     });
     console.log(`Missing music patch applied to ${patches} locations.`);
 
-    filter.write(new TextEncoder().encode(src));
+    callback({
+      type: 'text/javascript',
+      data: src,
+      encoding: 'text'
+    });
   }
 });

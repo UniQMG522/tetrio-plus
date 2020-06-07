@@ -3,7 +3,7 @@ createRewriteFilter("OSD hooks", "https://tetr.io/js/tetrio.js", {
     let res = await browser.storage.local.get('enableOSD');
     return res.enableOSD;
   },
-  onStop: async (request, filter, src) => {
+  onStop: async (url, src, callback) => {
     /*
       This patch exposes the game's key map as a global variable
       It's not actually used in the current implementation
@@ -55,6 +55,11 @@ createRewriteFilter("OSD hooks", "https://tetr.io/js/tetrio.js", {
     });
     if (!patched) console.log('OSD hooks filter broke, stage 3/3');
 
-    filter.write(new TextEncoder().encode(src));
+    callback({
+      type: 'text/javascript',
+      data: src,
+      encoding: 'text'
+    });
+    // filter.write(new TextEncoder().encode(src));
   }
 })

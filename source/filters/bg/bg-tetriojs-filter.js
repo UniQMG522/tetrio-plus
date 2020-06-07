@@ -23,7 +23,7 @@ createRewriteFilter("Tetrio.js BG", "https://tetr.io/js/tetrio.js", {
     if (numBackgrounds == 0) return false; // no backgrounds
     return true;
   },
-  onStop: async (request, filter, src) => {
+  onStop: async (url, src, callback) => {
     let res = await browser.storage.local.get([
       'animatedBgEnabled',
       'animatedBackground',
@@ -58,6 +58,12 @@ createRewriteFilter("Tetrio.js BG", "https://tetr.io/js/tetrio.js", {
       "Please update your plugin. "
     );
 
-    filter.write(new TextEncoder().encode(src));
+    callback({
+      type: 'text/javascript',
+      data: src,
+      encoding: 'text'
+    });
+
+    // filter.write(new TextEncoder().encode(src));
   }
 });
