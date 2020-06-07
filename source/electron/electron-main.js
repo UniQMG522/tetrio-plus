@@ -177,8 +177,6 @@ app.whenReady().then(async () => {
   });
 
   let tp = new BrowserWindow({
-    x: 1913,
-    y: 1080/2,
     width: 1000,
     height: 600,
     webPreferences: {
