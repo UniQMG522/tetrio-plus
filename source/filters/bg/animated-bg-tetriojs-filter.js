@@ -15,7 +15,7 @@ createRewriteFilter("Tetrio.js Animated BG", "https://tetr.io/js/tetrio.js", {
   onStop: async (url, src, callback) => {
     let regex = /(new PIXI\.Application\({[^}]+)(transparent:[^,]+),([^}]+}\))/g;
     let newSrc = src.replace(regex, '$1transparent:true,$3');
-    if (newSrc === src) greenlog(
+    if (newSrc === src) console.log(
       "Animated custom background rewrite failed. " +
       "Please update your plugin. "
     );

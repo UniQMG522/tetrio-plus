@@ -5,8 +5,7 @@ const path = require('path');
 const vm = require('vm');
 const fs = require('fs');
 
-const json = fs.readFileSync(path.join(__dirname, '../../manifest.json'), 'utf8');
-const manifest = JSON.parse(json);
+const manifest = require('../../desktop-manifest.js');
 
 let mainWindow = new Promise(res => {
   module.exports = res;

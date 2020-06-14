@@ -1,5 +1,5 @@
 (() => {
-  const manifest = require('../../manifest.json');
+  const manifest = require('../../desktop-manifest.js');
   const browser = require('./electron-browser-polyfill');
   const path = require('path');
   const fs = require('fs');

@@ -8,8 +8,6 @@ createRewriteFilter("Music Request", "https://tetr.io/res/bgm/*", {
   enabledFor: async url => {
     let match = /\?song=([^&]+)/.exec(url);
     if (!match) {
-      greenlog("[Music Request filter] Ignoring, no song ID:", url);
-
       console.log("[Music Request filter] Ignoring, no song ID:", url);
       return false;
     }
