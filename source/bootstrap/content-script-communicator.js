@@ -44,9 +44,6 @@ browser.runtime.onConnect.addListener(port => {
         if (config.animatedBgEnabled)
           features.push('animated backgrounds');
 
-        if (config.enableSpeens)
-          features.push('april fools text');
-
         if (config.enableOSD)
           features.push('key OSD');
 
