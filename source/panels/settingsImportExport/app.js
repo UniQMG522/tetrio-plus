@@ -6,6 +6,14 @@ function parseBoolean(key) {
   }
 }
 
+function electronOnly(callback) {
+  return async value => {
+    if (!browser.electron)
+      return 'ERROR: This option is only for the desktop client';
+    return await callback(value);
+  }
+}
+
 const importers = {
   sfxEnabled: parseBoolean('sfxEnabled'),
   musicEnabled: parseBoolean('musicEnabled'),
@@ -14,7 +22,8 @@ const importers = {
   enableOSD: parseBoolean('enableOSD'),
   bgEnabled: parseBoolean('bgEnabled'),
   animatedBgEnabled: parseBoolean('animatedBgEnabled'),
-  transparentBgEnabled: parseBoolean('transparentBgEnabled'),
+  transparentBgEnabled: electronOnly(parseBoolean('transparentBgEnabled')),
+  openDevtoolsOnStart: electronOnly(parseBoolean('openDevtoolsOnStart')),
   skin: async svgText => {
     let parser = new DOMParser();
     let svg = parser.parseFromString(svgText, 'application/xhtml+xml');
