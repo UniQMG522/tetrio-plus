@@ -24,6 +24,9 @@ const app = new Vue({
             Enable key OSD (may break the game)
           </option-toggle>
         </div>
+        <option-toggle storageKey="openDevtoolsOnStart" v-if="isElectron">
+          Open devtools automatically
+        </option-toggle>
         <div title="Changes the look of Tetr.io+ based on your browser theme. May look awful with some themes.">
           <theme-manager />
         </div>
@@ -32,7 +35,6 @@ const app = new Vue({
             Manage data
           </button>
         </div>
-
       </fieldset>
 
       <strong>Hard refresh (<kbd>ctrl-F5</kbd>) Tetrio after making changes.</strong><br>
@@ -50,6 +52,9 @@ const app = new Vue({
   data: {
   },
   computed: {
+    isElectron() {
+      return !!browser.electron;
+    }
   },
   methods: {
     openSettingsIO() {

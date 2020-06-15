@@ -190,10 +190,12 @@ app.whenReady().then(async () => {
     }
   }
 
-  let mainContents = (await mainWindow).webContents;
-  mainContents.on('dom-ready', async evt => {
-    mainContents.openDevTools();
-  });
+  if (store.get('openDevtoolsOnStart')) {
+    let mainContents = (await mainWindow).webContents;
+    mainContents.on('dom-ready', async evt => {
+      mainContents.openDevTools();
+    });
+  }
 
   let tp = new BrowserWindow({
     width: 1000,
