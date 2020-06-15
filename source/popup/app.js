@@ -19,11 +19,6 @@ const app = new Vue({
 
       <fieldset>
         <legend>Miscellaneous options</legend>
-        <div title="LARGE O SPEEN TWO MANY TIMES">
-          <option-toggle storageKey="enableSpeens">
-            Enable april fools text (may break the game)
-          </option-toggle>
-        </div>
         <div title="Shows what keys are pressed, for streaming or recording. Works on replays too!">
           <option-toggle storageKey="enableOSD">
             Enable key OSD (may break the game)

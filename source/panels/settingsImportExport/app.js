@@ -11,7 +11,6 @@ const importers = {
   musicEnabled: parseBoolean('musicEnabled'),
   disableVanillaMusic: parseBoolean('disableVanillaMusic'),
   enableMissingMusicPatch: parseBoolean('enableMissingMusicPatch'),
-  enableSpeens: parseBoolean('enableSpeens'),
   enableOSD: parseBoolean('enableOSD'),
   bgEnabled: parseBoolean('bgEnabled'),
   animatedBgEnabled: parseBoolean('animatedBgEnabled'),
