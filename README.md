@@ -19,16 +19,15 @@ These are instructions for *packaging electron releases*. If you just want to in
 - Modify main.js like so:
 ```javascript
 // At the top of the file
-const onMainWindow = require('./tetrioplus/source/electron/electron-main');
+const {
+  onMainWindow,
+  modifyWindowSettings
+} = require('./tetrioplus/source/electron/electron-main');
 
-// In new BrowserWindow()
-webPreferences: {
-  ...,
-  preload: require('path').join(
-    __dirname,
-    './tetrioplus/source/electron/preload.js'
-  )
-}
+// Wrap options passed to new BrowserWindow with modifyWindowSettings()
+const win = new BrowserWindow(modifyWindowSettings({
+  ...
+}));
 
 // At the end of createWindow()
 onMainWindow(mainWindow);
