@@ -15,6 +15,7 @@ const importers = {
   enableOSD: parseBoolean('enableOSD'),
   bgEnabled: parseBoolean('bgEnabled'),
   animatedBgEnabled: parseBoolean('animatedBgEnabled'),
+  transparentBgEnabled: parseBoolean('transparentBgEnabled'),
   skin: async svgText => {
     let parser = new DOMParser();
     let svg = parser.parseFromString(svgText, 'application/xhtml+xml');

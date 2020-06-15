@@ -57,6 +57,13 @@ export default {
     enabledIfKey: {
       type: String,
       default: ""
+    },
+    /**
+     * Inverts the enabled status of the checkbox based on enabledIfKey
+     */
+    invertEnabled: {
+      type: Boolean,
+      default: false
     }
   },
   data: () => ({
@@ -93,7 +100,8 @@ export default {
       browser.storage.local.get(this.enabledIfKey).then(result => {
         this.cache[this.enabledIfKey] = result[this.enabledIfKey];
       });
-      return !this.cache[this.enabledIfKey];
+      let value = this.cache[this.enabledIfKey];
+      return this.invertEnabled ? !!value : !value;
     }
   }
 }

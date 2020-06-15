@@ -37,6 +37,22 @@ export default {
           </option-toggle>
         </option-toggle>
 
+
+        <option-toggle
+          storageKey="transparentBgEnabled"
+          enabledIfKey="bgEnabled"
+          :invertEnabled="true"
+          v-if="isElectron"
+        >
+          Enable transparent window (may break the game)
+        </option-toggle>
+        <option-toggle storageKey="transparentBgEnabled" mode="show">
+          <div class="extendedWarningText">
+            Transparent window is incompatible with other background options.
+            Requires a <u>restart</u> of the client.
+          </div>
+        </option-toggle>
+
         <fieldset>
           <legend>Custom backgrounds</legend>
           <option-toggle storageKey="bgEnabled" mode="hide">
@@ -80,6 +96,9 @@ export default {
     backgrounds() {
       if (!this.cachedBackgrounds) return [];
       return this.cachedBackgrounds;
+    },
+    isElectron() {
+      return !!browser.electron;
     }
   },
   methods: {

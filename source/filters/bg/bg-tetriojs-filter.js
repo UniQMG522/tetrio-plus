@@ -7,31 +7,36 @@
 createRewriteFilter("Tetrio.js BG", "https://tetr.io/js/tetrio.js", {
   enabledFor: async request => {
     let res = await browser.storage.local.get([
+      'transparentBgEnabled',
       'animatedBackground',
       'animatedBgEnabled',
       'backgrounds',
       'bgEnabled'
     ]);
+
+    if (res.transparentBgEnabled)
+      return true;
+
     if (!res.bgEnabled) return false;
-
-    let numBackgrounds = 0;
     if (res.animatedBgEnabled && res.animatedBackground)
-      numBackgrounds++;
-    else if (res.backgrounds)
-      numBackgrounds += res.backgrounds.length;
+      return true;
+    if (res.backgrounds && res.backgrounds.length > 0)
+      return true;
 
-    if (numBackgrounds == 0) return false; // no backgrounds
-    return true;
+    return false;
   },
   onStop: async (url, src, callback) => {
     let res = await browser.storage.local.get([
+      'transparentBgEnabled',
       'animatedBgEnabled',
       'animatedBackground',
       'backgrounds'
     ]);
 
     let backgrounds = [];
-    if (res.animatedBgEnabled && res.animatedBackground) {
+    if (res.transparentBgEnabled) {
+      backgrounds.push({ id: 'transparent' });
+    } else if (res.animatedBgEnabled && res.animatedBackground) {
       backgrounds.push({ id: 'transparent' });
     } else if (res.backgrounds) {
       backgrounds.push(...res.backgrounds)

@@ -1,7 +1,16 @@
 (async () => {
   let res = await browser.storage.local.get([
-    'bgEnabled', 'animatedBgEnabled'
+    'bgEnabled', 'animatedBgEnabled', 'transparentBgEnabled'
   ]);
+
+  if (res.transparentBgEnabled) {
+    document.documentElement.style.background = 'transparent';
+    document.body.style.background = 'transparent';
+
+    let draggable = document.createElement('div');
+    draggable.classList.add('draggable-header-overlay');
+    document.body.appendChild(draggable);
+  }
 
   if (res.bgEnabled && res.animatedBgEnabled) {
     let canvas = document.getElementById('pixi');

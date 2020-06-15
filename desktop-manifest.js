@@ -28,6 +28,7 @@ manifest.browser_specific_settings.desktop_client = {
     "source/content/osd.js"
   ],
   "inject_css": [
+    "source/content/draggable-header.css",
     "source/content/osd.css"
   ]
 };

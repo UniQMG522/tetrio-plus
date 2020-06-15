@@ -7,8 +7,28 @@ const fs = require('fs');
 
 const manifest = require('../../desktop-manifest.js');
 
-let mainWindow = new Promise(res => {
-  module.exports = res;
+const Store = require('electron-store');
+const store = new Store({ name: 'tetrio-plus' });
+
+
+
+function modifyWindowSettings(settings) {
+  settings.webPreferences.preload = path.join(__dirname, 'preload.js');
+
+  if (store.get('transparentBgEnabled')) {
+    settings.frame = false;
+    settings.transparent = true;
+    settings.backgroundColor = '#00000000';
+  }
+
+  return settings;
+}
+
+const mainWindow = new Promise(res => {
+  module.exports = {
+    onMainWindow: res,
+    modifyWindowSettings
+  }
 });
 
 const greenlog = (...args) => console.log(
