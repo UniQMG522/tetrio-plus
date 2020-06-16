@@ -11,7 +11,10 @@ bugs, remove the extension and try again *before* reporting it**
 
 ## Electron packaging instructions
 
-These are instructions for *packaging electron releases*. If you just want to install tetrio-plus, download an `app.asar` from the releases page and replace the existing `app.asar` file in your tetrio install directory (`C:\\Users\\%CURRENTUSER%\\AppData\\Local\\Programs\\tetrio-desktop\\resources\app.asar` on windows).
+These are instructions for *packaging electron releases*.
+***If you just want to install tetrio-plus, download an `app.asar` from the releases page and replace the existing `app.asar` file in your tetrio install directory***.
+These are pre-packaged versions, the following instructions are for developers who modify tetrio-plus themselves.
+(`C:\\Users\\%CURRENTUSER%\\AppData\\Local\\Programs\\tetrio-desktop\\resources\app.asar` on windows).
 
 - `cd resources`
 - Unpack the asar with `asar extract app.asar out`
