@@ -26,6 +26,7 @@
       "source/lib/base64-recoder.js",
       "source/bootstrap/browser/createRewriteFilter.js",
 
+      "source/filters/music-graph-hooks.js",
       "source/filters/music/music-tetriojs-filter.js",
       "source/filters/music/music-request-filter.js",
       "source/filters/music/missing-music-patch-filter.js",
@@ -49,7 +50,8 @@
     "js": [
       "source/content/content-script.js",
       "source/content/animated-bg.js",
-      "source/content/osd.js"
+      "source/content/osd.js",
+      "source/content/music-graph-hook-handler.js"
     ],
     "run_at": "document_idle"
   }],

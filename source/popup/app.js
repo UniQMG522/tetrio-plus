@@ -12,6 +12,13 @@ const app = new Vue({
       <h1>Tetr.io+</h1>
       <hr>
 
+      <fieldset>
+        <legend>Super advanced music</legend>
+        <button @click="openMusicGraphEditor()">
+          Open music graph editor
+        </button>
+      </fieldset>
+
       <skin-changer /><hr>
       <sfx-manager /><hr>
       <music-manager /><hr>
@@ -65,6 +72,14 @@ const app = new Vue({
         ),
         width: 600,
         height: 520
+      });
+    },
+    openMusicGraphEditor() {
+      browser.tabs.create({
+        url: browser.extension.getURL(
+          'source/panels/musicgrapheditor/index.html'
+        ),
+        active: true
       });
     }
   }
