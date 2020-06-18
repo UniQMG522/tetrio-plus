@@ -36,6 +36,7 @@ try {
       }
 
       setSource(source, startTime=0) {
+        if (this.destroyed) return;
         console.log(`Node ${this?.source?.name} -> ${source.name}`)
         this.source = source;
 
@@ -58,6 +59,7 @@ try {
       }
 
       restartAudio(startTime) {
+        if (this.destroyed) return;
         if (!this.source.audio) {
           this.runTriggersByName('node-end');
           return;
@@ -82,6 +84,7 @@ try {
       }
 
       destroy() {
+        this.destroyed = true;
         this.audio.stop();
         let index = nodes.indexOf(this);
         if (index !== -1)
@@ -132,8 +135,9 @@ try {
               trigger.event == 'random-target' && trigger.mode != 'random'
             );
             if (triggers.length == 0) break;
-            let trigger = triggers[Math.floor(Math.random() * triggers.length)];
-            this.runTrigger(trigger);
+            this.runTrigger(triggers[
+              Math.floor(Math.random() * triggers.length)
+            ]);
             break;
         }
       }
@@ -191,7 +195,7 @@ try {
         recentEvents = recentEvents.slice(-30);
       }
 
-      for (let node of nodes) {
+      for (let node of [...nodes]) {
         for (let trigger of node.source.triggers) {
           if (trigger.event != eventName)
             continue;
