@@ -126,6 +126,15 @@ try {
           case 'kill':
             this.destroy();
             break;
+
+          case 'random':
+            let triggers = this.source.triggers.filter(trigger =>
+              trigger.event == 'random-target' && trigger.mode != 'random'
+            );
+            if (triggers.length == 0) break;
+            let trigger = triggers[Math.floor(Math.random() * triggers.length)];
+            this.runTrigger(trigger);
+            break;
         }
       }
 

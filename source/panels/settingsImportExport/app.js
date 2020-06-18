@@ -215,7 +215,7 @@ const importers = {
         return `ERROR: Expected array at [].triggers`;
 
       for (let trigger of node.triggers) {
-        if (['fork', 'goto', 'kill'].indexOf(trigger.mode) == -1)
+        if (['fork', 'goto', 'kill', 'random'].indexOf(trigger.mode) == -1)
           return `ERROR: Expected enum value at [].triggers[].mode`;
 
         if (typeof trigger.target != 'number')

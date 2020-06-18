@@ -3,6 +3,7 @@ const html = arg => arg.join(''); // NOOP, for editor integration.
 const events = [
   'node-end',
   'time-passed',
+  'random-target',
   'text-clear-none',
   'text-clear-single',
   'text-clear-double',
@@ -108,7 +109,11 @@ const app = new Vue({
                 <div>
                   <b>Event</b>
                   <select v-model="trigger.event">
-                    <option v-for="evt of events" :value="evt">{{evt}}</option>
+                    <option
+                      v-for="evt of events"
+                      :value="evt"
+                      :disabled="trigger.mode == 'random' && evt == 'random-target'"
+                    >{{evt}}</option>
                   </select>
                   <button @click="removeTrigger(node, trigger)">❌</button>
                   <button @click="copyTrigger(trigger)">Copy</button>
@@ -125,6 +130,9 @@ const app = new Vue({
                     <option value="fork">Create new node</option>
                     <option value="goto">Go to node</option>
                     <option value="kill">Stop executing</option>
+                    <option value="random" :disabled="trigger.event == 'random-target'">
+                      Run a random-target trigger
+                    </option>
                   </select>
                 </div>
                 <div v-if="trigger.mode != 'kill'">
