@@ -17,6 +17,7 @@ function electronOnly(callback) {
 const importers = {
   sfxEnabled: parseBoolean('sfxEnabled'),
   musicEnabled: parseBoolean('musicEnabled'),
+  musicGraphEnabled: parseBoolean('musicGraphEnabled'),
   disableVanillaMusic: parseBoolean('disableVanillaMusic'),
   enableMissingMusicPatch: parseBoolean('enableMissingMusicPatch'),
   enableOSD: parseBoolean('enableOSD'),
@@ -140,7 +141,8 @@ const importers = {
       if (typeof song.metadata.source != 'string')
         return `ERROR: Expected string at [].metadata.source`;
 
-      if (['INTERFACE', 'CALM', 'BATTLE'].indexOf(song.metadata.genre) === -1)
+      let genres = ['INTERFACE', 'CALM', 'BATTLE', 'DISABLED'];
+      if (genres.indexOf(song.metadata.genre) === -1)
         return `ERROR: Unknown genre at [].metadata.genre`;
 
       if (typeof song.metadata.loop != 'boolean')
@@ -173,6 +175,73 @@ const importers = {
     }
 
     toSet.music = JSON.parse(JSON.stringify(music));
+    await browser.storage.local.set(toSet);
+    return 'success';
+  },
+  musicGraph: async (graph, importData) => {
+    let toSet = {};
+
+    try {
+      graph = JSON.parse(graph);
+    } catch(ex) {
+      return `ERROR: Invalid json: ${ex}`
+    }
+
+    if (!Array.isArray(graph)) return `ERROR: Expected array`;
+    for (let node of graph) {
+      if (typeof node.id != 'number')
+        return `ERROR: Expected number at [].id`;
+
+      if (['normal', 'root'].indexOf(node.type) == -1)
+        return `ERROR: Expected enum value at [].type`;
+
+      if (typeof node.name != 'string')
+        return `ERROR: Expected string at [].name`;
+
+
+      if (node.audio !== null) {
+        if (typeof node.audio != 'string')
+          return `ERROR: Expected string or null at [].audio`;
+
+        let mp3 = importData['song-' + node.audio];
+        if (typeof mp3 != 'string' || !/^data:audio\/.+?;base64,/.test(mp3))
+          return `ERROR: Missing/invalid songfile ${node.audio}`;
+        toSet['song-' + node.audio] = mp3;
+      }
+
+      if (!Array.isArray(node.triggers))
+        return `ERROR: Expected array at [].triggers`;
+
+      for (let trigger of node.triggers) {
+        if (['fork', 'goto', 'kill'].indexOf(trigger.mode) == -1)
+          return `ERROR: Expected enum value at [].triggers[].mode`;
+
+        if (typeof trigger.target != 'number')
+          return `ERROR: Expected number value at [].triggers[].target`;
+
+        if (typeof trigger.event != 'string')
+          return `ERROR: Expected string value at [].triggers[].event`;
+
+        if (typeof trigger.preserveLocation != 'boolean')
+          return `ERROR: Expected boolean value at [].triggers[].preserveLocation`;
+
+        if (typeof trigger.value != 'number' || trigger.value < 0)
+          return `ERROR: Expected positive number value at [].triggers[].value`;
+
+        let allowed = ['mode', 'target', 'event', 'preserveLocation', 'value'];
+        for (let key of Object.keys(trigger))
+          if (allowed.indexOf(key) == -1)
+            return `ERROR: Unexpected value at [].triggers[].${key}`;
+      }
+
+      let allowed = ['id', 'type', 'name', 'audio', 'triggers'];
+      for (let key of Object.keys(node))
+        if (allowed.indexOf(key) == -1)
+          return `ERROR: Unexpected value at [].${key}`;
+    }
+
+    toSet.musicGraph = JSON.stringify(graph);
+    console.log("Set", toSet);
     await browser.storage.local.set(toSet);
     return 'success';
   }

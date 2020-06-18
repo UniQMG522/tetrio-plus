@@ -15,8 +15,8 @@ const events = [
     no way to tell once a b2b ends, so we use a seperate event
   */
   'text-b2b',
-  'text-b2b-reset', // also_failed
-  'text-b2b-combo', // also, also_permanent /B2B \d+/
+  'text-b2b-reset',
+  'text-b2b-combo',
   'text-combo'
 ];
 
@@ -112,10 +112,7 @@ const app = new Vue({
               </div>
               <div>
                 <b>Mode</b>
-                <span v-if="node.type == 'root'">
-                  Create new node
-                </span>
-                <select v-model="trigger.mode" v-else>
+                <select v-model="trigger.mode">
                   <option value="fork">Create new node</option>
                   <option value="goto">Go to node</option>
                   <option value="kill">Stop executing</option>

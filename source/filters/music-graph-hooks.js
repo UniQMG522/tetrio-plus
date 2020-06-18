@@ -2,7 +2,10 @@
 */
 createRewriteFilter("Test hooks", "https://tetr.io/js/tetrio.js", {
   enabledFor: async url => {
-    return true;
+    let res = await browser.storage.local.get([
+      'musicEnabled', 'musicGraphEnabled'
+    ]);
+    return res.musicEnabled && res.musicGraphEnabled;
   },
   onStop: async (url, src, callback) => {
     try {

@@ -11,6 +11,7 @@ manifest.browser_specific_settings.desktop_client = {
     "source/bootstrap/electron/createRewriteFilter.js",
     "source/lib/base64-recoder.js",
     "source/filters/svg-filter.js",
+    "source/filters/music-graph-hooks.js",
     "source/filters/music/music-tetriojs-filter.js",
     "source/filters/music/missing-music-patch-filter.js",
     "source/filters/music/music-request-filter.js",
@@ -25,7 +26,8 @@ manifest.browser_specific_settings.desktop_client = {
     "source/bootstrap/content-script-communicator.js",
     "source/content/content-script.js",
     "source/content/animated-bg.js",
-    "source/content/osd.js"
+    "source/content/osd.js",
+    "source/content/music-graph-hook-handler.js"
   ],
   "inject_css": [
     "source/content/draggable-header.css",

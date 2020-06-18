@@ -63,6 +63,7 @@ export default {
           <option value="CALM">Calm</option>
           <option value="BATTLE">Battle</option>
           <option value="INTERFACE">Interface</option>
+          <option value="DISABLED">Disabled/Music graph only</option>
         </select>
       </div>
       <div>

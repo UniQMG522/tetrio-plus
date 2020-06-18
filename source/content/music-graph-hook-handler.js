@@ -1,10 +1,14 @@
 try {
   (async function() {
-    let { music, musicGraph } = await browser.storage.local.get([
-      'music', 'musicGraph'
+    let {
+      music, musicGraph, musicEnabled, musicGraphEnabled
+    } = await browser.storage.local.get([
+      'music', 'musicGraph', 'musicEnabled', 'musicGraphEnabled'
     ]);
-    const musicRoot = '/res/bgm/akai-tsuchi-wo-funde.mp3?song=';
+    if (!musicEnabled || !musicGraphEnabled)
+      return;
 
+    const musicRoot = '/res/bgm/akai-tsuchi-wo-funde.mp3?song=';
     const context = new AudioContext();
     const audioBuffers = {};
 
@@ -181,8 +185,7 @@ try {
 
       switch (evt.detail.type) {
         case 'clear':
-          let evt = 'text-clear-' + evt.detail.text.toLowerCase();
-          dispatchEvent(evt);
+          dispatchEvent('text-clear-' + evt.detail.text.toLowerCase());
           break;
 
         case 'combo':

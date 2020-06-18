@@ -13,9 +13,18 @@ export default {
       <button @click="openMusicUploader" title="Opens the music uploader window">
         Add new music
       </button>
+      <button @click="openMusicGraphEditor()">
+        Open music graph editor
+      </button>
+
       <div title="Enables custom music">
         <option-toggle storageKey="musicEnabled">
           Enable custom music (may break the game)
+        </option-toggle>
+      </div>
+      <div title="Enables custom music">
+        <option-toggle storageKey="musicGraphEnabled" enabledIfKey="musicEnabled">
+          Enable music graph (may break the game)
         </option-toggle>
       </div>
       <div title="Removes the game's existing soundtrack">
@@ -28,7 +37,6 @@ export default {
           Enable missing music patch (may break the game)
         </option-toggle>
       </div>
-
       <option-toggle storageKey="musicEnabled" mode="show">
         <option-toggle storageKey="disableVanillaMusic" mode="show">
           <option-toggle storageKey="enableMissingMusicPatch" mode="hide">
@@ -46,25 +54,23 @@ export default {
 
       <fieldset>
         <legend>Custom music</legend>
-        <option-toggle storageKey="musicEnabled" mode="hide">
-          Custom music disabled
-        </option-toggle>
-        <option-toggle storageKey="musicEnabled" mode="show">
-          <div v-if="music.length == 0">
-            No custom music
-          </div>
-          <div class="music" v-else v-for="song of music">
-            <button @click="deleteSong(song)" title="Removes this song">
-              Delete
-            </button>
-            <button @click="editSong(song)" title="Shows the editor for this song">
-              Edit
-            </button>
-            <span class="songName" :title="JSON.stringify(song, null, 2)">
-              {{ song.filename }}
-            </span>
-          </div>
-        </option-toggle>
+        <div v-if="music.length == 0">
+          No custom music
+        </div>
+        <div class="music" v-else v-for="song of music">
+          <button @click="deleteSong(song)" title="Removes this song">
+            Delete
+          </button>
+          <button @click="editSong(song)" title="Shows the editor for this song">
+            Edit
+          </button>
+          <span class="songCategory">
+            {{ song.metadata.genre.slice(0,1) }}
+          </span>
+          <span class="songName" :title="JSON.stringify(song, null, 2)">
+            {{ song.filename }}
+          </span>
+        </div>
       </fieldset>
     </div>
   `,
@@ -92,6 +98,14 @@ export default {
         url: browser.extension.getURL('source/panels/musicpicker/index.html'),
         width: 300,
         height: 50
+      });
+    },
+    openMusicGraphEditor() {
+      browser.tabs.create({
+        url: browser.extension.getURL(
+          'source/panels/musicgrapheditor/index.html'
+        ),
+        active: true
       });
     },
     refreshSongs() {

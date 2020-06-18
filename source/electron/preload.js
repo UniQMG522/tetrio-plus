@@ -11,7 +11,11 @@
     for (let script of scripts) {
       console.log("js:", script);
       let src = fs.readFileSync(path.join(__dirname, '../..', script), 'utf8');
-      eval(src);
+      try {
+        eval(src);
+      } catch(ex) {
+        console.error("Error executing content script " + src + ": ", ex);
+      }
     }
 
     let css = manifest.browser_specific_settings.desktop_client.inject_css;
