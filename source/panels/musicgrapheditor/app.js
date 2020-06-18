@@ -65,80 +65,102 @@ const app = new Vue({
       <span :style="{ opacity: this.saveOpacity }">Saved!</span>
       <div>
         <fieldset v-for="node of nodes" :id="'node-' + node.id">
-          <legend v-if="node.type == 'root'">
-            Root
+          <legend>
+            <button @click="node.hidden = false" v-if="node.hidden == true">⮞</button>
+            <button @click="node.hidden = true" v-else>⮟</button>
+            <template v-if="node.type == 'root'">
+              Root
+            </template>
+            <template v-else>
+              <input type="text" v-model="node.name"/>
+              <button @click="removeNode(node)">❌</button>
+              <button @click="copyNode(node)">Copy</button>
+              <button @click="shiftNode(node, -1)">🔼</button>
+              <button @click="shiftNode(node, 1)">🔽</button>
+            </template>
           </legend>
-          <legend v-else>
-            <input type="text" v-model="node.name"/>
-            <button @click="removeNode(node)">❌</button>
-            <button @click="shiftNode(node, -1)">🔼</button>
-            <button @click="shiftNode(node, 1)">🔽</button>
-          </legend>
 
-          <div class="section" v-if="node.type != 'root'">
-            Select audio:
-            <select v-model="node.audio">
-              <option :value="null">None</option>
-              <option v-for="song of music" :value="song.id">
-                {{ song.filename }}
-              </option>
-            </select>
-            <div v-if="music.length == 0">
-              (Add music in the main tetrio+ menu)
-            </div>
-          </div>
-
-          <div v-if="(reverseLinkLookupTable[node.id] || []).size > 0"
-               class="section">
-            Linked from
-            <span v-for="link of reverseLinkLookupTable[node.id]" class="linkback">
-              <a :href="'#node-' + nodes[link].id">{{ nodes[link].name }}</a>
-            </span>
-          </div>
-
-          Triggers
-          <div class="triggers section">
-            <div class="trigger" v-for="trigger of node.triggers">
-              <div>
-                <b>Event</b>
-                <select v-model="trigger.event">
-                  <option v-for="evt of events" :value="evt">{{evt}}</option>
-                </select>
-                <button @click="removeTrigger(node, trigger)">❌</button>
-              </div>
-              <div v-if="eventValueStrings[trigger.event]">
-                <b>{{ eventValueStrings[trigger.event] }}</b>
-                <input type="number" v-model.number="trigger.value" />
-              </div>
-              <div>
-                <b>Mode</b>
-                <select v-model="trigger.mode">
-                  <option value="fork">Create new node</option>
-                  <option value="goto">Go to node</option>
-                  <option value="kill">Stop executing</option>
-                </select>
-              </div>
-              <div v-if="trigger.mode != 'kill'">
-                <b>Target</b>
-                <select v-model="trigger.target">
-                  <option :value="node.id" v-for="node of nodes">
-                    {{ node.name }}
-                  </option>
-                </select>
-                <a :href="'#node-' + trigger.target">jump</a>
-              </div>
-              <div v-if="trigger.mode != 'kill'">
-                <input type="checkbox" v-model="trigger.preserveLocation" />
-                Preserve location after jumping
+          <div v-show="!node.hidden">
+            <div class="section" v-if="node.type != 'root'">
+              Select audio:
+              <select v-model="node.audio">
+                <option :value="null">None</option>
+                <option v-for="song of music" :value="song.id">
+                  {{ song.filename }}
+                </option>
+              </select>
+              <div v-if="music.length == 0">
+                (Add music in the main tetrio+ menu)
               </div>
             </div>
-            <div>
-              <button @click="addTrigger(node)">New trigger</button>
+
+            <div v-if="(reverseLinkLookupTable[node.id] || []).size > 0"
+                 class="section">
+              Linked from
+              <span v-for="link of reverseLinkLookupTable[node.id]" class="linkback">
+                <a :href="'#node-' + nodes[link].id">{{ nodes[link].name }}</a>
+              </span>
+            </div>
+
+            Triggers
+            <div class="triggers section">
+              <div class="trigger" v-for="trigger of node.triggers">
+                <div>
+                  <b>Event</b>
+                  <select v-model="trigger.event">
+                    <option v-for="evt of events" :value="evt">{{evt}}</option>
+                  </select>
+                  <button @click="removeTrigger(node, trigger)">❌</button>
+                  <button @click="copyTrigger(trigger)">Copy</button>
+                  <button @click="shiftTrigger(node, trigger, -1)">🔼</button>
+                  <button @click="shiftTrigger(node, trigger, 1)">🔽</button>
+                </div>
+                <div v-if="eventValueStrings[trigger.event]">
+                  <b>{{ eventValueStrings[trigger.event] }}</b>
+                  <input type="number" v-model.number="trigger.value" />
+                </div>
+                <div>
+                  <b>Mode</b>
+                  <select v-model="trigger.mode">
+                    <option value="fork">Create new node</option>
+                    <option value="goto">Go to node</option>
+                    <option value="kill">Stop executing</option>
+                  </select>
+                </div>
+                <div v-if="trigger.mode != 'kill'">
+                  <b>Target</b>
+                  <select v-model="trigger.target">
+                    <option :value="node.id" v-for="node of nodes">
+                      {{ node.name }}
+                    </option>
+                  </select>
+                  <a :href="'#node-' + trigger.target">jump</a>
+                </div>
+                <div v-if="trigger.mode != 'kill'">
+                  <input type="checkbox" v-model="trigger.preserveLocation" />
+                  Preserve location after jumping
+                </div>
+              </div>
+              <div>
+                <button @click="addTrigger(node)">
+                  New trigger
+                </button>
+                <button @click="pasteTrigger(node)" :disabled="!copiedTrigger">
+                  Paste trigger
+                </button>
+                <button @click="pasteNode(node)" :disabled="!copiedNode">
+                  Paste node here
+                </button>
+                <button @click="moveNode(node)" :disabled="!copiedNode">
+                  Move node here
+                </button>
+              </div>
             </div>
           </div>
         </fieldset>
       </div>
       <button @click="addNode()">Add node</button>
+      <button @click="pasteNode()" :disabled="!copiedNode">Paste node</button>
     </div>
   `,
   data: {
@@ -150,10 +172,13 @@ const app = new Vue({
       type: 'root',
       name: 'root',
       audio: null,
-      triggers: []
+      triggers: [],
+      hidden: false
     }],
     maxId: 0,
-    saveOpacity: 0
+    saveOpacity: 0,
+    copiedNode: null,
+    copiedTrigger: null
   },
   computed: {
     reverseLinkLookupTable() {
@@ -177,7 +202,8 @@ const app = new Vue({
         type: 'normal',
         name: 'new node ' + this.maxId,
         audio: null,
-        triggers: []
+        triggers: [],
+        hidden: false
       })
     },
     addTrigger(node) {
@@ -195,6 +221,11 @@ const app = new Vue({
       this.nodes.splice(index, 1);
       this.nodes.splice(index+dir, 0, node);
     },
+    shiftTrigger(node, trigger, dir) {
+      let index = node.triggers.indexOf(trigger);
+      node.triggers.splice(index, 1);
+      node.triggers.splice(index+dir, 0, trigger);
+    },
     removeNode(node) {
       this.nodes.splice(this.nodes.indexOf(node), 1);
     },
@@ -211,6 +242,29 @@ const app = new Vue({
         if (this.saveOpacity <= 0)
           clearTimeout(timeout);
       }, 50);
+    },
+    copyNode(node) {
+      this.copiedNode = node;
+    },
+    copyTrigger(trigger) {
+      this.copiedTrigger = trigger;
+    },
+    moveNode(nodeBefore) {
+      this.pasteNode(nodeBefore);
+      let index = this.nodes.indexOf(this.copiedNode);
+      if (index !== -1) this.nodes.splice(index, 1);
+    },
+    pasteNode(nodeBefore) {
+      if (!this.copiedNode) return;
+      let index = this.nodes.indexOf(nodeBefore);
+      if (index == -1) index = this.nodes.length;
+      let copy = JSON.parse(JSON.stringify(this.copiedNode));
+      this.nodes.splice(index, 0, copy);
+    },
+    pasteTrigger(target) {
+      if (!this.copiedTrigger) return;
+      let copy = JSON.parse(JSON.stringify(this.copiedTrigger));
+      target.triggers.push(copy);
     }
   },
   mounted() {

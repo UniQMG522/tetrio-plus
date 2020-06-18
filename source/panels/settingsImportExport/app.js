@@ -198,7 +198,6 @@ const importers = {
       if (typeof node.name != 'string')
         return `ERROR: Expected string at [].name`;
 
-
       if (node.audio !== null) {
         if (typeof node.audio != 'string')
           return `ERROR: Expected string or null at [].audio`;
@@ -208,6 +207,9 @@ const importers = {
           return `ERROR: Missing/invalid songfile ${node.audio}`;
         toSet['song-' + node.audio] = mp3;
       }
+
+      if (typeof node.hidden != 'boolean')
+        return `ERROR: Expected boolean value at [].hidden`;
 
       if (!Array.isArray(node.triggers))
         return `ERROR: Expected array at [].triggers`;
@@ -228,7 +230,9 @@ const importers = {
         if (typeof trigger.value != 'number' || trigger.value < 0)
           return `ERROR: Expected positive number value at [].triggers[].value`;
 
-        let allowed = ['mode', 'target', 'event', 'preserveLocation', 'value'];
+        let allowed = [
+          'mode', 'target', 'event', 'preserveLocation', 'value', 'hidden'
+        ];
         for (let key of Object.keys(trigger))
           if (allowed.indexOf(key) == -1)
             return `ERROR: Unexpected value at [].triggers[].${key}`;

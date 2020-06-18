@@ -150,7 +150,10 @@ try {
       })
       .forEach(node => nodes.push(node));
 
+    let recentEvents = [];
+
     let f8menu = document.getElementById('devbuildid');
+    let f8menuActive = false;
     if (!f8menu) {
       console.log("[Tetr.io+] Can't find '#devbuildid'?")
     } else {
@@ -158,30 +161,42 @@ try {
       f8menu.parentNode.insertBefore(div, f8menu.nextSibling.nextSibling);
       div.style.fontFamily = 'monospace';
       setInterval(() => {
-        if (f8menu.parentNode.classList.contains('off')) return;
+        f8menuActive = !f8menu.parentNode.classList.contains('off');
+        if (!f8menuActive) return;
+
         div.innerText = [
           'Tetr.io+ music graph debug',
+          'Recent events: ' + [...recentEvents].reverse().join(', '),
           ...nodes.map(node => node.toString())
         ].join('\n');
       }, 100);
     }
 
     function dispatchEvent(eventName, value) {
+      if (f8menuActive) {
+        recentEvents.push(
+          typeof value == 'number'
+            ? `${eventName} (${value})`
+            : eventName
+        );
+        recentEvents = recentEvents.slice(-30);
+      }
+
       for (let node of nodes) {
         for (let trigger of node.source.triggers) {
           if (trigger.event != eventName)
             continue;
-          // if (typeof value == 'number' &&
-          //     trigger.value != value &&
-          //     trigger.value != 0)
-          //   continue;
+          if ((typeof value == 'number') &&
+              (trigger.value != value) &&
+              (trigger.value != 0))
+            continue;
           node.runTrigger(trigger);
         }
       }
     }
 
     document.addEventListener('tetrio-plus-actiontext', evt => {
-      // console.log('IJ actiontext', evt.detail.type, evt.detail.text);
+      console.log('IJ actiontext', evt.detail.type, evt.detail.text);
 
       switch (evt.detail.type) {
         case 'clear':
@@ -189,10 +204,11 @@ try {
           break;
 
         case 'combo':
+          console.log("C-c-c-combo!", parseInt(evt.detail.text));
           dispatchEvent('text-combo', parseInt(evt.detail.text));
           break;
 
-        case 'T-spin':
+        case 'tspin':
           dispatchEvent('text-t-spin');
           break;
 
