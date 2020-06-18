@@ -122,7 +122,7 @@ const app = new Vue({
                 </div>
                 <div v-if="eventValueStrings[trigger.event]">
                   <b>{{ eventValueStrings[trigger.event] }}</b>
-                  <input type="number" v-model.number="trigger.value" />
+                  <input type="number" v-model.number="trigger.value" min="0" />
                 </div>
                 <div>
                   <b>Mode</b>
