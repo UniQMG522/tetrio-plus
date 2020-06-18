@@ -230,15 +230,13 @@ const importers = {
         if (typeof trigger.value != 'number' || trigger.value < 0)
           return `ERROR: Expected positive number value at [].triggers[].value`;
 
-        let allowed = [
-          'mode', 'target', 'event', 'preserveLocation', 'value', 'hidden'
-        ];
+        let allowed = ['mode', 'target', 'event', 'preserveLocation', 'value'];
         for (let key of Object.keys(trigger))
           if (allowed.indexOf(key) == -1)
             return `ERROR: Unexpected value at [].triggers[].${key}`;
       }
 
-      let allowed = ['id', 'type', 'name', 'audio', 'triggers'];
+      let allowed = ['id', 'type', 'name', 'audio', 'triggers', 'hidden'];
       for (let key of Object.keys(node))
         if (allowed.indexOf(key) == -1)
           return `ERROR: Unexpected value at [].${key}`;
