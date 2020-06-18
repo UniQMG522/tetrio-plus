@@ -70,7 +70,9 @@ app.whenReady().then(async () => {
   protocol.registerBufferProtocol('tetrio-plus', (req, callback) => {
     (async () => {
       greenlog("tetrio plus request", req.method, req.url);
-      let url = 'https://tetr.io/' + req.url.substring('tetrio-plus://'.length);
+      let url = 'https://tetr.io/' + req.url.substring(
+        'tetrio-plus://tetrio-plus/'.length
+      );
 
       let handlers = rewriteHandlers.filter(handler => {
         return matchesGlob(handler.url, url);

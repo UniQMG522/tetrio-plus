@@ -31,7 +31,7 @@ mainWindow.webContents.session.webRequest.onBeforeRequest(
         greenlog(`[${name} filter] Filtering ${request.url}`);
         let relative = request.url.substring('https://tetr.io/'.length);
         callback({
-          redirectURL: 'tetrio-plus://' + relative
+          redirectURL: 'tetrio-plus://tetrio-plus/' + relative
         });
         return;
       }

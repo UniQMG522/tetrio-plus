@@ -233,7 +233,7 @@ const app = new Vue({
 
     async decode() {
       try {
-        const rootUrl = browser.electron ? 'tetrio-plus://' : 'https://tetr.io/';
+        const rootUrl = browser.electron ? 'tetrio-plus://tetrio-plus/' : 'https://tetr.io/';
 
         this.decodeStarted = true;
         this.decoding = true;
