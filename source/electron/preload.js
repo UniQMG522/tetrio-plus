@@ -8,7 +8,7 @@
   // Temporary stopgap until I find a decent workaround to the whole
   // service worker issue
   navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(reg => reg.unregister);
+    regs.forEach(reg => reg.unregister());
   });
 
   console.log("tetrio-plus preload script running");
