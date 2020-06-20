@@ -26,8 +26,7 @@ createRewriteFilter("Test hooks", "https://tetr.io/js/tetrio.js", {
         )
       });
       if (!match) {
-        console.error('Test hooks broke (1/2)');
-        return;
+        console.error('Music graph hooks broken (1/?)');
       }
 
       /**
@@ -46,8 +45,42 @@ createRewriteFilter("Test hooks", "https://tetr.io/js/tetrio.js", {
         )
       });
       if (!match) {
-        console.error('Test hooks broke (2/2)');
-        return;
+        console.error('Music graph hooks broken (2/?)');
+      }
+
+      /**
+       * This regex locates the variable holding the 'full'/'tiny' value
+       * for the next regex's usage
+       */
+      var rgx = /playIngame\(['"`]warning['"`],(\w+)/;
+      var match = rgx.exec(src);
+      if (!match) {
+        console.error('Music graph hooks broken (3/?)');
+      } else {
+        const typeVar = match[1];
+
+        /**
+         * This regex targets a bit of the code that emits the 'warning' sound
+         * effect, and uses it to emit an event for the current board height
+         * plus incoming garbage height.
+         */
+        var match = false;
+        var rgx = /(let\s*(\w)\s*=\s*\w+\(\).{0,100}\(\2\s*=)(.+)(\)>)/i;
+        src = src.replace(rgx, ($, prematch, varName, expression, postmatch) => {
+          match = true;
+          return (
+            `${prematch}(() => {
+              let height = ${expression};
+              document.dispatchEvent(new CustomEvent('tetrio-plus-actionheight', {
+                detail: { height, type: ${typeVar} }
+              }));
+              return height;
+            })()` + postmatch
+          );
+        });
+        if (!match) {
+          console.error('Music graph hooks broken (4/?)');
+        }
       }
     } finally {
       callback({

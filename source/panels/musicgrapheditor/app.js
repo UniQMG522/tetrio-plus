@@ -18,7 +18,9 @@ const events = [
   'text-b2b',
   'text-b2b-reset',
   'text-b2b-combo',
-  'text-combo'
+  'text-combo',
+  'board-height-player',
+  'board-height-enemy'
 ];
 
 [
@@ -56,7 +58,9 @@ const eventValueStrings = {
   'time-passed': 'Seconds',
   'text-b2b-combo': 'B2Bs performed',
   'text-spike': 'Min spike',
-  'text-combo': 'Combo'
+  'text-combo': 'Combo',
+  'board-height-player': 'Board height',
+  'board-height-enemy': 'Board height'
 };
 
 const app = new Vue({

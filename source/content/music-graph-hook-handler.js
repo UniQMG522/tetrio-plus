@@ -187,12 +187,18 @@ try {
 
     function dispatchEvent(eventName, value) {
       if (f8menuActive) {
-        recentEvents.push(
-          typeof value == 'number'
-            ? `${eventName} (${value})`
-            : eventName
-        );
-        recentEvents = recentEvents.slice(-30);
+        let str = typeof value == 'number'
+          ? `${eventName} (${value})`
+          : eventName;
+
+        let index = recentEvents.indexOf(str);
+        if (index !== -1)
+          recentEvents.splice(index, 1);
+
+        recentEvents.push(str);
+
+        if (recentEvents.length > 20)
+          recentEvents = recentEvents.slice(-20);
       }
 
       for (let node of [...nodes]) {
@@ -260,6 +266,12 @@ try {
       let name = evt.detail.args[0];
       let type = evt.detail.args[1] == 'full' ? 'player' : 'enemy';
       dispatchEvent(`sfx-${name}-${type}`);
+    });
+    document.addEventListener('tetrio-plus-actionheight', evt => {
+      // console.log("Action height!", evt.detail.height, evt.detail.type);
+      let height = evt.detail.height;
+      let type = evt.detail.type == 'full' ? 'player' : 'enemy';
+      dispatchEvent(`board-height-${type}`, evt.detail.height);
     });
   })().catch(console.error);
 
