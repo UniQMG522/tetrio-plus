@@ -59,9 +59,16 @@ const eventValueStrings = {
   'text-b2b-combo': 'B2Bs performed',
   'text-spike': 'Min spike',
   'text-combo': 'Combo',
-  'board-height-player': 'Board height',
-  'board-height-enemy': 'Board height'
+  'board-height-player': 'Rows high',
+  'board-height-enemy': 'Rows high'
 };
+
+const eventValueExtendedModes = {
+  'text-spike': true,
+  'text-combo': true,
+  'board-height-player': true,
+  'board-height-enemy': true
+}
 
 const app = new Vue({
   template: html`
@@ -126,6 +133,13 @@ const app = new Vue({
                 </div>
                 <div v-if="eventValueStrings[trigger.event]">
                   <b>{{ eventValueStrings[trigger.event] }}</b>
+                  <select v-model="trigger.valueOperator"
+                          v-if="eventValueExtendedModes[trigger.event]">
+                    <option value="==" default>Equal to</option>
+                    <option value="!=">Not equal to</option>
+                    <option value=">">Greater than</option>
+                    <option value="<">Less than</option>
+                  </select>
                   <input type="number" v-model.number="trigger.value" min="0" />
                 </div>
                 <div>
@@ -178,6 +192,7 @@ const app = new Vue({
   data: {
     events,
     eventValueStrings,
+    eventValueExtendedModes,
     music: [],
     nodes: [{
       id: 0,
@@ -225,7 +240,8 @@ const app = new Vue({
         event: 'node-end',
         preserveLocation: false,
         // seconds for time-passed, value for text-combo, text-b2b, text-spike
-        value: 0
+        value: 0,
+        valueOperator: '==' // == != > <
       });
     },
     shiftNode(node, dir) {

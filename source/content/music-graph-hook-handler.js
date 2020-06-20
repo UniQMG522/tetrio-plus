@@ -26,10 +26,24 @@ try {
       audioBuffers[src.audio] = decoded;
     }
 
+    // A list of events that use == != > < valueOperators
+    const eventValueExtendedModes = [
+      'text-spike',
+      'text-combo',
+      'board-height-player',
+      'board-height-enemy'
+    ];
+    // A list of events that use the value field
+    const eventValueEnabled = [
+      'time-passed',
+      'text-b2b-combo',
+      ...eventValueExtendedModes
+    ];
+
     const nodes = [];
     class Node {
       constructor() {
-        console.log("Created new node");
+        // console.log("Created new node");
         this.audio = null;
         this.timeouts = [];
         this.startedAt = null;
@@ -37,7 +51,7 @@ try {
 
       setSource(source, startTime=0) {
         if (this.destroyed) return;
-        console.log(`Node ${this?.source?.name} -> ${source.name}`)
+        // console.log(`Node ${this?.source?.name} -> ${source.name}`)
         this.source = source;
 
         for (let timeout of this.timeouts)
@@ -98,10 +112,10 @@ try {
       }
 
       runTrigger(trigger) {
-        console.log(
-          `Node ${this.source.name} running trigger ` +
-          `${trigger.event} ${trigger.mode} ${trigger.target}`
-        );
+        // console.log(
+        //   `Node ${this.source.name} running trigger ` +
+        //   `${trigger.event} ${trigger.mode} ${trigger.target}`
+        // );
         let startTime = trigger.preserveLocation
           ? this.currentTime
           : 0;
@@ -148,6 +162,10 @@ try {
           debug.push('\n​ ​ ​ ​ ');
           debug.push(trigger.event + ' ');
           debug.push(trigger.mode + ' ');
+          if (eventValueExtendedModes.indexOf(trigger.event) > -1)
+            debug.push(trigger.valueOperator + ' ');
+          if (eventValueEnabled.indexOf(trigger.event) > -1)
+            debug.push(trigger.value + ' ');
           debug.push('' + (graph[trigger.target] || {}).name);
         }
         return debug.join('');
@@ -202,20 +220,39 @@ try {
       }
 
       for (let node of [...nodes]) {
-        for (let trigger of node.source.triggers) {
+        iterTriggers: for (let trigger of node.source.triggers) {
           if (trigger.event != eventName)
             continue;
-          if ((typeof value == 'number') &&
-              (trigger.value != value) &&
-              (trigger.value != 0))
-            continue;
+
+          if (typeof value == 'number') {
+            if (eventValueExtendedModes.indexOf(trigger.event) >= 0) {
+              valueSwitcher: switch (trigger.valueOperator || '==') {
+                case '==':
+                  if (!(value == trigger.value)) continue iterTriggers;
+                  break valueSwitcher;
+                case '!=':
+                  if (!(value != trigger.value)) continue iterTriggers;
+                  break valueSwitcher;
+                case '>':
+                  if (!(value > trigger.value)) continue iterTriggers;
+                  break valueSwitcher;
+                case '<':
+                  if (!(value < trigger.value)) continue iterTriggers;
+                  break valueSwitcher;
+              }
+            } else {
+              if (trigger.value != value && trigger.value != 0)
+                continue;
+            }
+          }
+
           node.runTrigger(trigger);
         }
       }
     }
 
     document.addEventListener('tetrio-plus-actiontext', evt => {
-      console.log('IJ actiontext', evt.detail.type, evt.detail.text);
+      // console.log('IJ actiontext', evt.detail.type, evt.detail.text);
 
       switch (evt.detail.type) {
         case 'clear':
@@ -223,7 +260,6 @@ try {
           break;
 
         case 'combo':
-          console.log("C-c-c-combo!", parseInt(evt.detail.text));
           dispatchEvent('text-combo', parseInt(evt.detail.text));
           break;
 
@@ -268,10 +304,11 @@ try {
       dispatchEvent(`sfx-${name}-${type}`);
     });
     document.addEventListener('tetrio-plus-actionheight', evt => {
-      // console.log("Action height!", evt.detail.height, evt.detail.type);
-      let height = evt.detail.height;
+      // The 'height' is actually the *unfilled* portion of the board,
+      // but we want the filled portion to pass for the event
+      let height = 40 - evt.detail.height;
       let type = evt.detail.type == 'full' ? 'player' : 'enemy';
-      dispatchEvent(`board-height-${type}`, evt.detail.height);
+      dispatchEvent(`board-height-${type}`, height);
     });
   })().catch(console.error);
 
