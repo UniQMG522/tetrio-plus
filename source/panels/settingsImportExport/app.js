@@ -230,7 +230,13 @@ const importers = {
         if (typeof trigger.value != 'number' || trigger.value < 0)
           return `ERROR: Expected positive number value at [].triggers[].value`;
 
-        let allowed = ['mode', 'target', 'event', 'preserveLocation', 'value'];
+        if (['==', '!=', '>', '<'].indexOf(trigger.valueOperator) == -1)
+          return `ERROR: Expected enum value at [].triggers[].valueOperator, got ${trigger.valueOperator}`;
+
+        let allowed = [
+          'mode', 'target', 'event', 'preserveLocation', 'value',
+          'valueOperator'
+        ];
         for (let key of Object.keys(trigger))
           if (allowed.indexOf(key) == -1)
             return `ERROR: Unexpected value at [].triggers[].${key}`;
