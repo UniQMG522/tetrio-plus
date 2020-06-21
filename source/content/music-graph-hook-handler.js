@@ -251,20 +251,29 @@ try {
       }
     }
 
+    function locationHeuristic(size, spatialization) {
+      if (size == 'tiny') return 'enemy'; // If tiny, always an enemy
+      // Solo spatialization is exactly 0
+      // Duel spatialization is -0.3499...
+      if (spatialization <= 0) return 'player';
+      // Duel enemy spatialization is 0.4499...
+      return 'enemy';
+    }
     document.addEventListener('tetrio-plus-actiontext', evt => {
       // console.log('IJ actiontext', evt.detail.type, evt.detail.text);
+      let type = locationHeuristic(evt.detail.type, evt.detail.spatialization);
 
       switch (evt.detail.type) {
         case 'clear':
-          dispatchEvent('text-clear-' + evt.detail.text.toLowerCase());
+          dispatchEvent('text-clear-' + evt.detail.text.toLowerCase() + '-' + type);
           break;
 
         case 'combo':
-          dispatchEvent('text-combo', parseInt(evt.detail.text));
+          dispatchEvent('text-combo-' + type, parseInt(evt.detail.text));
           break;
 
         case 'tspin':
-          dispatchEvent('text-t-spin');
+          dispatchEvent('text-t-spin-' + type);
           break;
 
         case 'also':
@@ -273,41 +282,41 @@ try {
           break;
 
         case 'spike':
-          dispatchEvent('text-spike', parseInt(evt.detail.text));
+          dispatchEvent('text-spike-' + type, parseInt(evt.detail.text));
           break;
 
         case 'also_permanent':
           if (evt.detail.text.startsWith('B2B')) {
             let number = parseInt(/\d+$/.exec(evt.detail.text)[0]);
-            dispatchEvent('text-b2b-combo', number);
-            dispatchEvent('text-b2b');
+            dispatchEvent('text-b2b-combo-' + type, number);
+            dispatchEvent('text-b2b-' + type);
           }
           break;
 
         case 'also_failed':
           if (evt.detail.text.startsWith('B2B'))
-            dispatchEvent('text-b2b-reset');
+            dispatchEvent('text-b2b-reset-' + type);
           break;
       }
     });
     document.addEventListener('tetrio-plus-actionsound', evt => {
       // arg 1: sound effect name
       // arg 2: 'full' for active board or general sfx, 'tiny' for other boards
-      // arg 3: -0 for full sound effects, 0-1 for tiny ones. Possibly spatialization?
+      // arg 3: -0 for full sound effects, -1 to 1 for tiny ones. Possibly spatialization?
       // arg 4: 1 for full sound effects, 0-1 for tiny ones. Possibly volume?
       // arg 5: always false
       // arg 6: true on full, false on tiny
       // arg 7: always 1
       // console.log('IJ actionsound', ...evt.detail.args);
       let name = evt.detail.args[0];
-      let type = evt.detail.args[1] == 'full' ? 'player' : 'enemy';
+      let type = locationHeuristic(evt.detail.args[1], evt.detail.args[2]);
       dispatchEvent(`sfx-${name}-${type}`);
     });
     document.addEventListener('tetrio-plus-actionheight', evt => {
       // The 'height' is actually the *unfilled* portion of the board,
       // but we want the filled portion to pass for the event
       let height = 40 - evt.detail.height;
-      let type = evt.detail.type == 'full' ? 'player' : 'enemy';
+      let type = locationHeuristic(evt.detail.type, evt.detail.spatialization);
       dispatchEvent(`board-height-${type}`, height);
     });
   })().catch(console.error);

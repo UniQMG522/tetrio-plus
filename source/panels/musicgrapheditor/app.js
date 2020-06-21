@@ -3,7 +3,10 @@ const html = arg => arg.join(''); // NOOP, for editor integration.
 const events = [
   'node-end',
   'time-passed',
-  'random-target',
+  'random-target'
+];
+
+[
   'text-clear-none',
   'text-clear-single',
   'text-clear-double',
@@ -19,9 +22,11 @@ const events = [
   'text-b2b-reset',
   'text-b2b-combo',
   'text-combo',
-  'board-height-player',
-  'board-height-enemy'
-];
+  'board-height'
+].forEach(sfx => {
+  events.push(sfx + '-player');
+  events.push(sfx + '-enemy');
+});
 
 [
   "allclear","applause","boardappear","btb_1","btb_2","btb_3","btb_break",
@@ -261,9 +266,7 @@ const app = new Vue({
       node.triggers.splice(node.triggers.indexOf(trigger), 1);
     },
     save() {
-      browser.storage.local.set({
-        musicGraph: JSON.stringify(this.nodes)
-      });
+      browser.storage.local.set({ musicGraph: this.nodes });
       this.saveOpacity = 1.25;
       let timeout = setInterval(() => {
         this.saveOpacity -= 0.1;
@@ -301,7 +304,7 @@ const app = new Vue({
     ]).then(({ music, musicGraph }) => {
       console.log("Loaded", musicGraph);
       if (!musicGraph) return;
-      this.nodes = JSON.parse(musicGraph);
+      this.nodes = musicGraph;
       this.maxId = Math.max(...this.nodes.map(node => node.id));
       this.music = music;
     });
