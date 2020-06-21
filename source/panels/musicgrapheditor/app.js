@@ -3,7 +3,8 @@ const html = arg => arg.join(''); // NOOP, for editor integration.
 const events = [
   'node-end',
   'time-passed',
-  'random-target'
+  'random-target',
+  'parent-node-destroyed'
 ];
 
 [
@@ -115,7 +116,7 @@ const app = new Vue({
                  class="section">
               Linked from
               <span v-for="link of reverseLinkLookupTable[node.id]" class="linkback">
-                <a :href="'#node-' + nodes[link].id">{{ nodes[link].name }}</a>
+                <a :href="'#node-' + link.id">{{ link.name }}</a>
               </span>
             </div>
 
@@ -158,7 +159,7 @@ const app = new Vue({
                     </option>
                   </select>
                 </div>
-                <div v-if="trigger.mode != 'kill'">
+                <div v-if="hasTarget(trigger)">
                   <b>Target</b>
                   <select v-model="trigger.target">
                     <option :value="node.id" v-for="node of nodes">
@@ -167,7 +168,7 @@ const app = new Vue({
                   </select>
                   <a :href="'#node-' + trigger.target">jump</a>
                 </div>
-                <div v-if="trigger.mode != 'kill'">
+                <div v-if="hasTarget(trigger)">
                   <input type="checkbox" v-model="trigger.preserveLocation" />
                   Preserve location after jumping
                 </div>
@@ -219,8 +220,10 @@ const app = new Vue({
       for (let node of this.nodes) {
         for (let trigger of node.triggers) {
           if (trigger.target == node.id) continue;
+          if (!this.hasTarget(trigger)) continue;
+
           links[trigger.target] = links[trigger.target] || new Set();
-          links[trigger.target].add(node.id);
+          links[trigger.target].add(node);
         }
       }
 
@@ -240,7 +243,7 @@ const app = new Vue({
     },
     addTrigger(node) {
       node.triggers.push({
-        mode: 'goto', // fork | goto | kill
+        mode: 'goto', // fork | goto | kill | random
         target: node.id, // target node
         event: 'node-end',
         preserveLocation: false,
@@ -248,6 +251,15 @@ const app = new Vue({
         value: 0,
         valueOperator: '==' // == != > <
       });
+    },
+    hasTarget(trigger) {
+      switch (trigger.mode) {
+        case 'fork': return true;
+        case 'goto': return true;
+        case 'kill': return false;
+        case 'random': return false;
+        default: return false;
+      }
     },
     shiftNode(node, dir) {
       let index = this.nodes.indexOf(node);
@@ -266,7 +278,9 @@ const app = new Vue({
       node.triggers.splice(node.triggers.indexOf(trigger), 1);
     },
     save() {
-      browser.storage.local.set({ musicGraph: this.nodes });
+      browser.storage.local.set({
+        musicGraph: JSON.stringify(this.nodes)
+      });
       this.saveOpacity = 1.25;
       let timeout = setInterval(() => {
         this.saveOpacity -= 0.1;
@@ -303,10 +317,10 @@ const app = new Vue({
       'music', 'musicGraph'
     ]).then(({ music, musicGraph }) => {
       console.log("Loaded", musicGraph);
+      this.music = music || [];
       if (!musicGraph) return;
-      this.nodes = musicGraph;
+      this.nodes = JSON.parse(musicGraph);
       this.maxId = Math.max(...this.nodes.map(node => node.id));
-      this.music = music;
     });
   }
 });

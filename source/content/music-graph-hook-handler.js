@@ -47,6 +47,7 @@ try {
         this.audio = null;
         this.timeouts = [];
         this.startedAt = null;
+        this.children = [];
       }
 
       setSource(source, startTime=0) {
@@ -99,10 +100,14 @@ try {
 
       destroy() {
         this.destroyed = true;
-        this.audio.stop();
+        if (this.audio)
+          this.audio.stop();
         let index = nodes.indexOf(this);
         if (index !== -1)
           nodes.splice(index, 1);
+        for (let child of this.children)
+          child.runTriggersByName('parent-node-destroyed');
+        this.children.length = 0;
       }
 
       runTriggersByName(name) {
@@ -129,6 +134,7 @@ try {
             var node = new Node();
             node.setSource(src, startTime);
             nodes.push(node);
+            this.children.push(node);
             break;
 
           case 'goto':
@@ -161,12 +167,13 @@ try {
         for (let trigger of this.source.triggers) {
           debug.push('\n​ ​ ​ ​ ');
           debug.push(trigger.event + ' ');
-          debug.push(trigger.mode + ' ');
           if (eventValueExtendedModes.indexOf(trigger.event) > -1)
             debug.push(trigger.valueOperator + ' ');
           if (eventValueEnabled.indexOf(trigger.event) > -1)
             debug.push(trigger.value + ' ');
-          debug.push('' + (graph[trigger.target] || {}).name);
+          debug.push(trigger.mode + ' ');
+          if (trigger.mode == 'fork' || trigger.mode == 'goto')
+            debug.push('' + (graph[trigger.target] || {}).name);
         }
         return debug.join('');
       }
