@@ -12,26 +12,31 @@ createRewriteFilter("Missing Music Patch", "https://tetr.io/js/tetrio.js", {
   },
   onStop: async (url, src, callback) => {
     let patches = 0;
-    src = src.replace(/(\w+\.ost\[\w+\])/g, (match, $1) => {
-      patches++;
-      return `(${$1} || {
-        name: "<Tetr.io+ missing music patch>",
-        jpname: "<Tetr.io+ missing music patch>",
-        artist: "?",
-        jpartist: "?",
-        genre: 'INTERFACE',
-        source: 'Tetr.io+',
-        loop: false,
-        loopStart: 0,
-        loopLength: 0
-      })`.replace(/\s+/g, ' ');
-    });
-    console.log(`Missing music patch applied to ${patches} locations.`);
+    try {
+      src = src.replace(/(\w+\.ost\[\w+\])/g, (match, $1) => {
+        patches++;
+        return `(${$1} || {
+          name: "<Tetr.io+ missing music patch>",
+          jpname: "<Tetr.io+ missing music patch>",
+          artist: "?",
+          jpartist: "?",
+          genre: 'INTERFACE',
+          source: 'Tetr.io+',
+          loop: false,
+          loopStart: 0,
+          loopLength: 0
+        })`.replace(/\s+/g, ' ');
+      });
+    } catch(ex) {
+      console.log(`Missing music patch failed to apply`, ex);
+    } finally {
+      console.log(`Missing music patch applied to ${patches} locations.`);
 
-    callback({
-      type: 'text/javascript',
-      data: src,
-      encoding: 'text'
-    });
+      callback({
+        type: 'text/javascript',
+        data: src,
+        encoding: 'text'
+      });
+    }
   }
 });

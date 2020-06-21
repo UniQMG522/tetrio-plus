@@ -1,3 +1,9 @@
+/*
+  This file is bootstrapped via manual changes made to the tetrio desktop client
+  See the README for instructions on performing these changes
+  Not used on firefox
+*/
+
 const { app, BrowserWindow, protocol } = require('electron');
 const browser = require('./electron-browser-polyfill.js');
 const https = require('https');
