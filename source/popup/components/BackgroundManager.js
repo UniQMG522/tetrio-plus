@@ -53,6 +53,18 @@ export default {
           </div>
         </option-toggle>
 
+        <option-toggle storageKey="opaqueTransparentBackground">
+          Use opaque background
+        </option-toggle>
+        <option-toggle storageKey="opaqueTransparentBackground" mode="show">
+          <div class="extendedWarningText">
+            This uses a black background instead of a transparent one when using
+            animated backgrounds or the transparent window option. This allows
+            setting the background opacity, but the in-game slider is inverted.
+            0% = background fully visible, 100% = background completely black.
+          </div>
+        </option-toggle>
+
         <fieldset>
           <legend>Custom backgrounds</legend>
           <option-toggle storageKey="bgEnabled" mode="hide">

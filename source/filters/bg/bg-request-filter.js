@@ -31,13 +31,21 @@ createRewriteFilter("Bg Request", "https://tetr.io/res/bg/*", {
     }
 
     if (bgId == 'transparent') {
+      let { opaqueTransparentBackground } = await browser.storage.local.get(
+        'opaqueTransparentBackground'
+      );
       callback({
         type: 'image/png',
-        data:
+        data: opaqueTransparentBackground
+          // 1x1 black pixel
+          ? `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1P` +
+            `eAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH5AYVBwk0XL/4QAAAABl0RVh0` +
+            `Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAAMSURBVAjXY2BgYAAAAAQAA` +
+            `Sc0JwoAAAAASUVORK5CYII=`
           // 1x1 transparent pixel
-          `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ` +
-          `AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTUUH5A` +
-          `QWBjQ7z1871gAAAAtJREFUCNdjYAACAAAFAAHiJgWbAAAAAElFTkSuQmCC`,
+          : `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ` +
+            `AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTUUH5A` +
+            `QWBjQ7z1871gAAAAtJREFUCNdjYAACAAAFAAHiJgWbAAAAAElFTkSuQmCC`,
         encoding: 'base64-data-url'
       });
       // filter.write(value);

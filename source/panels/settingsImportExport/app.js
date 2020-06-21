@@ -24,6 +24,7 @@ const importers = {
   bgEnabled: parseBoolean('bgEnabled'),
   animatedBgEnabled: parseBoolean('animatedBgEnabled'),
   transparentBgEnabled: electronOnly(parseBoolean('transparentBgEnabled')),
+  opaqueTransparentBackground: parseBoolean('opaqueTransparentBackground'),
   openDevtoolsOnStart: electronOnly(parseBoolean('openDevtoolsOnStart')),
   skin: async svgText => {
     let parser = new DOMParser();
