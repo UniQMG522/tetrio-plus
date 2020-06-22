@@ -27,7 +27,8 @@ manifest.browser_specific_settings.desktop_client = {
     "source/content/content-script.js",
     "source/content/animated-bg.js",
     "source/content/osd.js",
-    "source/content/music-graph-hook-handler.js"
+    "source/content/music-graph-hook-handler.js",
+    "source/content/custom-maps.js"
   ],
   "inject_css": [
     "source/content/draggable-header.css",

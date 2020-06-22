@@ -168,7 +168,7 @@ app.whenReady().then(async () => {
   protocol.registerFileProtocol('tetrio-plus-internal', (req, callback) => {
     // greenlog("tetrio plus internal request", req.method, req.url);
     // greenlog(filepath);
-    let relpath = req.url.substring('tetrio-plus-internal://'.length);
+    let relpath = req.url.substring('tetrio-plus-internal://'.length).split('?')[0];
     let filepath = path.join(__dirname, '../..', relpath);
     callback({ path: filepath });
   });
