@@ -1,0 +1,57 @@
+.app {
+  display: flex;
+  user-select: none;
+}
+
+.app > * {
+  margin-right: 20px;
+  margin-left: 20px;
+}
+
+.map-string {
+  width: 350px;
+  height: 200px;
+}
+
+.row {
+  display: flex;
+}
+
+.mino {
+  background-color: white;
+  border-left: 1px solid black;
+  border-top: 1px solid black;
+  width: 10px;
+  height: 10px;
+}
+.row:last-child .mino {
+  border-bottom: 1px solid black;
+}
+.mino:last-child {
+  border-right: 1px solid black;
+}
+
+.mino-i { background-color: cyan; }
+.mino-o { background-color: yellow; }
+.mino-l { background-color: orange; }
+.mino-j { background-color: blue; }
+.mino-z { background-color: red; }
+.mino-s { background-color: green; }
+.mino-garbage { background-color: gray; }
+
+.tool.mino-empty {
+  background-color: #FF000077;
+}
+
+.tools .mino {
+  display: inline-block;
+}
+
+.tool {
+  width: 16px;
+  height: 16px;
+  border: 2px solid white !important;
+}
+.tool.active-tool {
+  border: 2px solid black !important;
+}

@@ -19,6 +19,9 @@ const app = new Vue({
 
       <fieldset>
         <legend>Miscellaneous options</legend>
+        <option-toggle storageKey="enableCustomMaps">
+          Enable custom maps (Under solo -> custom -> meta)
+        </option-toggle>
         <div title="Shows what keys are pressed, for streaming or recording. Works on replays too!">
           <option-toggle storageKey="enableOSD">
             Enable key OSD (may break the game)

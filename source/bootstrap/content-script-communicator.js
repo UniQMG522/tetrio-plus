@@ -3,6 +3,13 @@ browser.runtime.onConnect.addListener(port => {
   port.onMessage.addListener(async msg => {
     console.log(msg);
     switch (msg.type) {
+      case 'openMapEditor':
+        browser.tabs.create({
+          url: browser.extension.getURL('source/panels/mapeditor/index.html') +
+               '?map=' + encodeURIComponent(msg.map),
+          active: true
+        });
+        break;
       case 'getInfoString':
         let manifestUri = browser.runtime.getURL('manifest.json');
         let manifest = await (await fetch(manifestUri)).json();
