@@ -25,6 +25,18 @@ function modifyWindowSettings(settings) {
     settings.frame = false;
     settings.transparent = true;
     settings.backgroundColor = '#00000000';
+
+    mainWindow.then(val => {
+      // Mac workaround
+      // Issue: https://github.com/electron/electron/issues/20357
+      setInterval(() => {
+        try {
+          val.setBackgroundColor('#00FFFFFF');
+        } catch(ex) {
+          // lol whatever
+        }
+      }, 1000);
+    });
   }
 
   return settings;
