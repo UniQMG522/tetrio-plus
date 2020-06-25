@@ -36,7 +36,8 @@
 .mino-l { background-color: orange; }
 .mino-j { background-color: blue; }
 .mino-z { background-color: red; }
-.mino-s { background-color: green; }
+.mino-s { background-color: lime; }
+.mino-t { background-color: magenta; }
 .mino-garbage { background-color: gray; }
 
 .tool.mino-empty {

@@ -42,7 +42,7 @@ const app = new Vue({
   `,
   data: {
     map: new Array(40).fill(0).map(el => new Array(10).fill(0).map(el => ({ mino: 'empty' }))),
-    tools: ['i', 'o', 'l', 'j', 'z', 's', 'empty', 'garbage'],
+    tools: ['i', 'o', 'l', 'j', 'z', 's', 't', 'empty', 'garbage'],
     tool: 'empty',
     removing: false,
     clicking: false,
