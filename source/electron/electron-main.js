@@ -106,11 +106,21 @@ app.whenReady().then(async () => {
       async function fetchData() {
         data = await new Promise(resolve => https.get(url, response => {
           contentType = response.headers['content-type'];
-          greenlog("http response");
+          greenlog("http response ", contentType);
           let raw = [];
-          response.setEncoding('utf8');
+
+          if (/^audio/.test(contentType)) {
+            // No encoding
+          } else {
+            response.setEncoding('utf8');
+          }
           response.on('data', chunk => raw.push(chunk))
-          response.on('end', () => resolve(raw.join('')));
+          response.on('end', () => {
+            let joined = typeof raw[0] == 'string'
+              ? raw.join('')
+              : Buffer.concat(raw);
+            resolve(joined);
+          });
         }));
         greenlog("Fetched", data.slice(0, 100));
       }

@@ -247,7 +247,7 @@ const app = new Vue({
         this.decodeStatus = "Fetching sound atlas (js/tetrio.js)";
         let srcRequest = await fetch(rootUrl + 'js/tetrio.js');
         let src = await srcRequest.text();
-        let regex = /TETRIO_SE_SHEET\s*=\s*(?:({[^}]+})|.+?atob\("([A-Za-z0-9+/=]+)\"\))/;
+        let regex = /TETRIO_SE_SHEET\s*=\s*(?:({[^}]+})|.+?JSON\.parse\("\[([\d,]+))/;
         let match = regex.exec(src);
         if (!match) {
           this.error = 'Failed to find sound atlas.';
@@ -263,11 +263,10 @@ const app = new Vue({
             .replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '$1"$3":');
         } else if (match[2]) {
           console.log("Loading B64", match[2]);
-          json = String.fromCharCode(
-            ...new Uint16Array(new Uint8Array(
-              [...atob(match[2])].map(v => v.charCodeAt(0))
-            ).buffer)
-          );
+          json = match[2]
+            .split(',')
+            .map(num => String.fromCharCode(+num))
+            .join('');
           console.log("Loaded json", json);
         }
         let atlas = JSON.parse(json);
