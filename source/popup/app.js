@@ -27,6 +27,9 @@ const app = new Vue({
             Enable key OSD (may break the game)
           </option-toggle>
         </div>
+        <option-toggle storageKey="bypassBootstrapper">
+          Bypass bootstrapper (may break the game)
+        </option-toggle>
         <option-toggle storageKey="openDevtoolsOnStart" v-if="isElectron">
           Open devtools automatically
         </option-toggle>

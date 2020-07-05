@@ -26,6 +26,7 @@
       "source/lib/base64-recoder.js",
       "source/bootstrap/browser/createRewriteFilter.js",
 
+      "source/filters/bootstrap-filter.js",
       "source/filters/music-graph-hooks.js",
       "source/filters/music/music-tetriojs-filter.js",
       "source/filters/music/music-request-filter.js",
