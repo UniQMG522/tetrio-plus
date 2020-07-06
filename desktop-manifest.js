@@ -11,6 +11,7 @@ manifest.browser_specific_settings.desktop_client = {
     "source/bootstrap/electron/createRewriteFilter.js",
     "source/lib/base64-recoder.js",
     "source/filters/svg-filter.js",
+    "source/filters/bootstrap-filter.js",
     "source/filters/music-graph-hooks.js",
     "source/filters/music/music-tetriojs-filter.js",
     "source/filters/music/missing-music-patch-filter.js",
