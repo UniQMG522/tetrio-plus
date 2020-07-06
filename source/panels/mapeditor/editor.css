@@ -8,6 +8,10 @@
   margin-left: 20px;
 }
 
+.map-output {
+  flex-basis: min-content;
+}
+
 .map-string {
   width: 350px;
   height: 200px;
@@ -39,6 +43,7 @@
 .mino-s { background-color: lime; }
 .mino-t { background-color: magenta; }
 .mino-garbage { background-color: gray; }
+.mino-darkgarbage { background-color: #444; }
 
 .tool.mino-empty {
   background-color: #FF000077;
