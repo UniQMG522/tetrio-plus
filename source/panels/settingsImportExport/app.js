@@ -274,8 +274,17 @@ document.getElementById('import').addEventListener('change', async evt => {
       reader.onload = evt => res(evt.target.result);
     });
 
-    let data = JSON.parse(result);
-    let results = [];
+    const results = [];
+    const data = JSON.parse(result);
+
+    let { from, to } = await migrate({
+      get(keys) { return data }, // It's technically complient
+      set(pairs) { Object.assign(data, pairs) }
+    });
+    if (from != to) {
+      results.push(`[Data pack migrated from v${from} to v${to}]`)
+    }
+
     for (let [name, importer] of Object.entries(importers)) {
       if (data[name] !== null && data[name] !== undefined) {
         results.push(name + ' | ' + await importer(data[name], data));
@@ -348,10 +357,12 @@ document.getElementById('export').addEventListener('click', async evt => {
   status.remove();
 });
 
-document.getElementById('clearData').addEventListener('click', () => {
+document.getElementById('clearData').addEventListener('click', async () => {
   if (confirm('Are you sure you want to clear all your Tetr.io+ data?')) {
-    browser.storage.local.clear().then(() => {
-      alert('Data cleared');
+    await browser.storage.local.clear();
+    await browser.storage.local.set({
+      version: browser.runtime.getManifest().version
     });
+    alert('Data cleared');
   }
 })

@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Tetr.io+",
-  "version": "0.9.0",
+  "version": "0.10.0",
 
   "description": "Tetr.io client enhancer",
   "icons": { "256": "icons/tetrio-256.png" },
@@ -23,6 +23,9 @@
 
   "background": {
     "scripts": [
+      "source/migrations/migrate.js",
+      "source/bootstrap/browser/migration.js",
+
       "source/lib/base64-recoder.js",
       "source/bootstrap/browser/createRewriteFilter.js",
 

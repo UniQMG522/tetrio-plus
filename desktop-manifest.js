@@ -8,6 +8,8 @@ const manifest = JSON.parse(fs.readFileSync(
 // "firefox settings that firefox will complain about if you add your own entry"
 manifest.browser_specific_settings.desktop_client = {
   "scripts": [
+    "source/migrations/migrate.js",
+    "source/bootstrap/electron/migration.js",
     "source/bootstrap/electron/createRewriteFilter.js",
     "source/lib/base64-recoder.js",
     "source/filters/svg-filter.js",

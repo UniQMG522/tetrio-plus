@@ -9,6 +9,8 @@
         font-family: sans-serif;
       }
     </style>
+    <script src="../../migrations/migrate.js" defer></script>
+    <script src="./app.js" defer></script>
   </head>
   <body>
     <b>Make sure you trust the content pack you're importing</b>
@@ -29,6 +31,16 @@
     </fieldset>
     <fieldset>
       <legend>Export settings to a file</legend>
+
+      <input
+        type="checkbox"
+        data-export="version"
+        class="export-toggle"
+        style="display: none"
+        checked
+        disabled
+      >
+
       <input
         type="checkbox"
         data-export="skin,skinPng"
@@ -69,6 +81,5 @@
       <legend>Clear Tetr.io+ data</legend>
       <button id="clearData" style="font-weight: bold">CLEAR ALL DATA</button>
     </fieldset>
-    <script src="./app.js"></script>
   </body>
 </html>

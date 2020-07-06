@@ -10,6 +10,7 @@
 
     const electron = require('electron');
     const path = require('path');
+    const fs = require('fs');
 
     // onConnect listeners. Since the content scripts
     // run in the same context while under electron,
@@ -24,6 +25,9 @@
           let absolute = 'tetrio-plus-internal://' + relative;
           console.log(relative, absolute);
           return absolute;
+        },
+        getManifest() {
+          return require('../../desktop-manifest.js');
         },
         onConnect: {
           addListener(callback) {

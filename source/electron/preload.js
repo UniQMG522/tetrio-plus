@@ -16,6 +16,9 @@
   });
 
   console.log("tetrio-plus preload script running");
+  browser.storage.local.get('version').then(({ version }) => {
+    console.log("Data version " + version)
+  });
   document.addEventListener('DOMContentLoaded', (event) => {
     console.log("DOMContentLoaded - Loading content scripts")
     let scripts = manifest.browser_specific_settings.desktop_client.preload_scripts;
