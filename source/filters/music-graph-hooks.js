@@ -1,6 +1,6 @@
 /*
 */
-createRewriteFilter("Test hooks", "https://tetr.io/js/tetrio.js", {
+createRewriteFilter("Music graph hooks", "https://tetr.io/js/tetrio.js", {
   enabledFor: async url => {
     let res = await browser.storage.local.get([
       'musicEnabled', 'musicGraphEnabled'
