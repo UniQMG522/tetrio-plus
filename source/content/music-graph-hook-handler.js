@@ -5,7 +5,7 @@ try {
     } = await browser.storage.local.get([
       'music', 'musicGraph', 'musicEnabled', 'musicGraphEnabled'
     ]);
-    if (!musicEnabled || !musicGraphEnabled)
+    if (!musicEnabled || !musicGraphEnabled || !musicGraph)
       return;
 
     const musicRoot = '/res/bgm/akai-tsuchi-wo-funde.mp3?song=';
