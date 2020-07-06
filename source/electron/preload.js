@@ -7,8 +7,12 @@
   // FIXME
   // Temporary stopgap until I find a decent workaround to the whole
   // service worker issue
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(reg => reg.unregister());
+  navigator.serviceWorker.getRegistrations().then(async regs => {
+    if (regs.length > 0) {
+      for (let reg of regs)
+        await reg.unregister();
+      window.location.reload();
+    }
   });
 
   console.log("tetrio-plus preload script running");
