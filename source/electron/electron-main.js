@@ -4,7 +4,7 @@
   Not used on firefox
 */
 
-const { app, BrowserWindow, protocol } = require('electron');
+const { app, BrowserWindow, protocol, ipcMain } = require('electron');
 const browser = require('./electron-browser-polyfill.js');
 const https = require('https');
 const path = require('path');
@@ -42,12 +42,18 @@ function modifyWindowSettings(settings) {
   return settings;
 }
 
+const mainWindow = new Promise(res => {
+  module.exports = {
+    // Used by packaging edits (see README)
+    onMainWindow: res,
+    modifyWindowSettings
+  }
+});
 
-
-let tpWindow;
-function createTetrioPlusWindow() {
+let tpWindow = null;
+async function createTetrioPlusWindow() {
   if (tpWindow) return;
-  let tpWindow = new BrowserWindow({
+  tpWindow = new BrowserWindow({
     width: 432,
     height: 600,
     webPreferences: {
@@ -55,35 +61,33 @@ function createTetrioPlusWindow() {
     }
   });
   tpWindow.loadURL(`tetrio-plus-internal://source/popup/index.html`);
-  tpWindow.addEventListener('closed', () => {
+  greenlog("Tetrio plus window opened");
+  tpWindow.on('closed', () => {
+    greenlog("Tetrio plus window closed");
     tpWindow = null;
   });
-  mainWindow.addEventListener('closed', () => {
-    tpWindow.close();
+  (await mainWindow).on('closed', () => {
+    greenlog("Main window closed");
+    if (tpWindow) tpWindow.close();
   });
 }
 
-const mainWindow = new Promise(res => {
-  module.exports = {
-    // Used by packaging edits (see README)
-    onMainWindow: res,
-    modifyWindowSettings,
+ipcMain.on('tetrio-plus-cmd', async (evt, arg) => {
+  switch(arg) {
+    case 'destroy everything':
+      (await mainWindow).destroy();
+      tpWindow.destroy();
+      break;
 
-    // Used by preload
-    createTetrioPlusWindow,
-    destroyEverything,
-    superForceReload
+    case 'create tetrio plus window':
+      createTetrioPlusWindow();
+      break;
+
+    case 'super force reload':
+      (await mainWindow).webContents.reloadIgnoringCache()
+      break;
   }
-});
-
-async function superForceReload() {
-  (await mainWindow).webContents.reloadIgnoringCache()
-}
-
-async function destroyEverything() {
-  (await mainWindow).destroy();
-  tpWindow.destroy();
-}
+})
 
 const greenlog = (...args) => console.log(
   "\u001b[32mGL>",
@@ -91,22 +95,24 @@ const greenlog = (...args) => console.log(
   "\u001b[37m"
 );
 
-protocol.registerSchemesAsPrivileged([{
-  scheme: 'tetrio-plus',
-  privileges: {
-    secure: true,
-    supportFetchAPI: true,
-    bypassCSP: true,
-    corsEnabled: true
-  }
-}, {
-  scheme: 'tetrio-plus-internal',
-  privileges: {
-    secure: true,
-    supportFetchAPI: true,
-    corsEnabled: true
-  }
-}]);
+if (protocol) {
+  protocol.registerSchemesAsPrivileged([{
+    scheme: 'tetrio-plus',
+    privileges: {
+      secure: true,
+      supportFetchAPI: true,
+      bypassCSP: true,
+      corsEnabled: true
+    }
+  }, {
+    scheme: 'tetrio-plus-internal',
+    privileges: {
+      secure: true,
+      supportFetchAPI: true,
+      corsEnabled: true
+    }
+  }]);
+}
 
 function matchesGlob(glob, string) {
   return new RegExp(

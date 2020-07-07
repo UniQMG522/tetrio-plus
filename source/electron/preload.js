@@ -4,14 +4,17 @@
   const path = require('path');
   const fs = require('fs');
 
+  const { ipcRenderer } = require('electron');
+
   document.addEventListener('keydown', evt => {
-    console.log(evt, evt.key, evt.ctrl);
-    if (evt.ctrlKey && evt.key == 'w')
-      require('./electron-main').destroyEverything();
+    if (evt.altKey && evt.key == 'F4')
+      ipcRenderer.send('tetrio-plus-cmd', 'destroy everything');
+
     if (evt.ctrlKey && evt.key == 't')
-      require('./electron-main').createTetrioPlusWindow();
+      ipcRenderer.send('tetrio-plus-cmd', 'create tetrio plus window');
+
     if (evt.ctrlKey && (evt.key == 'r' || evt.key == 'F5'))
-      require('./electron-main').superForceReload();
+      ipcRenderer.send('tetrio-plus-cmd', 'super force reload');
   });
 
   // FIXME
