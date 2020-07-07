@@ -35,13 +35,21 @@ export default {
     }
   },
   methods: {
-    openImageChanger() {
-      browser.windows.create({
-        type: 'detached_panel',
-        url: browser.extension.getURL('source/panels/skinpicker/index.html'),
-        width: 600,
-        height: 285
-      });
+    async openImageChanger() {
+      let { name } = await browser.runtime.getBrowserInfo();
+      if (name == 'Fennec') {
+        browser.tabs.create({
+          url: browser.extension.getURL('source/panels/skinpicker/index.html'),
+          active: true
+        });
+      } else {
+        browser.windows.create({
+          type: 'detached_panel',
+          url: browser.extension.getURL('source/panels/skinpicker/index.html'),
+          width: 600,
+          height: 285
+        });
+      }
     },
     resetSkin() {
       browser.storage.local.remove(['skin', 'skinPng']).then(() => {

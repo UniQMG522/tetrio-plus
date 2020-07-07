@@ -29,6 +29,14 @@
         getManifest() {
           return require('../../desktop-manifest.js');
         },
+        async getBrowserInfo() {
+          return {
+            name: 'Tetrio Desktop',
+            vendor: 'osk',
+            version: '¯\\_(ツ)_/¯',
+            buildId: '¯\\_(ツ)_/¯'
+          }
+        },
         onConnect: {
           addListener(callback) {
             callback({

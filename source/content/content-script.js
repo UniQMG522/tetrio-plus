@@ -3,6 +3,7 @@
 
   let port = browser.runtime.connect({ name: 'info-channel' });
   port.postMessage({ type: 'getInfoString' });
+  port.postMessage({ type: 'showPageAction' });
 
   port.onMessage.addListener(msg => {
     console.log(msg.value);

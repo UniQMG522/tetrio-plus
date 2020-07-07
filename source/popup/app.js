@@ -118,15 +118,25 @@ const app = new Vue({
     }
   },
   methods: {
-    openSettingsIO() {
-      browser.windows.create({
-        type: 'detached_panel',
-        url: browser.extension.getURL(
-          'source/panels/settingsImportExport/index.html'
-        ),
-        width: 600,
-        height: 520
-      });
+    async openSettingsIO() {
+      let { name } = await browser.runtime.getBrowserInfo();
+      if (name == 'Fennec') {
+        browser.tabs.create({
+          url: browser.extension.getURL(
+            'source/panels/settingsImportExport/index.html'
+          ),
+          active: true
+        });
+      } else {
+        browser.windows.create({
+          type: 'detached_panel',
+          url: browser.extension.getURL(
+            'source/panels/settingsImportExport/index.html'
+          ),
+          width: 600,
+          height: 520
+        });
+      }
     },
     openSource(evt) {
       if (this.isElectron) {

@@ -100,13 +100,23 @@ export default {
     }
   },
   methods: {
-    openMusicUploader() {
-      browser.windows.create({
-        type: 'detached_panel',
-        url: browser.extension.getURL('source/panels/musicpicker/index.html'),
-        width: 300,
-        height: 50
-      });
+    async openMusicUploader() {
+      let { name } = await browser.runtime.getBrowserInfo();
+      if (name == 'Fennec') {
+        browser.tabs.create({
+          url: browser.extension.getURL(
+            'source/panels/musicpicker/index.html'
+          ),
+          active: true
+        });
+      } else {
+        browser.windows.create({
+          type: 'detached_panel',
+          url: browser.extension.getURL('source/panels/musicpicker/index.html'),
+          width: 300,
+          height: 50
+        });
+      }
     },
     openMusicGraphEditor() {
       browser.tabs.create({

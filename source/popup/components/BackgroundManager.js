@@ -160,13 +160,21 @@ export default {
         }
       });
     },
-    openBgUploader() {
-      browser.windows.create({
-        type: 'detached_panel',
-        url: browser.extension.getURL('source/panels/bgpicker/index.html'),
-        width: 600,
-        height: 285
-      });
+    async openBgUploader() {
+      let { name } = await browser.runtime.getBrowserInfo();
+      if (name == 'Fennec') {
+        browser.tabs.create({
+          url: browser.extension.getURL('source/panels/bgpicker/index.html'),
+          active: true
+        });
+      } else {
+        browser.windows.create({
+          type: 'detached_panel',
+          url: browser.extension.getURL('source/panels/bgpicker/index.html'),
+          width: 600,
+          height: 285
+        });
+      }
     },
     deleteBackground(toDelete) {
       let delId = toDelete.background.id;

@@ -1,6 +1,6 @@
 browser.runtime.onConnect.addListener(port => {
   console.log("New content script connection");
-  port.onMessage.addListener(async msg => {
+  port.onMessage.addListener(async (msg, sender) => {
     console.log(msg);
     switch (msg.type) {
       case 'openMapEditor':
@@ -10,6 +10,12 @@ browser.runtime.onConnect.addListener(port => {
           active: true
         });
         break;
+
+      case 'showPageAction':
+        if (browser.pageAction)
+          browser.pageAction.show(sender.sender.tab.id);
+        break;
+
       case 'getInfoString':
         let manifestUri = browser.runtime.getURL('manifest.json');
         let manifest = await (await fetch(manifestUri)).json();
@@ -24,7 +30,8 @@ browser.runtime.onConnect.addListener(port => {
           'enableSpeens',
           'sfxEnabled',
           'skin',
-          'enableOSD'
+          'enableOSD',
+          'enableTouchControls'
         ]);
 
         let features = [];
@@ -54,13 +61,18 @@ browser.runtime.onConnect.addListener(port => {
         if (config.enableOSD)
           features.push('key OSD');
 
+        if (config.enableTouchControls)
+          features.push('enableTouchControls');
+
         let featureString = features.length > 0
           ? features.join(', ')
           : 'none';
 
+        let { name } = await browser.runtime.getBrowserInfo();
+
         port.postMessage({
           type: 'getInfoStringResult',
-          value: `Tetr.io+ v${version}. Features enabled: ${featureString}`
+          value: `Tetr.io+ v${version} on ${name}. Features enabled: ${featureString}`
         });
         break;
 
