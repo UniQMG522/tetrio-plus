@@ -1,29 +1,135 @@
 body {
+  --background: #EEE;
+  --layer-1: #CCC;
+  --text: #222;
+
   font-family: sans-serif;
-  background-color: #EEE;
-  color: #333;
+
+  background-color: var(--background);
+  color: var(--text);
 }
 
 h1 {
+  font-size: 1.2rem;
   margin: 0px;
-  font-size: 16pt;
 }
 
-hr {
-  border: none;
-  border-bottom: 2px solid black;
-}
-
-.custom-background {
-  width: 200px;
-}
-
-.extendedWarningText {
-  display: inline-block;
-  max-width: 400px;
-  font-style: italic;
-}
-
-.songName {
+h1 .version {
+  font-size: 0.8rem;
   font-family: monospace;
+}
+
+.section {
+  border: none;
+  border-top: 2px solid var(--text);
+  padding: 4px;
+  margin-top: 4px;
+
+  background-color: var(--layer-1);
+}
+
+.section.legendless {
+  margin-top: 8px;
+}
+
+.section legend {
+  margin-left: 12px;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-size: 1rem;
+  background-color: var(--background);
+  border: 2px solid var(--text);
+  border-radius: 4px;
+}
+
+.subsection {
+  margin-left: -4px;
+  margin-right: -4px;
+  margin-top: 4px;
+}
+
+.no-skin {
+  display: inline-block;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+img.skin, .no-skin {
+  margin-top: 2px;
+  border: 2px solid var(--text);
+  padding: 2px;
+
+  width: 362px;
+  height: 29px;
+
+  /* https://stackoverflow.com/a/51117224 */
+  --size: 22.2px;
+  background-position: 0px 0px, calc(var(--size)/2) calc(var(--size)/2);
+  background-size: var(--size) var(--size);
+  --col-1: var(--background);/*#FFF*/
+  --col-2: var(--layer-1);/*#EEE*/
+  background-image:
+    linear-gradient(
+      45deg,
+      var(--col-2) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--col-2) 75%,
+      var(--col-2) 100%
+    ),
+    linear-gradient(
+      45deg,
+      var(--col-2) 25%,
+      var(--col-1) 25%,
+      var(--col-1) 75%,
+      var(--col-2) 75%,
+      var(--col-2) 100%
+    );
+}
+
+.info-icon {
+  color: blue;
+  font-weight: bold;
+  font-size: 1.5rem;
+  position: absolute;
+  transform: translateY(-25%);
+  user-select: none;
+  padding-left: 2px;
+}
+
+.song-name {
+  font-family: monospace;
+}
+
+.option-pairs-group {
+  display: grid;
+  padding: 3px 0px;
+  grid-column-gap: 20px;
+  grid-row-gap: 5px;
+  grid-template-columns: max-content min-content;
+  grid-template-rows: repeat(auto-fit, 20px);
+}
+.option-pairs-group > .option-pair {
+  display: contents;
+}
+
+.audioeditor .option-pairs-group > .option-pair > input {
+/*   border-radius: 3px; */
+  padding: 3px;
+  text-align: right;
+}
+.audioeditor  .option-pairs-group > .option-pair > select,
+.audioeditor  .option-pairs-group > .option-pair > option {
+  direction: rtl;
+}
+
+.audioeditor input[type=number]::-webkit-outer-spin-button,
+.audioeditor input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.audioeditor input[type=number] {
+    -moz-appearance:textfield;
 }

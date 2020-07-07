@@ -128,7 +128,11 @@
 
     if (typeof module != 'undefined' && module.exports)
       module.exports = browser;
-    if (typeof window != 'undefined')
+    if (typeof window != 'undefined') {
       window.browser = browser;
+      window.openInBrowser = href => {
+        electron.shell.openExternal(href);
+      }
+    }
   }
 })();

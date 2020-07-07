@@ -2,8 +2,8 @@ const html = arg => arg.join(''); // NOOP, for editor integration.
 
 export default {
   template: html`
-    <div>
-      <div>
+    <div class="component-wrapper">
+      <div class="control-group">
         <button @click="openImageChanger" title="Opens the skin changer window">
           Change skin
         </button>
@@ -12,14 +12,16 @@ export default {
         </button>
       </div>
 
-      <fieldset>
-        <legend>Current skin</legend>
+      <div class="preview-group">
         <img
           title="This is the current block skin you are using."
+          class="skin"
           :src="skinUrl"
           v-if="skinUrl">
-        <span id="noSkin" v-else>No skin set</span>
-      </fieldset>
+        <div class="no-skin" v-else>
+          No skin set
+        </div>
+      </div>
     </div>
   `,
   data: () => ({ cachedSkin: null }),

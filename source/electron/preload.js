@@ -4,6 +4,16 @@
   const path = require('path');
   const fs = require('fs');
 
+  document.addEventListener('keydown', evt => {
+    console.log(evt, evt.key, evt.ctrl);
+    if (evt.ctrlKey && evt.key == 'w')
+      require('./electron-main').destroyEverything();
+    if (evt.ctrlKey && evt.key == 't')
+      require('./electron-main').createTetrioPlusWindow();
+    if (evt.ctrlKey && (evt.key == 'r' || evt.key == 'F5'))
+      require('./electron-main').superForceReload();
+  });
+
   // FIXME
   // Temporary stopgap until I find a decent workaround to the whole
   // service worker issue

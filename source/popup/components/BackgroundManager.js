@@ -4,36 +4,47 @@ const html = arg => arg.join(''); // NOOP, for editor integration.
 
 export default {
   template: html`
-    <div>
-      <button @click="openBgUploader" title="Opens the BG uploader window">
-        Add local custom backgrounds
-      </button>
-      <div>
+    <div class="component-wrapper">
+      <div class="control-group">
+        <button @click="openBgUploader" title="Opens the BG uploader window">
+          Add local custom backgrounds
+        </button>
+      </div>
+      <div class="option-group">
         <option-toggle storageKey="bgEnabled">
-          Enable local custom backgrounds (may break the game)
-        </option-toggle>
-        <option-toggle storageKey="bgEnabled" mode="show">
-          <div class="extendedWarningText">
-            Tetrio already supports custom backgrounds. This feature serves them
-            from the extension instead of requiring an external file host. This
-            option will be overriden by a custom background set through the
-            game's options menu.
-          </div>
+          <span title="Enables serving custom backgrounds from the extension">
+            Enable local custom backgrounds
+          </span>
+          <option-toggle inline storageKey="bgEnabled" mode="show">
+            <span
+              class="warning-icon"
+              :title="(
+                'Tetrio already supports custom backgrounds. This feature serves them ' +
+                'from the extension instead of requiring an external file host. This ' +
+                'option will be overriden by a custom background set through the ' +
+                'game\\'s options menu. '
+              )"
+            >⚠️</span>
+          </option-toggle>
         </option-toggle>
 
         <option-toggle storageKey="animatedBgEnabled" enabledIfKey="bgEnabled">
-          Enable animated background (may break the game)
-        </option-toggle>
-        <option-toggle storageKey="animatedBgEnabled" mode="show">
-          <option-toggle storageKey="bgEnabled" mode="show">
-            <div class="extendedWarningText">
-              <b>This feature is experimental and may be changed or removed.</b>
-              Custom animated backgrounds are implemented differently from
-              regular backgrounds, and you can't have more than one at a time.
-              Animated backgrounds are incompatible with normal backgrounds,
-              and Tetr.io+ custom backgrounds will not load while an animated
-              background is enabled.
-            </div>
+          <span title="Enables the custom animated background">
+            Enable animated background
+          </span>
+          <option-toggle inline storageKey="animatedBgEnabled" mode="show">
+            <option-toggle inline storageKey="bgEnabled" mode="show">
+              <span
+                class="warning-icon"
+                :title="(
+                  'Custom animated backgrounds are implemented differently from ' +
+                  'regular backgrounds, and you can\\'t have more than one at a time. ' +
+                  'Animated backgrounds are incompatible with normal backgrounds, ' +
+                  'and Tetr.io+ custom backgrounds will not load while an animated ' +
+                  'background is enabled.'
+                )"
+              >⚠️</span>
+            </option-toggle>
           </option-toggle>
         </option-toggle>
 
@@ -44,54 +55,64 @@ export default {
           :invertEnabled="true"
           v-if="isElectron"
         >
-          Enable transparent window (may break the game)
-        </option-toggle>
-        <option-toggle storageKey="transparentBgEnabled" mode="show">
-          <div class="extendedWarningText">
-            Transparent window is incompatible with other background options.
-            Requires a <u>restart</u> of the client.
-          </div>
+          <span title="Makes the window transparent, showing other windows below it">
+            Enable transparent window
+          </span>
+          <option-toggle inline storageKey="bgEnabled" mode="hide">
+            <option-toggle inline storageKey="transparentBgEnabled" mode="show">
+              <span
+                class="warning-icon"
+                :title="(
+                  'Transparent window is incompatible with other background options. ' +
+                  'Requires a RESTART of the client.'
+                )"
+              >⚠️</span>
+            </option-toggle>
+          </option-toggle>
+          <option-toggle inline storageKey="bgEnabled" mode="show">
+            <span
+              class="warning-icon"
+              title="Incompatible with custom backgrounds"
+            >❌</span>
+          </option-toggle>
         </option-toggle>
 
         <option-toggle storageKey="opaqueTransparentBackground">
-          Use opaque background
+          <span :title="(
+            'This uses a black background instead of a transparent one when ' +
+            'using animated backgrounds or the transparent window option. ' +
+            'This allows setting the background opacity, but the in-game ' +
+            'slider is inverted. 0% = background fully visible, 100% = ' +
+            'background completely black.'
+          )">
+            Use opaque background
+          </span>
         </option-toggle>
-        <option-toggle storageKey="opaqueTransparentBackground" mode="show">
-          <div class="extendedWarningText">
-            This uses a black background instead of a transparent one when using
-            animated backgrounds or the transparent window option. This allows
-            setting the background opacity, but the in-game slider is inverted.
-            0% = background fully visible, 100% = background completely black.
-          </div>
-        </option-toggle>
-
-        <fieldset>
-          <legend>Custom backgrounds</legend>
-          <option-toggle storageKey="bgEnabled" mode="hide">
-            Custom backgrounds disabled
-          </option-toggle>
-          <option-toggle storageKey="bgEnabled" mode="show">
-            <div v-if="backgrounds.length == 0">
-              No custom backgrounds
-            </div>
-            <div class="background" v-else v-for="bg of backgrounds">
-              <button @click="deleteBackground(bg)" title="Removes this background">
-                Delete
-              </button>
-              <button @click="bg.preview = !bg.preview" title="Shows this background">
-                Preview
-              </button>
-              <span class="bgName">
-                {{ bg.background.filename }}
-                <em v-if="bg.animated">animated</em>
-              </span>
-              <div v-if="bg.preview">
-                <background-embed :background="bg.background"></background-embed>
-              </div>
-            </div>
-          </option-toggle>
-        </fieldset>
       </div>
+
+      <option-toggle storageKey="bgEnabled" mode="show">
+        <hr />
+        <div class="preview-group">
+          <div v-if="backgrounds.length == 0">
+            No custom backgrounds
+          </div>
+          <div class="background" v-else v-for="bg of backgrounds">
+            <button @click="deleteBackground(bg)" title="Removes this background">
+              Delete
+            </button>
+            <button @click="bg.preview = !bg.preview" title="Shows this background">
+              Preview
+            </button>
+            <span class="bgName">
+              {{ bg.background.filename }}
+              <em v-if="bg.animated">animated</em>
+            </span>
+            <div v-if="bg.preview">
+              <background-embed :background="bg.background"></background-embed>
+            </div>
+          </div>
+        </div>
+      </option-toggle>
     </div>
   `,
   data: () => ({

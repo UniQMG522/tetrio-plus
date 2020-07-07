@@ -4,73 +4,81 @@ const html = arg => arg.join(''); // NOOP, for editor integration.
 
 export default {
   template: html`
-    <div>
-      <fieldset v-if="editing">
-        <legend>Audio Editor</legend>
-        <audio-editor :targetSong="editing" @change="refreshSongs"/>
-      </fieldset>
+    <div class="component-wrapper">
+      <div class="control-group">
+        <button @click="openMusicUploader" title="Opens the music uploader window">
+          Add new music
+        </button>
+        <button @click="openMusicGraphEditor()" title="Opens the music graph editor">
+          Open music graph editor
+        </button>
+      </div>
 
-      <button @click="openMusicUploader" title="Opens the music uploader window">
-        Add new music
-      </button>
-      <button @click="openMusicGraphEditor()">
-        Open music graph editor
-      </button>
-
-      <div title="Enables custom music">
+      <div class="option-group">
         <option-toggle storageKey="musicEnabled">
-          Enable custom music (may break the game)
+          <span title="Enables custom music">
+            Enable custom music
+          </span>
         </option-toggle>
-      </div>
-      <div title="Enables custom music">
         <option-toggle storageKey="musicGraphEnabled" enabledIfKey="musicEnabled">
-          Enable music graph (may break the game)
+          <span title="Enables the music graph">
+            Enable music graph
+          </span>
         </option-toggle>
-      </div>
-      <div title="Removes the game's existing soundtrack">
         <option-toggle storageKey="disableVanillaMusic" enabledIfKey="musicEnabled">
-          Disable built in music (may break the game)
-        </option-toggle>
-      </div>
-      <div title="Removes the game's existing soundtrack">
-        <option-toggle storageKey="enableMissingMusicPatch" enabledIfKey="musicEnabled">
-          Enable missing music patch (may break the game)
-        </option-toggle>
-      </div>
-      <option-toggle storageKey="musicEnabled" mode="show">
-        <option-toggle storageKey="disableVanillaMusic" mode="show">
-          <option-toggle storageKey="enableMissingMusicPatch" mode="hide">
-            <div class="missingMusicWarning">
-              Missing songs may render the game unplayable. This often manifests
-              as a softlock once a game starts where pieces won't fall. Make
-              sure to set a specific song, have at least one 'calm' song and one
-              'battle' song, or enable the missing music patch above. If you see
-              "**.ost[*] is undefined" in your console, these settings are
-              causing it!
-            </div>
+          <span title="Removes the game's existing soundtrack">
+            Disable built in music
+          </span>
+          <option-toggle inline storageKey="musicEnabled" mode="show">
+            <option-toggle inline storageKey="disableVanillaMusic" mode="show">
+              <option-toggle inline storageKey="enableMissingMusicPatch" mode="hide">
+                <span
+                  class="warning-icon"
+                  :title="(
+                    'Missing songs may render the game unplayable. This ' +
+                    'often manifests as a softlock once a game starts where ' +
+                    'pieces won\\'t fall. Make sure to set a specific song, ' +
+                    'have at least one \\'calm\\' song and one \\'battle\\' ' +
+                    'song, or enable the missing music patch below.'
+                  )"
+                >⚠️</span>
+              </option-toggle>
+            </option-toggle>
           </option-toggle>
         </option-toggle>
+        <div title="Prevents crashes when disabling built-in music">
+          <option-toggle storageKey="enableMissingMusicPatch" enabledIfKey="musicEnabled">
+            Enable missing music patch
+          </option-toggle>
+        </div>
+      </div>
+
+      <option-toggle storageKey="musicEnabled" mode="show">
+        <hr />
+        <div class="preview-group">
+          <div v-if="music.length == 0">
+            No custom music
+          </div>
+          <div class="song" v-else v-for="song of music">
+            <button @click="deleteSong(song)" title="Removes this song">
+              Delete
+            </button>
+            <button @click="editSong(song)" title="Shows the editor for this song">
+              Edit
+            </button>
+            <span class="song-category">
+              {{ song.metadata.genre.slice(0,1) }}
+            </span>
+            <span class="song-name" :title="JSON.stringify(song, null, 2)">
+              {{ song.filename }}
+            </span>
+          </div>
+        </div>
       </option-toggle>
 
-      <fieldset>
-        <legend>Custom music</legend>
-        <div v-if="music.length == 0">
-          No custom music
-        </div>
-        <div class="music" v-else v-for="song of music">
-          <button @click="deleteSong(song)" title="Removes this song">
-            Delete
-          </button>
-          <button @click="editSong(song)" title="Shows the editor for this song">
-            Edit
-          </button>
-          <span class="songCategory">
-            {{ song.metadata.genre.slice(0,1) }}
-          </span>
-          <span class="songName" :title="JSON.stringify(song, null, 2)">
-            {{ song.filename }}
-          </span>
-        </div>
+      <fieldset class="section subsection" v-if="editing">
+        <legend>Audio Editor</legend>
+        <audio-editor :targetSong="editing" @change="refreshSongs"/>
       </fieldset>
     </div>
   `,

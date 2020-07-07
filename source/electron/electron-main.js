@@ -42,12 +42,48 @@ function modifyWindowSettings(settings) {
   return settings;
 }
 
+
+
+let tpWindow;
+function createTetrioPlusWindow() {
+  if (tpWindow) return;
+  let tpWindow = new BrowserWindow({
+    width: 432,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'electron-browser-polyfill.js')
+    }
+  });
+  tpWindow.loadURL(`tetrio-plus-internal://source/popup/index.html`);
+  tpWindow.addEventListener('closed', () => {
+    tpWindow = null;
+  });
+  mainWindow.addEventListener('closed', () => {
+    tpWindow.close();
+  });
+}
+
 const mainWindow = new Promise(res => {
   module.exports = {
+    // Used by packaging edits (see README)
     onMainWindow: res,
-    modifyWindowSettings
+    modifyWindowSettings,
+
+    // Used by preload
+    createTetrioPlusWindow,
+    destroyEverything,
+    superForceReload
   }
 });
+
+async function superForceReload() {
+  (await mainWindow).webContents.reloadIgnoringCache()
+}
+
+async function destroyEverything() {
+  (await mainWindow).destroy();
+  tpWindow.destroy();
+}
 
 const greenlog = (...args) => console.log(
   "\u001b[32mGL>",
@@ -227,15 +263,5 @@ app.whenReady().then(async () => {
     });
   }
 
-  let tp = new BrowserWindow({
-    width: 1000,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'electron-browser-polyfill.js')
-    }
-  });
-  tp.loadURL(`tetrio-plus-internal://source/popup/index.html`);
-  tp.webContents.on('dom-ready', () => {
-    // tp.webContents.openDevTools();
-  });
+  createTetrioPlusWindow();
 }).catch(greenlog);

@@ -21,21 +21,25 @@ const ensureReactive = {
 
 export default {
   template: html`
-    <div class="optionToggle" @click="toggleValue">
-      <div v-if="optionValue && mode == 'show'">
+    <div class="optionToggle" :style="style" @click="toggleValue">
+      <template v-if="optionValue && mode == 'show'">
         <slot></slot>
-      </div>
-      <div v-else-if="!optionValue && mode == 'hide'">
+      </template>
+      <template v-else-if="!optionValue && mode == 'hide'">
         <slot></slot>
-      </div>
-      <div v-else-if="mode == 'toggle'">
+      </template>
+      <template v-else-if="mode == 'toggle'">
         <input type="checkbox" v-model="optionValue" v-if="!disabled" />
         <input type="checkbox" value="false" v-else disabled />
         <slot></slot>
-      </div>
+      </template>
     </div>
   `,
   props: {
+    inline: {
+      type: Boolean,
+      default: false
+    },
     /**
      * What storage key to use
      */
@@ -81,6 +85,11 @@ export default {
     }
   },
   computed: {
+    style() {
+      if (this.inline)
+        return { display: 'inline' };
+      return {};
+    },
     optionValue: {
       get() {
         browser.storage.local.get(this.storageKey).then(result => {

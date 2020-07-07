@@ -2,7 +2,7 @@ const html = arg => arg.join(''); // NOOP, for editor integration.
 
 export default {
   template: html`
-    <div>
+    <div title="Changes the look of Tetr.io+ based on your browser theme. May look awful with some themes.">
       <input type="checkbox" v-model="enableTheming" />
       <label>Use browser themes</label>
     </div>

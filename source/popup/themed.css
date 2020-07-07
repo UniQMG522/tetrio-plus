@@ -6,7 +6,11 @@ body.themed {
   --bg: #EEE;
   --accent: #222;
 
-  background-color: var(--bg);
+  --background: var(--border);
+  --layer-1: var(--bg);
+  --text: var(--text);
+
+  background-color: var(--border);
   color: var(--text);
 }
 .themed hr {
