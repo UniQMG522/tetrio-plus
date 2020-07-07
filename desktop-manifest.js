@@ -23,11 +23,13 @@ manifest.browser_specific_settings.desktop_client = {
     "source/filters/bg/animated-bg-tetriojs-filter.js",
     "source/filters/bg/bg-request-filter.js",
     "source/filters/bg/bg-tetriojs-filter.js",
+    "source/filters/touch-controls-tetriojs-filter.js",
     "source/filters/osd-request-filter.js"
   ],
   "preload_scripts": [
     "source/bootstrap/content-script-communicator.js",
     "source/content/content-script.js",
+    "source/content/touch-controls.js",
     "source/content/animated-bg.js",
     "source/content/osd.js",
     "source/content/music-graph-hook-handler.js",
@@ -35,6 +37,7 @@ manifest.browser_specific_settings.desktop_client = {
   ],
   "inject_css": [
     "source/content/draggable-header.css",
+    "source/content/touch-controls.css",
     "source/content/osd.css"
   ]
 };

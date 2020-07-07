@@ -23,6 +23,7 @@ const importers = {
   enableOSD: parseBoolean('enableOSD'),
   bgEnabled: parseBoolean('bgEnabled'),
   animatedBgEnabled: parseBoolean('animatedBgEnabled'),
+  enableTouchControls: parseBoolean('enableTouchControls'),
   transparentBgEnabled: electronOnly(parseBoolean('transparentBgEnabled')),
   opaqueTransparentBackground: parseBoolean('opaqueTransparentBackground'),
   openDevtoolsOnStart: electronOnly(parseBoolean('openDevtoolsOnStart')),

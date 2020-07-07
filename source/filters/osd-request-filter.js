@@ -5,22 +5,6 @@ createRewriteFilter("OSD hooks", "https://tetr.io/js/tetrio.js", {
   },
   onStop: async (url, src, callback) => {
     /*
-      This patch exposes the game's key map as a global variable
-      It's not actually used in the current implementation
-    */
-    let patched = false;
-    let reg1 = /let\s*(\w+)\s*={moveLeft[^}]+}/;
-    src = src.replace(reg1, (match, varName) => {
-      patched = true;
-      return match + `;
-        Object.defineProperty(window, "keyMap", {
-          get: () => ${varName}
-        })
-      `;
-    });
-    if (!patched) console.log('OSD hooks filter broke, stage 1/3');
-
-    /*
       This patch emits a custom event when a new board is initialized
     */
     patched = false;
@@ -35,7 +19,7 @@ createRewriteFilter("OSD hooks", "https://tetr.io/js/tetrio.js", {
         post
       );
     });
-    if (!patched) console.log('OSD hooks filter broke, stage 2/3');
+    if (!patched) console.log('OSD hooks filter broke, stage 1/2');
 
     /*
       This patch fixes an assignment to constant bug(?) in tetrio source
@@ -53,13 +37,12 @@ createRewriteFilter("OSD hooks", "https://tetr.io/js/tetrio.js", {
         }`
       )
     });
-    if (!patched) console.log('OSD hooks filter broke, stage 3/3');
+    if (!patched) console.log('OSD hooks filter broke, stage 2/2');
 
     callback({
       type: 'text/javascript',
       data: src,
       encoding: 'text'
     });
-    // filter.write(new TextEncoder().encode(src));
   }
 })

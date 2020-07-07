@@ -42,6 +42,7 @@
       "source/filters/svg-filter.js",
 
       "source/bootstrap/content-script-communicator.js",
+      "source/filters/touch-controls-tetriojs-filter.js",
       "source/filters/osd-request-filter.js"
     ]
   },
@@ -49,10 +50,12 @@
   "content_scripts": [{
     "matches": ["https://tetr.io/"],
     "css": [
+      "source/content/touch-controls.css",
       "source/content/osd.css"
     ],
     "js": [
       "source/content/content-script.js",
+      "source/content/touch-controls.js",
       "source/content/animated-bg.js",
       "source/content/osd.js",
       "source/content/music-graph-hook-handler.js",
@@ -63,7 +66,8 @@
 
   "web_accessible_resources": [
     "resource/template.svg",
-    "source/injected/osd.js"
+    "source/injected/osd.js",
+    "source/injected/touch-controls.js"
   ],
 
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
