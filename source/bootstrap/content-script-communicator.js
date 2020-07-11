@@ -21,48 +21,32 @@ browser.runtime.onConnect.addListener(port => {
         let manifest = await (await fetch(manifestUri)).json();
         let version = manifest.version;
 
-        let config = await browser.storage.local.get([
-          'bgEnabled',
-          'musicEnabled',
-          'animatedBgEnabled',
-          'disableVanillaMusic',
-          'enableMissingMusicPatch',
-          'enableSpeens',
-          'sfxEnabled',
-          'skin',
-          'enableOSD',
-          'enableTouchControls'
-        ]);
-
-        let features = [];
-
-        if (config.skin)
-          features.push('custom block skin');
-
-        if (config.musicEnabled) {
-          features.push('custom music');
-
-          if (config.disableVanillaMusic)
-            features.push('disable built-in music');
-
-          if (config.enableMissingMusicPatch)
-            features.push('missing music patch');
+        let strings = {
+          'bgEnabled': 'custom block skin',
+          'animatedBgEnabled': 'animated backgrounds',
+          'transparentBgEnabled': 'transparent background',
+          'opaqueTransparentBackground': 'opaque background layer',
+          'musicEnabled': 'custom music',
+          'musicGraphEnabled': 'music graph',
+          'disableVanillaMusic': 'disable built-in music',
+          'enableMissingMusicPatch': 'missing music patch',
+          'sfxEnabled': 'custom sfx',
+          'skin': 'custom block skins',
+          'enableCustomMaps': 'custom maps',
+          'enableOSD': 'key display',
+          'enableTouchControls': 'touch controls',
+          'bypassBootstrapper': 'bootstrap.js bypass',
+          'openDevtoolsOnStart': 'automatic devtools',
+          'debugBreakTheGame': 'DEBUG: INTENTIONALLY BREAK THE GAME'
         }
 
-        if (config.sfxEnabled)
-          features.push('custom sfx');
+        let config = await browser.storage.local.get(Object.keys(strings));
+        let features = [];
 
-        if (config.bgEnabled)
-          features.push('backgrounds');
+        for (let [key, str] of Object.entries(strings))
+          if (config[key]) features.push(str);
 
-        if (config.animatedBgEnabled)
-          features.push('animated backgrounds');
-
-        if (config.enableOSD)
-          features.push('key OSD');
-
-        if (config.enableTouchControls)
-          features.push('enableTouchControls');
+        console.log(config, Object.entries(strings), features);
 
         let featureString = features.length > 0
           ? features.join(', ')
