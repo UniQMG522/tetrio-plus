@@ -13,40 +13,57 @@
   if (!jsLoadErr) {
     console.error("[Tetr.io+] Can't find '#js_load_error'?");
   } else {
-    let div = document.createElement('div');
-    jsLoadErr.appendChild(div);
-
     let header = document.createElement('h2');
-    header.innerText = "Tetr.io+ is enabled";
+    header.innerText = "TETRIO PLUS is enabled";
     header.style.fontSize = '1.5rem';
     header.style.fontWeight = '500';
     header.style.color = 'red';
-    div.appendChild(header);
+    jsLoadErr.insertBefore(header, document.getElementById('js_load_retry_button'));
 
     function paragraph(text) {
       let p = document.createElement('p');
       p.innerText = text;
-      div.appendChild(p);
+      jsLoadErr.insertBefore(p, document.getElementById('js_load_retry_button'));
       return p;
     }
 
     paragraph(
-      "Do not report errors to tetrio or osk while using Tetr.io+. " +
+      "Do not report errors to tetrio or osk while using TETRIO PLUS. " +
       "Try the following first:"
     );
     paragraph(
-      "• Refreshing the page. There's a known out of memory bug on " +
-      "initial load that can be fixed by refreshing."
+      "• Refreshing the page (ctrl-F5)"
     );
-    paragraph("• Disabling options labelled as 'May break the game'");
-    paragraph("• Removing Tetr.io+")
+    paragraph("• Disabling features in the TETRIO PLUS menu");
+    let update = paragraph("• Updating TETRIO PLUS. ")
+    let faq = paragraph('');
+    paragraph("• Removing TETRIO PLUS");
 
     port.onMessage.addListener(msg => {
       if (msg.type != 'getInfoStringResult') return;
+
+      if (msg.value.indexOf('Tetrio Desktop') > 0) {
+        let a = document.createElement('a');
+        a.innerText = 'Get the latest release here';
+        a.href = 'https://gitlab.com/UniQMG/tetrio-plus/-/releases';
+        update.appendChild(a);
+
+        faq.innerText = '• Review '
+        let a2 = document.createElement('a');
+        a2.innerText = 'this FAQ';
+        a2.href = 'https://gitlab.com/UniQMG/tetrio-plus/-/wikis/desktop-faq';
+        faq.appendChild(a2);
+      } else {
+        let span = document.createElement('span');
+        span.innerText = `Check for updates from the firefox addons manager.`
+        update.appendChild(span);
+      }
+
       let p = paragraph(msg.value);
       p.style.color = '#666';
       p.style.fontSize = '1rem';
     });
+
   }
 
 
@@ -57,7 +74,7 @@
     let div = document.createElement('div');
     f8menu.parentNode.insertBefore(div, f8menu.nextSibling);
 
-    div.innerText = `Tetr.io+ enabled`;
+    div.innerText = `TETRIO PLUS enabled`;
     div.style.fontFamily = 'PFW';
 
     port.onMessage.addListener(msg => {
