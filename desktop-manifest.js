@@ -24,7 +24,8 @@ manifest.browser_specific_settings.desktop_client = {
     "source/filters/bg/bg-request-filter.js",
     "source/filters/bg/bg-tetriojs-filter.js",
     "source/filters/touch-controls-tetriojs-filter.js",
-    "source/filters/osd-request-filter.js"
+    "source/filters/osd-request-filter.js",
+    "source/filters/debug-tetriojs-filter.js"
   ],
   "preload_scripts": [
     "source/bootstrap/content-script-communicator.js",

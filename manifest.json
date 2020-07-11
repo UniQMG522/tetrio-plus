@@ -43,7 +43,8 @@
 
       "source/bootstrap/content-script-communicator.js",
       "source/filters/touch-controls-tetriojs-filter.js",
-      "source/filters/osd-request-filter.js"
+      "source/filters/osd-request-filter.js",
+      "source/filters/debug-tetriojs-filter.js"
     ]
   },
 

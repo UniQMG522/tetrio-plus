@@ -49,6 +49,7 @@ export default {
      * - toggle: Shows a checkbox that toggles the value
      * - show: Shows the content if the value is true
      * - hide: Hides the content if the value is true
+     * - trigger: Emits a trigger 'trigger' event when the value is true
      */
     mode: {
       type: String,
@@ -93,14 +94,20 @@ export default {
     optionValue: {
       get() {
         browser.storage.local.get(this.storageKey).then(result => {
-          if (this.cache[this.storageKey] != result[this.storageKey])
-            this.cache[this.storageKey] = result[this.storageKey];
+          let val = result[this.storageKey];
+          if (this.cache[this.storageKey] != val) {
+            this.cache[this.storageKey] = val;
+            if (this.mode == 'trigger' && val)
+              this.$emit('trigger', val);
+          }
         });
         return this.cache[this.storageKey];
       },
       set(val) {
         browser.storage.local.set({ [this.storageKey]: val }).then(() => {
           this.cache[this.storageKey] = val;
+          if (this.mode == 'trigger' && val)
+            this.$emit('trigger', val);
         });
       }
     },

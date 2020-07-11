@@ -17,6 +17,7 @@ const app = new Vue({
             href="https://gitlab.com/UniQMG/tetrio-plus/wikis"
             @click="openSource($event)"
           >Wiki</a>
+          <span v-if="debugMode">| Developer mode</span>
         </span>
       </h1>
 
@@ -83,6 +84,18 @@ const app = new Vue({
               Open devtools automatically
             </span>
           </option-toggle>
+
+          <option-toggle
+            storageKey="debugBreakTheGame"
+            mode="trigger"
+            v-if="!debugMode"
+            @trigger="enableDebugMode()"
+          ></option-toggle>
+          <option-toggle storageKey="debugBreakTheGame" v-if="debugMode">
+            <span title="Has a minor chance of completely breaking the game 100% of the time">
+              Break the game (May break the game)
+            </span>
+          </option-toggle>
           <theme-manager v-if="!isElectron" />
         </div>
         <div class="control-group">
@@ -108,6 +121,7 @@ const app = new Vue({
     BackgroundManager
   },
   data: {
+    debugMode: false
   },
   computed: {
     isElectron() {
@@ -117,7 +131,19 @@ const app = new Vue({
       return browser.runtime.getManifest().version;
     }
   },
+  mounted() {
+    let str = '';
+    window.addEventListener('keydown', evt => {
+      str = (str + evt.key).slice(-5);
+      if (str == 'debug')
+        this.enableDebugMode();
+    });
+  },
   methods: {
+    enableDebugMode() {
+      console.log("Enabled debug mode")
+      this.debugMode = true;
+    },
     async openSettingsIO() {
       let { name } = await browser.runtime.getBrowserInfo();
       if (name == 'Fennec') {
