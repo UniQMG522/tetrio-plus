@@ -1,198 +1,144 @@
+import VisualEditor from './visual-editor.js';
+import {
+  events,
+  eventValueStrings,
+  eventValueExtendedModes,
+  eventHasTarget
+} from './events.js';
 const html = arg => arg.join(''); // NOOP, for editor integration.
 
-const events = [
-  'node-end',
-  'time-passed',
-  'random-target',
-  'parent-node-destroyed'
-];
-
-[
-  'text-clear-none',
-  'text-clear-single',
-  'text-clear-double',
-  'text-clear-triple',
-  'text-clear-quad',
-  'text-t-spin',
-  'text-spike',
-  /*
-    Single-player mode doesn't have the b2b combo counter so there's
-    no way to tell once a b2b ends, so we use a seperate event
-  */
-  'text-b2b',
-  'text-b2b-reset',
-  'text-b2b-combo',
-  'text-combo',
-  'board-height'
-].forEach(sfx => {
-  events.push(sfx + '-player');
-  events.push(sfx + '-enemy');
-});
-
-[
-  "allclear","applause","boardappear","btb_1","btb_2","btb_3","btb_break",
-  "clearbtb","clearline","clearquad","clearspin","clutch","combo_1_power",
-  "combo_1","combo_10_power","combo_10","combo_11_power","combo_11",
-  "combo_12_power","combo_12","combo_13_power","combo_13","combo_14_power",
-  "combo_14","combo_15_power","combo_15","combo_16_power","combo_16",
-  "combo_2_power","combo_2","combo_3_power","combo_3","combo_4_power",
-  "combo_4","combo_5_power","combo_5","combo_6_power","combo_6",
-  "combo_7_power","combo_7","combo_8_power","combo_8","combo_9_power",
-  "combo_9","combobreak","countdown1","countdown2","countdown3","countdown4",
-  "countdown5","counter","damage_alert","damage_large","damage_medium",
-  "damage_small","death","detonate1","detonate2","detonated","elim","exchange",
-  "failure","finessefault","finish","fire","floor","gameover",
-  "garbage_in_large","garbage_in_medium","garbage_in_small","garbage_out_large",
-  "garbage_out_medium","garbage_out_small","garbagerise","garbagesmash","go",
-  "harddrop","hit","hold","hyperalert","i","impact","j","l","level1","level10",
-  "level100","level500","levelup","losestock","maintenance","matchintro",
-  "menuback","menuclick","menuconfirm","menuhit1","menuhit2","menuhit3",
-  "menuhover","menutap","mission_free","mission_league","mission_versus",
-  "mission","mmstart","move","no","notify","o","offset","personalbest",
-  "ranklower","rankraise","ratinglower","ratingraise","ribbon_off","ribbon_on",
-  "ribbon_tap","ribbon","rotate","rsg_go","rsg","s","scoreslide_in",
-  "scoreslide_out","shatter","showscore","sidehit","softdrop","spin","spinend",
-  "t","target","thunder1","thunder2","thunder3","thunder4","thunder5",
-  "thunder6","timer1","timer2","topout","userjoin","userleave","victory",
-  "warning","worldrecord","z"
-].forEach(sfx => {
-  events.push('sfx-' + sfx + '-player');
-  events.push('sfx-' + sfx + '-enemy');
-});
-
-const eventValueStrings = {
-  'time-passed': 'Seconds',
-  'text-b2b-combo': 'B2Bs performed',
-  'text-spike': 'Min spike',
-  'text-combo': 'Combo',
-  'board-height-player': 'Rows high',
-  'board-height-enemy': 'Rows high'
-};
-
-const eventValueExtendedModes = {
-  'text-spike': true,
-  'text-combo': true,
-  'board-height-player': true,
-  'board-height-enemy': true
-}
 
 const app = new Vue({
   template: html`
-    <div>
-      <button @click="save">Save changes</button>
-      <span :style="{ opacity: this.saveOpacity }">Saved!</span>
-      <div>
-        <fieldset v-for="node of nodes" :id="'node-' + node.id">
-          <legend>
-            <button @click="node.hidden = false" v-if="node.hidden == true">⮞</button>
-            <button @click="node.hidden = true" v-else>⮟</button>
-            <template v-if="node.type == 'root'">
-              Root
-            </template>
-            <template v-else>
-              <input type="text" v-model="node.name"/>
-              <button @click="removeNode(node)">❌</button>
-              <button @click="copyNode(node)">Copy</button>
-              <button @click="shiftNode(node, -1)">🔼</button>
-              <button @click="shiftNode(node, 1)">🔽</button>
-            </template>
-          </legend>
+    <div :class="{ 'split-pane': showVisualEditor }">
+      <div class="node-editor">
+        <div class="pane-header">
+          <button @click="save">Save changes</button>
+          <span :style="{ opacity: this.saveOpacity }">Saved!</span>
+          <button @click="toggleVisualEditor()" style="float: right">
+            Toggle visual editor
+          </button>
+        </div>
+        <div>
+          <fieldset v-for="node of nodes" :id="'node-' + node.id">
+            <legend>
+              <button @click="node.hidden = false" v-if="node.hidden == true">⮞</button>
+              <button @click="node.hidden = true" v-else>⮟</button>
+              <template v-if="node.type == 'root'">
+                Root
+              </template>
+              <template v-else>
+                <input type="text" v-model="node.name"/>
+                <button @click="removeNode(node)">❌</button>
+                <button @click="copyNode(node)">Copy</button>
+                <button @click="shiftNode(node, -1)">🔼</button>
+                <button @click="shiftNode(node, 1)">🔽</button>
+              </template>
+            </legend>
 
-          <div v-show="!node.hidden">
-            <div class="section" v-if="node.type != 'root'">
-              Select audio:
-              <select v-model="node.audio">
-                <option :value="null">None</option>
-                <option v-for="song of music" :value="song.id">
-                  {{ song.filename }}
-                </option>
-              </select>
-              <div v-if="music.length == 0">
-                (Add music in the main tetrio+ menu)
+            <div v-show="!node.hidden">
+              <div class="section" v-if="node.type != 'root'">
+                Select audio:
+                <select v-model="node.audio">
+                  <option :value="null">None</option>
+                  <option v-for="song of music" :value="song.id">
+                    {{ song.filename }}
+                  </option>
+                </select>
+                <div v-if="music.length == 0">
+                  (Add music in the main tetrio+ menu)
+                </div>
               </div>
-            </div>
 
-            <div v-if="(reverseLinkLookupTable[node.id] || []).size > 0"
-                 class="section">
-              Linked from
-              <span v-for="link of reverseLinkLookupTable[node.id]" class="linkback">
-                <a :href="'#node-' + link.id">{{ link.name }}</a>
-              </span>
-            </div>
+              <div v-if="(reverseLinkLookupTable[node.id] || []).size > 0"
+                   class="section">
+                Linked from
+                <span v-for="link of reverseLinkLookupTable[node.id]" class="linkback">
+                  <a href="#" @click="focus(link)">{{ link.name }}</a>
+                </span>
+              </div>
 
-            Triggers
-            <div class="triggers section">
-              <div class="trigger" v-for="trigger of node.triggers">
+              Triggers
+              <div class="triggers section">
+                <div class="trigger" v-for="(trigger, i) of node.triggers" :trigger-index="i">
+                  <!-- <code>{{ trigger.anchor }}</code> -->
+                  <div>
+                    <b>Event</b>
+                    <select v-model="trigger.event">
+                      <option
+                        v-for="evt of events"
+                        :value="evt"
+                        :disabled="trigger.mode == 'random' && evt == 'random-target'"
+                      >{{evt}}</option>
+                    </select>
+                    <button @click="removeTrigger(node, trigger)">❌</button>
+                    <button @click="copyTrigger(trigger)">Copy</button>
+                    <button @click="shiftTrigger(node, trigger, -1)">🔼</button>
+                    <button @click="shiftTrigger(node, trigger, 1)">🔽</button>
+                  </div>
+                  <div v-if="eventValueStrings[trigger.event]">
+                    <b>{{ eventValueStrings[trigger.event] }}</b>
+                    <select v-model="trigger.valueOperator"
+                            v-if="eventValueExtendedModes[trigger.event]">
+                      <option value="==" default>Equal to</option>
+                      <option value="!=">Not equal to</option>
+                      <option value=">">Greater than</option>
+                      <option value="<">Less than</option>
+                    </select>
+                    <input type="number" v-model.number="trigger.value" min="0" />
+                  </div>
+                  <div>
+                    <b>Mode</b>
+                    <select v-model="trigger.mode">
+                      <option value="fork">Create new node</option>
+                      <option value="goto">Go to node</option>
+                      <option value="kill">Stop executing</option>
+                      <option value="random" :disabled="trigger.event == 'random-target'">
+                        Run a random-target trigger
+                      </option>
+                    </select>
+                  </div>
+                  <div v-if="hasTarget(trigger)">
+                    <b>Target</b>
+                    <select v-model="trigger.target">
+                      <option :value="node.id" v-for="node of nodes">
+                        {{ node.name }}
+                      </option>
+                    </select>
+                    <a href="#" @click="focus(trigger.target)">jump</a>
+                  </div>
+                  <div v-if="hasTarget(trigger)">
+                    <input type="checkbox" v-model="trigger.preserveLocation" />
+                    Preserve location after jumping
+                  </div>
+                </div>
                 <div>
-                  <b>Event</b>
-                  <select v-model="trigger.event">
-                    <option
-                      v-for="evt of events"
-                      :value="evt"
-                      :disabled="trigger.mode == 'random' && evt == 'random-target'"
-                    >{{evt}}</option>
-                  </select>
-                  <button @click="removeTrigger(node, trigger)">❌</button>
-                  <button @click="copyTrigger(trigger)">Copy</button>
-                  <button @click="shiftTrigger(node, trigger, -1)">🔼</button>
-                  <button @click="shiftTrigger(node, trigger, 1)">🔽</button>
+                  <button @click="addTrigger(node)">
+                    New trigger
+                  </button>
+                  <button @click="pasteTrigger(node)" :disabled="!copiedTrigger">
+                    Paste trigger
+                  </button>
+                  <button @click="pasteNode(node)" :disabled="!copiedNode">
+                    Paste node here
+                  </button>
+                  <button @click="moveNode(node)" :disabled="!copiedNode">
+                    Move node here
+                  </button>
                 </div>
-                <div v-if="eventValueStrings[trigger.event]">
-                  <b>{{ eventValueStrings[trigger.event] }}</b>
-                  <select v-model="trigger.valueOperator"
-                          v-if="eventValueExtendedModes[trigger.event]">
-                    <option value="==" default>Equal to</option>
-                    <option value="!=">Not equal to</option>
-                    <option value=">">Greater than</option>
-                    <option value="<">Less than</option>
-                  </select>
-                  <input type="number" v-model.number="trigger.value" min="0" />
-                </div>
-                <div>
-                  <b>Mode</b>
-                  <select v-model="trigger.mode">
-                    <option value="fork">Create new node</option>
-                    <option value="goto">Go to node</option>
-                    <option value="kill">Stop executing</option>
-                    <option value="random" :disabled="trigger.event == 'random-target'">
-                      Run a random-target trigger
-                    </option>
-                  </select>
-                </div>
-                <div v-if="hasTarget(trigger)">
-                  <b>Target</b>
-                  <select v-model="trigger.target">
-                    <option :value="node.id" v-for="node of nodes">
-                      {{ node.name }}
-                    </option>
-                  </select>
-                  <a :href="'#node-' + trigger.target">jump</a>
-                </div>
-                <div v-if="hasTarget(trigger)">
-                  <input type="checkbox" v-model="trigger.preserveLocation" />
-                  Preserve location after jumping
-                </div>
-              </div>
-              <div>
-                <button @click="addTrigger(node)">
-                  New trigger
-                </button>
-                <button @click="pasteTrigger(node)" :disabled="!copiedTrigger">
-                  Paste trigger
-                </button>
-                <button @click="pasteNode(node)" :disabled="!copiedNode">
-                  Paste node here
-                </button>
-                <button @click="moveNode(node)" :disabled="!copiedNode">
-                  Move node here
-                </button>
               </div>
             </div>
-          </div>
-        </fieldset>
+          </fieldset>
+        </div>
+        <button @click="addNode()">Add node</button>
+        <button @click="pasteNode()" :disabled="!copiedNode">Paste node</button>
+        <div class="scroll-past-end"></div>
       </div>
-      <button @click="addNode()">Add node</button>
-      <button @click="pasteNode()" :disabled="!copiedNode">Paste node</button>
+      <visual-editor
+        v-show="showVisualEditor"
+        :nodes="nodes"
+        @focus="focus"
+      />
     </div>
   `,
   data: {
@@ -206,13 +152,17 @@ const app = new Vue({
       name: 'root',
       audio: null,
       triggers: [],
-      hidden: false
+      hidden: false,
+      x: 0,
+      y: 0
     }],
     maxId: 0,
     saveOpacity: 0,
     copiedNode: null,
-    copiedTrigger: null
+    copiedTrigger: null,
+    showVisualEditor: true
   },
+  components: { VisualEditor },
   computed: {
     reverseLinkLookupTable() {
       let links = {};
@@ -238,7 +188,9 @@ const app = new Vue({
         name: 'new node ' + this.maxId,
         audio: null,
         triggers: [],
-        hidden: false
+        hidden: false,
+        x: 0,
+        y: 0
       })
     },
     addTrigger(node) {
@@ -253,13 +205,7 @@ const app = new Vue({
       });
     },
     hasTarget(trigger) {
-      switch (trigger.mode) {
-        case 'fork': return true;
-        case 'goto': return true;
-        case 'kill': return false;
-        case 'random': return false;
-        default: return false;
-      }
+      return eventHasTarget[trigger.mode];
     },
     shiftNode(node, dir) {
       let index = this.nodes.indexOf(node);
@@ -310,6 +256,40 @@ const app = new Vue({
       if (!this.copiedTrigger) return;
       let copy = JSON.parse(JSON.stringify(this.copiedTrigger));
       target.triggers.push(copy);
+    },
+    focus(node) {
+      if (typeof node == 'number')
+        node = { id: node };
+
+      let target;
+
+      if (node.id === undefined && node.event) { // is a trigger object
+        let trigger = node;
+        for (let inode of this.nodes) {
+          let index = inode.triggers.indexOf(trigger);
+          if (index == -1) continue;
+          target = document
+            .querySelector(`#node-${inode.id} [trigger-index="${index}"]`);
+        }
+      } else { // is a node object
+        target = document.getElementById('node-' + node.id);
+      }
+
+      if (!target) return;
+
+      target.scrollIntoView({
+        behavior: 'auto',
+        block: 'center',
+        inline: 'center'
+      });
+
+      target.classList.add('highlighted');
+      setTimeout(() => {
+        target.classList.remove('highlighted');
+      }, 1000);
+    },
+    toggleVisualEditor() {
+      this.showVisualEditor = !this.showVisualEditor;
     }
   },
   mounted() {
@@ -325,3 +305,4 @@ const app = new Vue({
   }
 });
 app.$mount('#app');
+window.app = app;

@@ -1,3 +1,4 @@
 List of third party library download links (for AMO release requirements):
 https://raw.githubusercontent.com/higuma/ogg-vorbis-encoder-js/7a872423f416e330e925f5266d2eb66cff63c1b6/lib/OggVorbisEncoder.js
 https://raw.githubusercontent.com/vuejs/vue/a59e05c2ffe7d10dc55782baa41cb2c1cd605862/dist/vue.js
+https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js (https://github.com/taye/interact.js)
