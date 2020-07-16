@@ -90,11 +90,11 @@ const app = new Vue({
                   <div>
                     <b>Mode</b>
                     <select v-model="trigger.mode">
-                      <option value="fork">Create new node</option>
-                      <option value="goto">Go to node</option>
-                      <option value="kill">Stop executing</option>
+                      <option value="fork">Create new node (fork)</option>
+                      <option value="goto">Go to node (goto)</option>
+                      <option value="kill">Stop executing (kill)</option>
                       <option value="random" :disabled="trigger.event == 'random-target'">
-                        Run a random-target trigger
+                        Run a random-target trigger (random)
                       </option>
                     </select>
                   </div>

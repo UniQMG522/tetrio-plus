@@ -135,8 +135,8 @@ fieldset {
   --size: 40px;
 
   transform: translate(
-    calc(var(--x)),
-    calc(var(--y))
+    calc(var(--x) - var(--size)/2),
+    calc(var(--y) - var(--size)/2)
   );
 
   width: var(--size);

@@ -19,23 +19,24 @@ export default {
           }"
         >{{node.name}}</div>
 
-        <template v-for="{ i, x1, y1, x2, y2 } of getLinks(node, node.triggers)">
+        <template v-for="link of getLinks(node, node.triggers)">
           <div
             class="node-anchor origin"
             :node-id="node.id"
-            :trigger-index="i"
+            :trigger-index="link.i"
             :style="{
-              '--x': (x1 + camera.x) + 'px',
-              '--y': (y1 + camera.y) + 'px'
+              '--x': (link.x1 + camera.x) + 'px',
+              '--y': (link.y1 + camera.y) + 'px'
             }"
           ></div>
           <div
+            v-if="link.targetType == 'target'"
             class="node-anchor target"
             :node-id="node.id"
-            :trigger-index="i"
+            :trigger-index="link.i"
             :style="{
-              '--x': (x2 + camera.x) + 'px',
-              '--y': (y2 + camera.y) + 'px'
+              '--x': (link.x2 + camera.x) + 'px',
+              '--y': (link.y2 + camera.y) + 'px'
             }"
           ></div>
         </template>
@@ -46,27 +47,55 @@ export default {
           <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
               markerWidth="12" markerHeight="12"
               orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" />
+            <path d="M 0 0 L 10 5 L 0 10 z"/>
+          </marker>
+          <marker id="arrow-outline" viewBox="0 0 10 10" refX="5" refY="5"
+              markerWidth="12" markerHeight="12"
+              orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" stroke="black" fill="none"/>
+          </marker>
+          <marker id="dot" viewBox="0 0 10 10" refX="5" refY="5"
+              markerWidth="12" markerHeight="12">
+            <circle cx="5" cy="5" r="5" fill="black" />
+          </marker>
+          <marker id="x" viewBox="0 0 10 10" refX="5" refY="5"
+              markerWidth="12" markerHeight="12">
+            <path d="
+              M 5 5 L 0 0
+              M 5 5 L 10 0
+              M 5 5 L 0 10
+              M 5 5 L 10 10
+            " stroke="red" stroke-width="2px" />
+          </marker>
+          <marker id="?" viewBox="0 0 10 12" refX="5" refY="5"
+              markerWidth="24" markerHeight="24">
+            <text
+              stroke="black"
+              dominant-baseline="hanging"
+              font-family="monospace"
+              font-size="8px"
+            >🎲</text>
           </marker>
         </defs>
 
         <g :transform="svgTransform">
           <template v-for="node of nodes">
-            <template v-for="{ trigger, label, i, x1, y1, x2, y2 } of getLinks(node, node.triggers)">
+            <template v-for="link of getLinks(node, node.triggers)">
               <line
-                :x1="x1" :y1="y1" :x2="x2" :y2="y2"
+                :x1="link.x1" :y1="link.y1" :x2="link.x2" :y2="link.y2"
                 stroke="black"
-                marker-end="url(#arrow)"
+                :marker-start="link.startCap ? \`url(#\${link.startCap})\` : null"
+                :marker-end="link.endCap ? \`url(#\${link.endCap})\` : null"
+                :stroke-dasharray="link.trigger.mode == 'fork' ? '8 4' : null"
               />
               <text
-                :x="(x2+x1)/2"
-                :y="(y2+y1)/2"
+                :x="link.textX"
+                :y="link.textY"
                 :node-id="node.id"
-                :trigger-index="i"
-                :text-anchor="textAnchorFor(trigger)"
-                :dominant-baseline="baselineFor(trigger)"
-                :transform="transformFor(trigger)"
-              >​{{ label }}</text>
+                :trigger-index="link.i"
+                :text-anchor="link.textAnchor"
+                :dominant-baseline="link.textBaseline"
+              >​{{ link.label }}</text>
             </template>
           </template>
         </g>
@@ -112,18 +141,119 @@ export default {
           label += ` ${trigger.valueOperator} ${trigger.value}`;
         label += ' ' + trigger.mode;
 
-        return {
-          i,
-          label,
-          trigger,
-          x1: node.x + trigger.anchor.origin.x,
-          y1: node.y + trigger.anchor.origin.y,
-          x2: target.x + trigger.anchor.target.x,
-          y2: target.y + trigger.anchor.target.y
+        let targetType = 'target';
+        if (trigger.target == node.id)
+          targetType = 'self-target';
+        if (!eventHasTarget[trigger.mode])
+          targetType = 'no-target';
+
+        let x1 = node.x + trigger.anchor.origin.x;
+        let y1 = node.y + trigger.anchor.origin.y;
+        let x2 = target.x + trigger.anchor.target.x;
+        let y2 = target.y + trigger.anchor.target.y;
+
+        let startCap = null;
+        let endCap = 'arrow';
+
+        // average relative position of anchors to their parents
+        let relX = ((x1 - node.x) + (x2 - target.x))/2 * 1/200;
+        let relY = ((y1 - node.y) + (y2 - target.y))/2 * 1/60;
+
+        let textAnchor = 'start';
+        if (relX < 2/3) textAnchor = 'middle';
+        if (relX < 1/3) textAnchor = 'end';
+
+        let textBaseline = relY < 0.5 ? 'baseline' : 'hanging';
+        if (targetType != 'target')
+          textBaseline = 'middle';
+
+        // calculated later if not overriden.
+        let translateX = null;
+        let translateY = null;
+        let textX = null;
+        let textY = null;
+
+        // Add offset from side to determine position of non-target node ends
+        if (targetType != 'target') {
+          let side = null;
+          if (trigger.anchor.origin.y <= 10) side = 'top';
+          if (trigger.anchor.origin.y >= 50) side = 'bottom';
+          if (trigger.anchor.origin.x <= 10) side = 'left';
+          if (trigger.anchor.origin.x >= 190) side = 'right';
+          switch (side) {
+            default:
+            case 'top':
+              x2 = x1;
+              y2 = y1 - 50;
+              relX = (x2 - node.x)/200;
+              relY = ((y1 - node.y) + (y2 - target.y))/2 * 1/60;
+              break;
+
+            case 'bottom':
+              x2 = x1;
+              y2 = y1 + 50;
+              relX = (x2 - node.x)/200;
+              relY = ((y1 - node.y) + (y2 - target.y))/2 * 1/60;
+              break;
+
+            case 'left':
+              y2 = y1;
+              x2 = x1 - 50;
+              relX = ((x1 - node.x) + (x2 - target.x))/2 * 1/200;
+              relY = (y2 - node.y)/60;
+              textX = x2 - 10;
+              translateY = 0;
+              break;
+
+            case 'right':
+              y2 = y1;
+              x2 = x1 + 50;
+              relX = ((x1 - node.x) + (x2 - target.x))/2 * 1/200;
+              relY = (y2 - node.y)/60;
+              textX = x2 + 10;
+              translateY = 0;
+              break;
+          }
+          startCap = 'arrow';
+          endCap = 'dot';
         }
-      }).filter(({ trigger }) => {
-        if (trigger.target == node.id) return false;
-        return eventHasTarget[trigger.mode]
+
+        if (translateX == null)
+          translateX = relX < 1/3 ? -10 : relX > 2/3 ? 10 : 0;
+
+        if (translateY == null)
+          translateY = relY < 0.5 ? -5 : 5;
+
+        if (textX === null)
+          textX = (x2 + x1)/2 + translateX;
+
+        if (textY === null)
+          textY = (y2 + y1)/2 + translateY;
+
+        if (trigger.mode == 'fork') {
+          if (startCap == 'arrow') startCap = 'arrow-outline';
+          if (endCap == 'arrow') endCap = 'arrow-outline';
+        }
+
+        if (trigger.mode == 'random') {
+          startCap = null;
+          endCap = '?';
+        }
+
+        if (trigger.mode == 'kill') {
+          startCap = null;
+          endCap = 'x';
+        }
+
+        return {
+          i, trigger, targetType,
+          label, startCap, endCap,
+          x1, y1, x2, y2,
+          relX, relY,
+          textX, textY,
+          textBaseline,
+          textAnchor
+        };
       });
     },
     getTargetedNodeElemFromTriggerElem(handle) {
@@ -147,25 +277,6 @@ export default {
     },
     getNodeElemFromNode(node) {
       return document.querySelector(`.node[node-id="${node.id}"]`);
-    },
-
-    /* calculations for the <text> in the svg */
-    textAnchorFor(trigger) {
-      let x = (trigger.anchor.origin.x + trigger.anchor.target.x)/2;
-      if (x < 1/3 * 200) return 'end';
-      if (x < 2/3 * 200) return 'middle';
-      return 'start';
-    },
-    baselineFor(trigger) {
-      let y = (trigger.anchor.origin.y + trigger.anchor.target.y)/2;
-      return y < 30 ? 'baseline' : 'hanging';
-    },
-    transformFor(trigger) {
-      let x = (trigger.anchor.origin.x + trigger.anchor.target.x)/2;
-      let y = (trigger.anchor.origin.y + trigger.anchor.target.y)/2;
-      let tx = x < 1/3 * 200 ? -10 : x > 2/3 * 200 ? 10 : 0;
-      let ty = y < 30 ? -5 : 5;
-      return `translate(${tx}, ${ty})`;
     }
   },
   mounted() {
@@ -239,8 +350,14 @@ export default {
                 let node = this.getNodeFromElem(nodeElem);
                 let trigger = this.getTriggerFromElem(handle);
 
-                let ax1 = node.x + this.camera.x
-                let ay1 = node.y + this.camera.y
+                // The element is centered by translating it by half its size
+                // interact.js doesn't like this so we have to adjust the snap
+                // offsets manually
+                let snapOffset = 0.5 * parseInt(
+                  getComputedStyle(handle).getPropertyValue('--size')
+                );
+                let ax1 = node.x + this.camera.x - snapOffset
+                let ay1 = node.y + this.camera.y - snapOffset
                 let ax2 = ax1 + 200
                 let ay2 = ay1 + 60
 
