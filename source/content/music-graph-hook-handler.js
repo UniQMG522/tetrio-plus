@@ -1,4 +1,17 @@
 try {
+  let globalVolume = 0;
+  let lastUpdate = 0;
+  function getGlobalVolume() {
+    if (Date.now() - lastUpdate > 1000) {
+      globalVolume = JSON.parse(localStorage.userConfig).volume.music;;
+      lastUpdate = Date.now();
+    }
+    return globalVolume;
+  }
+
+  // Doesn't fire :(
+  // window.addEventListener('storage', () => console.log("STORAGE"));
+
   (async function() {
     let {
       music, musicGraph, musicEnabled, musicGraphEnabled
@@ -44,13 +57,14 @@ try {
     class Node {
       constructor() {
         // console.log("Created new node");
-        this.audio = null;
+        this.audio = null; // AudioBufferSourceNode
+        this.volume = null; // GainNode
         this.timeouts = [];
         this.startedAt = null;
         this.children = [];
       }
 
-      setSource(source, startTime=0) {
+      setSource(source, startTime=0, crossfade=false) {
         if (this.destroyed) return;
         // console.log(`Node ${this?.source?.name} -> ${source.name}`)
         this.source = source;
@@ -59,7 +73,7 @@ try {
           clearTimeout(timeout);
         this.timeouts.length = 0;
 
-        this.restartAudio(startTime);
+        this.restartAudio(startTime, crossfade);
 
         for (let trigger of this.source.triggers) {
           switch (trigger.event) {
@@ -73,7 +87,7 @@ try {
         }
       }
 
-      restartAudio(startTime) {
+      restartAudio(startTime, crossfade=false) {
         if (this.destroyed) return;
         if (!this.source.audio) {
           this.runTriggersByName('node-end');
@@ -82,16 +96,52 @@ try {
 
         let audioSource = context.createBufferSource();
         audioSource.buffer = audioBuffers[this.source.audio];
-        audioSource.connect(context.destination);
         audioSource.onended = () => {
           if (this.audio != audioSource) return;
             this.runTriggersByName('node-end');
         };
+
+        audioSource.playbackRate.value = this.source.effects.speed;
+
+        let gainNode = context.createGain();
+        gainNode.gain.value = this.source.effects.volume * getGlobalVolume();
+
+        if (this.audio) {
+          if (!crossfade) {
+            this.audio.stop();
+          } else {
+            let oldAudio = this.audio;
+            let oldVolume = this.volume;
+            gainNode.gain.value = 0;
+
+            let start = Date.now();
+            let end = start + crossfade * 1000;
+            let startVolOld = oldVolume.gain.value;
+
+            let interval = setInterval(() => {
+              let progress = 1 - (end - Date.now()) / (end - start);
+              if (progress > 1) {
+                clearInterval(interval);
+                oldAudio.stop();
+                return;
+              }
+
+              oldVolume.gain.value = (1 - progress) * startVolOld;
+              this.volume.gain.value = (
+                progress *
+                this.source.effects.volume *
+                getGlobalVolume()
+              );
+            }, 16);
+          }
+        }
+
+        audioSource.connect(gainNode).connect(context.destination);
         audioSource.start(0, startTime);
         this.startedAt = context.currentTime - startTime;
 
-        if (this.audio) this.audio.stop();
         this.audio = audioSource;
+        this.volume = gainNode;
       }
 
       get currentTime() {
@@ -122,13 +172,13 @@ try {
         //   `${trigger.event} ${trigger.mode} ${trigger.target}`
         // );
         let startTime = trigger.preserveLocation
-          ? this.currentTime
+          ? this.currentTime * trigger.locationMultiplier
           : 0;
         switch (trigger.mode) {
           case 'fork':
             var src = graph[trigger.target];
             if (!src) {
-              console.error("Tetr.io+ error: Unknown node #" + trigger.target);
+              console.error("[Tetr.io+] Unknown node #" + trigger.target);
               break;
             }
             var node = new Node();
@@ -140,10 +190,11 @@ try {
           case 'goto':
             var src = graph[trigger.target];
             if (!src) {
-              console.error("Tetr.io+ error: Unknown node #" + trigger.target);
+              console.error("[Tetr.io+] Unknown node #" + trigger.target);
               break;
             }
-            this.setSource(src, startTime);
+            let crossfade = trigger.crossfade && trigger.crossfadeDuration;
+            this.setSource(src, startTime, crossfade);
             break;
 
           case 'kill':

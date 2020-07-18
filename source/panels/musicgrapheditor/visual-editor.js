@@ -129,12 +129,14 @@ export default {
       return this.nodes.filter(node => node.id == id)[0];
     },
     getNodeFromElem(elem) {
+      if (!elem) return null;
       let nodeId = elem.getAttribute('node-id');
       return this.getNodeById(nodeId);
     },
     getLinks(node, triggers) {
       return triggers.map((trigger, i) => {
         let target = this.getNodeById(trigger.target);
+        if (!target) target = { id: -1, x: node.x, y: node.y };
 
         let label = trigger.event;
         if (eventValueExtendedModes[trigger.event])
@@ -276,29 +278,11 @@ export default {
       return handleElem.classList.contains('origin') ? 'origin' : 'target';
     },
     getNodeElemFromNode(node) {
+      if (!node) return null;
       return document.querySelector(`.node[node-id="${node.id}"]`);
     }
   },
   mounted() {
-    // TODO: Write actual migrator
-    function foo() {
-      for (let node of this.nodes) {
-        if (!node.x) this.$set(node, 'x', 0);
-        if (!node.y) this.$set(node, 'y', 0);
-        for (let trigger of node.triggers) {
-          if (!trigger.anchor) {
-            this.$set(trigger, 'anchor', {
-              origin: { x: 100, y: 60 },
-              target: { x: 100, y:  0 }
-            });
-          }
-        }
-      }
-    }
-    foo = foo.bind(this);
-    setInterval(() => foo(), 100);
-    foo();
-
     interact('.visual-editor svg text')
       .on('tap', event => {
         let trigger = this.getTriggerFromElem(event.target);
@@ -347,8 +331,9 @@ export default {
               (x, y, interaction, offset, index) => {
                 let handle = interaction.element;
                 let nodeElem = this.getTargetedNodeElemFromTriggerElem(handle);
-                let node = this.getNodeFromElem(nodeElem);
                 let trigger = this.getTriggerFromElem(handle);
+                let node = this.getNodeFromElem(nodeElem);
+                if (!node) return { x: x, y: y, range: 0 };
 
                 // The element is centered by translating it by half its size
                 // interact.js doesn't like this so we have to adjust the snap

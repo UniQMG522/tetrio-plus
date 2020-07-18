@@ -7,6 +7,7 @@ export const events = [
 ];
 
 [
+  'board-height',
   'text-clear-none',
   'text-clear-single',
   'text-clear-double',
@@ -21,8 +22,7 @@ export const events = [
   'text-b2b',
   'text-b2b-reset',
   'text-b2b-combo',
-  'text-combo',
-  'board-height'
+  'text-combo'
 ].forEach(sfx => {
   events.push(sfx + '-player');
   events.push(sfx + '-enemy');

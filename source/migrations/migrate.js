@@ -22,6 +22,40 @@ const migrate = (() => {
     }
   });
 
+  /*
+    v0.12.0 - Music graph update
+    Adds a bunch of new keys to the music graph
+  */
+  migrations.push({
+    version: '0.12.0',
+    run: async dataSource => {
+      await dataSource.set({ version: '0.12.0' });
+
+      let { musicGraph: json } = await dataSource.get('musicGraph');
+      if (json) {
+        let musicGraph = JSON.parse(json);
+
+        let x = 0;
+        for (let node of musicGraph) {
+          node.x = (x += 30);
+          node.y = 0;
+          node.effects = { volume: 1, speed: 1 }
+          for (let trigger of node.triggers) {
+            trigger.anchor = {
+              origin: { x: 100, y: 60 },
+              target: { x: 100, y: 0 }
+            }
+            trigger.crossfade = false;
+            trigger.crossfadeDuration = 1;
+            trigger.locationMultiplier = 1;
+          }
+        }
+
+        await dataSource.set({ musicGraph: JSON.stringify(musicGraph) });
+      }
+    }
+  });
+
   return async function migrate(dataSource) {
     let { version: initialVersion} = await dataSource.get('version');
     if (!initialVersion) initialVersion = '0.0.0';

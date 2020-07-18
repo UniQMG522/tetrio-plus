@@ -10,7 +10,7 @@ body {
 .split-pane {
   display: grid;
   grid-template-areas: "left right";
-  grid-template-columns: auto minmax(40%, 1fr);
+  grid-template-columns: 465px minmax(40%, 1fr);
   height: 100%;
 }
 
@@ -25,6 +25,22 @@ body {
   border: 2px solid black;
   border-left: 0px;
   grid-area: right;
+}
+
+.form-control {
+  display: flex; /* haha easy vertical alignment go brrrrr */
+}
+.form-control input:not([type="checkbox"]) {
+  margin-left: 5px;
+}
+.form-control input[type="number"] {
+  width: 80px;
+}
+.form-control-value-display {
+  font-family: monospace;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 @media (max-width: 800px) {
@@ -94,6 +110,20 @@ fieldset {
   height: calc(100% - 50px);
 }
 
+.node-audio-selector {
+  max-width: 300px;
+}
+
+.icon-button {
+  padding: 0px;
+}
+
+input:invalid {
+  box-shadow: none !important; /* firefox validation override */
+}
+.paste-and-trigger-controls button {
+  padding: 0px 4px;
+}
 /* Visual editor */
 .visual-editor {
   --bg-x: 0px;

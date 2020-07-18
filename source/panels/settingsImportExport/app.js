@@ -9,9 +9,21 @@ function parseBoolean(key) {
 function electronOnly(callback) {
   return async value => {
     if (!browser.electron)
-      return 'ERROR: This option is only for the desktop client';
+      return 'Ignored: This option is only for the desktop client';
     return await callback(value);
   }
+}
+
+function filterValues(object, path, whitelist) {
+  for (let key of Object.keys(object)) {
+    if (whitelist.indexOf(key) == -1) {
+      return {
+        success: false,
+        error: `ERROR: Unexpected value at ${path}.${key}`
+      }
+    }
+  }
+  return { success: true };
 }
 
 const importers = {
@@ -213,6 +225,21 @@ const importers = {
       if (typeof node.hidden != 'boolean')
         return `ERROR: Expected boolean value at [].hidden`;
 
+      if (typeof node.x != 'number')
+        return `ERROR: Expected number at [].x`;
+
+      if (typeof node.y != 'number')
+        return `ERROR: Expected number at [].y`;
+
+      if (typeof node.effects != 'object')
+        return `ERROR: Expected object at [].effects`;
+
+      if (typeof node.effects.volume != 'number' || node.effects.volume < 0)
+        return `ERROR: Expected positive number at [].effects.volume`;
+
+      if (typeof node.effects.speed != 'number' || node.effects.speed < 0)
+        return `ERROR: Expected positive number at [].effects.speed`;
+
       if (!Array.isArray(node.triggers))
         return `ERROR: Expected array at [].triggers`;
 
@@ -229,25 +256,74 @@ const importers = {
         if (typeof trigger.preserveLocation != 'boolean')
           return `ERROR: Expected boolean value at [].triggers[].preserveLocation`;
 
+        if (typeof trigger.locationMultiplier != 'number' || trigger.locationMultiplier < 0)
+          return `ERROR: Expected positive number value at [].triggers[].locationMultiplier`;
+
+        if (typeof trigger.crossfade != 'boolean')
+          return `ERROR: Expected boolean value at [].triggers[].crossfade`;
+
+        if (typeof trigger.crossfadeDuration != 'number' || trigger.crossfadeDuration < 0)
+          return `ERROR: Expected positive number value at [].triggers[].crossfadeDuration`;
+
         if (typeof trigger.value != 'number' || trigger.value < 0)
           return `ERROR: Expected positive number value at [].triggers[].value`;
 
         if (['==', '!=', '>', '<'].indexOf(trigger.valueOperator) == -1)
           return `ERROR: Expected enum value at [].triggers[].valueOperator, got ${trigger.valueOperator}`;
 
-        let allowed = [
+        if (typeof trigger.anchor != 'object')
+          return `ERROR: Expected object at [].triggers[].anchor`;
+
+        if (typeof trigger.anchor.origin != 'object')
+          return `ERROR: Expected object at [].triggers[].anchor.origin`;
+
+        if (typeof trigger.anchor.target != 'object')
+          return `ERROR: Expected object at [].triggers[].anchor.target`;
+
+        if (typeof trigger.anchor.origin.x != 'number')
+          return `ERROR: Expected number at [].triggers[].anchor.origin.x`;
+
+        if (typeof trigger.anchor.origin.y != 'number')
+          return `ERROR: Expected number at [].triggers[].anchor.origin.y`;
+
+        if (typeof trigger.anchor.target.x != 'number')
+          return `ERROR: Expected number at [].triggers[].anchor.target.x`;
+
+        if (typeof trigger.anchor.target.y != 'number')
+          return `ERROR: Expected number at [].triggers[].anchor.target.y`;
+
+        let result1 = filterValues(trigger, '[].triggers[]', [
           'mode', 'target', 'event', 'preserveLocation', 'value',
-          'valueOperator'
-        ];
-        for (let key of Object.keys(trigger))
-          if (allowed.indexOf(key) == -1)
-            return `ERROR: Unexpected value at [].triggers[].${key}`;
+          'valueOperator', 'anchor', 'crossfade', 'crossfadeDuration',
+          'locationMultiplier'
+        ]);
+        if (!result1.success) return result1.error;
+
+        let result2 = filterValues(trigger.anchor, '[].triggers[].anchor', [
+          'origin', 'target'
+        ]);
+        if (!result2.success) return result2.error;
+
+        let result3 = filterValues(
+          trigger.anchor.origin,
+          '[].triggers[].anchor.origin',
+          [ 'x', 'y']
+        );
+        if (!result3.success) return result3.error;
+
+        let result4 = filterValues(
+          trigger.anchor.target,
+          '[].triggers[].anchor.target',
+          [ 'x', 'y']
+        );
+        if (!result4.success) return result4.error;
       }
 
-      let allowed = ['id', 'type', 'name', 'audio', 'triggers', 'hidden'];
-      for (let key of Object.keys(node))
-        if (allowed.indexOf(key) == -1)
-          return `ERROR: Unexpected value at [].${key}`;
+      let result5 = filterValues(node, '[]', [
+        'id', 'type', 'name', 'audio', 'triggers', 'hidden', 'x', 'y',
+        'effects'
+      ]);
+      if (!result5.success) return result5.error;
     }
 
     toSet.musicGraph = JSON.stringify(graph);
