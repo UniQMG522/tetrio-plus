@@ -56,17 +56,22 @@ const app = new Vue({
               Enable key OSD
             </span>
           </option-toggle>
-          <option-toggle storageKey="enableTouchControls">
-            <span :title="(
-              'Allows you to control the game using touch inputs. Inputs ' +
-              'are mapped to two virtual joysticks on each side of the page. ' +
-              'Left up = harddrop, left down = softdrop, left left = move left ' +
-              'left right = move right. right up = 180 spin, right left = ccw ' +
-              'spin, right right = cw spin, right down = hold.'
-            )">
-              Enable touch controls
-            </span>
-          </option-toggle>
+          <div>
+            <option-toggle inline storageKey="enableTouchControls">
+              <span :title="(
+                'Allows you to control the game using touch inputs. Inputs ' +
+                'are mapped to two virtual joysticks on each side of the page. ' +
+                'Left up = harddrop, left down = softdrop, left left = move left ' +
+                'left right = move right. right up = 180 spin, right left = ccw ' +
+                'spin, right right = cw spin, right down = hold.'
+              )">
+                Enable touch controls
+              </span>
+            </option-toggle>
+            <option-toggle inline storageKey="enableTouchControls" mode="show">
+              <button @click="openTouchEditor">Edit</button>
+            </option-toggle>
+          </div>
           <option-toggle storageKey="bypassBootstrapper">
             <span :title="(
               'Disables integrity checks on the tetrio.js file and loads ' +
@@ -163,6 +168,14 @@ const app = new Vue({
           height: 520
         });
       }
+    },
+    openTouchEditor() {
+      browser.tabs.create({
+        url: browser.extension.getURL(
+          'source/panels/touchcontroleditor/index.html'
+        ),
+        active: true
+      });
     },
     openSource(evt) {
       if (this.isElectron) {

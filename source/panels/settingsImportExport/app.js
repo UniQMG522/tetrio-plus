@@ -330,6 +330,72 @@ const importers = {
     console.log("Set", toSet);
     await browser.storage.local.set(toSet);
     return 'success';
+  },
+  touchControlConfig: async config => {
+    try {
+      config = JSON.parse(config);
+    } catch(ex) {
+      return `ERROR: Invalid json: ${ex}`
+    }
+
+    if (typeof config != 'object')
+      return `ERROR: Expected object at $`;
+
+    if (['touchpad', 'hybrid', 'keys'].indexOf(config.mode) == -1)
+      return `ERROR: Expected enum value at $.mode`;
+
+    if (typeof config.binding != 'object')
+      return `ERROR: Expected object at $.binding`;
+
+    if (typeof config.binding.L_left != 'string')
+      return `ERROR: Expected string at $.binding.L_left`;
+    if (typeof config.binding.L_right != 'string')
+      return `ERROR: Expected string at $.binding.L_right`;
+    if (typeof config.binding.L_up != 'string')
+      return `ERROR: Expected string at $.binding.L_up`;
+    if (typeof config.binding.L_down != 'string')
+      return `ERROR: Expected string at $.binding.L_down`;
+    if (typeof config.binding.R_left != 'string')
+      return `ERROR: Expected string at $.binding.R_left`;
+    if (typeof config.binding.R_right != 'string')
+      return `ERROR: Expected string at $.binding.R_right`;
+    if (typeof config.binding.R_up != 'string')
+      return `ERROR: Expected string at $.binding.R_up`;
+    if (typeof config.binding.R_down != 'string')
+      return `ERROR: Expected string at $.binding.R_down`;
+
+    if (!Array.isArray(config.keys))
+      return `ERROR: Expected array at $.keys`;
+
+    for (let key of config.keys) {
+      if (typeof key.x != 'number')
+        return `ERROR: Expected number at $.keys[].x`;
+      if (typeof key.y != 'number')
+        return `ERROR: Expected number at $.keys[].y`;
+      if (typeof key.w != 'number')
+        return `ERROR: Expected number at $.keys[].w`;
+      if (typeof key.h != 'number')
+        return `ERROR: Expected number at $.keys[].h`;
+      if (['hover', 'tap'].indexOf(key.behavior) == -1)
+        return `ERROR: Expected enum value at $.keys[].behavior`;
+      if (typeof key.bind != 'string')
+        return `ERROR: Expected string at $.keys[].bind`;
+
+      let result1 = filterValues(key, '$.keys[]', [
+        'x', 'y', 'w', 'h', 'behavior', 'bind'
+      ]);
+      if (!result1.success) return result1.error;
+    }
+
+    let result2 = filterValues(config, '$', [
+      'mode', 'deadzone', 'binding', 'keys'
+    ]);
+    if (!result2.success) return result2.error;
+
+    await browser.storage.local.set({
+      touchControlConfig: JSON.stringify(config)
+    });
+    return 'success';
   }
 }
 
