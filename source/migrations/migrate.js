@@ -56,6 +56,23 @@ const migrate = (() => {
     }
   });
 
+
+  /*
+    v0.12.0 - Music editor update
+    Redesigned the music editor and added overrides
+  */
+  migrations.push({
+    version: '0.13.0',
+    run: async dataSource => {
+      await dataSource.set({ version: '0.13.0' });
+      let { music } = await dataSource.get('music');
+      if (!music) return;
+
+      for (let song of music)
+        song.override = null;
+    }
+  })
+
   return async function migrate(dataSource) {
     let { version: initialVersion} = await dataSource.get('version');
     if (!initialVersion) initialVersion = '0.0.0';

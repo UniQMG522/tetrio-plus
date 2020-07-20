@@ -84,7 +84,7 @@ export default {
           <input type="checkbox" v-model="trigger.crossfade" />
           Crossfade
         </div>
-        <div class="form-control">
+        <div class="form-control" v-if="trigger.crossfade">
           Crossfade duration <input
             type="number"
             v-model.number="trigger.crossfadeDuration"

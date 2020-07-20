@@ -141,6 +141,9 @@ const importers = {
       if (typeof song.filename != 'string')
         return `ERROR: Expected string at [].filename`;
 
+      if (typeof song.override != 'string' && song.override !== null)
+        return `ERROR: Expected string or null at [].override`;
+
       if (typeof song.metadata != 'object' || !song.metadata)
         return `ERROR: Expected object at [].metadata`;
 
@@ -159,7 +162,7 @@ const importers = {
       if (typeof song.metadata.source != 'string')
         return `ERROR: Expected string at [].metadata.source`;
 
-      let genres = ['INTERFACE', 'CALM', 'BATTLE', 'DISABLED'];
+      let genres = ['INTERFACE', 'CALM', 'BATTLE', 'DISABLED', 'OVERRIDE'];
       if (genres.indexOf(song.metadata.genre) === -1)
         return `ERROR: Unknown genre at [].metadata.genre`;
 
@@ -182,7 +185,7 @@ const importers = {
       }
 
       for (let key of Object.keys(song))
-        if (['id', 'filename', 'metadata'].indexOf(key) == -1)
+        if (['id', 'filename', 'metadata', 'override'].indexOf(key) == -1)
           return `ERROR: Unexpected value at [].${key}`;
 
       let mp3 = importData['song-' + song.id];

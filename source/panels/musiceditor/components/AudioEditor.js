@@ -2,11 +2,13 @@ const html = arg => arg.join(''); // NOOP, for editor integration.
 
 export default {
   template: html`
-    <div class="audioeditor">
-      <div>
-        <audio ref="player" :src="editingSrc" controls></audio>
-      </div>
-      <div style="font-family: monospace;">
+    <div class="audioeditor" v-if="!song">
+      Pick a song!
+    </div>
+    <div class="audioeditor" v-else>
+      <button class="finish" @click="$emit('done')">×</button>
+      <audio ref="player" :src="editingSrc" controls></audio>
+      <div class="timer" style="font-family: monospace;">
         Current time: {{ msTime }}ms
       </div>
       <div class="control-group">
@@ -37,11 +39,6 @@ export default {
           <label>Loop length (ms)</label>
           <input type="number" v-model.number="song.metadata.loopLength"></input>
         </div>
-        <!-- <strong v-if="!song.metadata.loop">
-          These still apply when looping is off, once you reach<br>
-          {{ song.metadata.loopStart + song.metadata.loopLength }}ms your song
-          will stop playing.
-        </strong> -->
         <div class="option-pair" title="The name of the song">
           <label>Name</label>
           <input type="text" v-model="song.metadata.name"></input>
@@ -64,40 +61,38 @@ export default {
             <option value="CALM">Calm</option>
             <option value="BATTLE">Battle</option>
             <option value="INTERFACE">Interface</option>
+            <option value="OVERRIDE">Override</option>
             <option value="DISABLED">Disabled/Music graph only</option>
           </select>
         </div>
-      </div>
-      <div class="control-group">
-        <button @click="saveChanges()">Save changes</button>
+        <div class="option-pair" v-if="song.metadata.genre == 'OVERRIDE'">
+          <label>Override</label>
+          <select v-model="song.override">
+            <option value="null">Nothing</option>
+            <option :value="key" v-for="[key, song] of Object.entries(builtin)">
+              {{ song.name }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
   `,
-  props: ['targetSong'],
+  props: ['song', 'builtin'],
   data: () => ({
-    localSong: null,
     cachedSrc: null,
     updateInterval: null,
     currentTime: 0
   }),
   mounted() {
     this.updateInterval = setInterval(() => {
+      if (!this.$refs.player) return;
       this.currentTime = this.$refs.player.currentTime;
     }, 16);
   },
   beforeDestroy() {
     clearInterval(this.updateInterval);
   },
-  watch: {
-    targetSong() {
-      this.reloadSong();
-    }
-  },
   computed: {
-    song() {
-      if (!this.localSong) this.reloadSong();
-      return this.localSong;
-    },
     editingSrc() {
       let key = 'song-' + this.song.id;
       browser.storage.local.get(key).then(result => {
@@ -113,10 +108,6 @@ export default {
     }
   },
   methods: {
-    reloadSong() {
-      this.localSong = JSON.parse(JSON.stringify(this.targetSong));
-      console.log("New song -> ", this.song);
-    },
     setLoopStart() {
       this.song.metadata.loop = true;
       this.song.metadata.loopStart = this.msTime;
@@ -129,17 +120,6 @@ export default {
       this.song.metadata.loop = false;
       this.song.metadata.loopStart = 0;
       this.song.metadata.loopLength = 0;
-    },
-    saveChanges() {
-      browser.storage.local.get('music').then(({ music }) => {
-        let target = music.filter(song => song.id == this.song.id)[0];
-        if (!target) {
-          alert('Song not found?');
-          return;
-        }
-        Object.assign(target, JSON.parse(JSON.stringify(this.song)));
-        return browser.storage.local.set({ music });
-      }).then(() => this.$emit('change'));
     }
   }
 }

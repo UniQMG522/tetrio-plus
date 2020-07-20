@@ -4,6 +4,7 @@
 */
 createRewriteFilter("Tetrio.js Music", "https://tetr.io/js/tetrio.js", {
   enabledFor: async url => {
+    if (url.indexOf('tetrio-plus-bypass') != -1) return false;
     let { musicEnabled } = await browser.storage.local.get('musicEnabled');
     return musicEnabled;
   },

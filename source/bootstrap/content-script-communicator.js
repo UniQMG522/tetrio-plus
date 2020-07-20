@@ -47,8 +47,6 @@ browser.runtime.onConnect.addListener(port => {
         for (let [key, str] of Object.entries(strings))
           if (config[key]) features.push(str);
 
-        console.log(config, Object.entries(strings), features);
-
         let featureString = features.length > 0
           ? features.join(', ')
           : 'none';

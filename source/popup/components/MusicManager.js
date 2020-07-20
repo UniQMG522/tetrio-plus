@@ -1,4 +1,3 @@
-import AudioEditor from './AudioEditor.js';
 import OptionToggle from './OptionToggle.js';
 import MultiShow from './MultiShow.js';
 const html = arg => arg.join(''); // NOOP, for editor integration.
@@ -7,8 +6,8 @@ export default {
   template: html`
     <div class="component-wrapper">
       <div class="control-group">
-        <button @click="openMusicUploader" title="Opens the music uploader window">
-          Add new music
+        <button @click="openMusicEditor" title="Opens the music editor window">
+          Open music editor
         </button>
         <button @click="openMusicGraphEditor()" title="Opens the music graph editor">
           Open music graph editor
@@ -67,12 +66,6 @@ export default {
             No custom music
           </div>
           <div class="song" v-else v-for="song of music">
-            <button @click="deleteSong(song)" title="Removes this song">
-              Delete
-            </button>
-            <button @click="editSong(song)" title="Shows the editor for this song">
-              Edit
-            </button>
             <span class="song-category">
               {{ song.metadata.genre.slice(0,1) }}
             </span>
@@ -82,21 +75,10 @@ export default {
           </div>
         </div>
       </option-toggle>
-
-      <fieldset class="section subsection" v-if="editing">
-        <legend>Audio Editor</legend>
-        <audio-editor :targetSong="editing" @change="refreshSongs"/>
-      </fieldset>
     </div>
   `,
-  data: () => ({
-    cache: {
-      music: null,
-      editingSrc: null,
-    },
-    editing: null
-  }),
-  components: { AudioEditor, OptionToggle, MultiShow },
+  data: () => ({ cache: { music: null } }),
+  components: { OptionToggle, MultiShow },
   computed: {
     music() {
       browser.storage.local.get('music').then(({ music }) => {
@@ -107,23 +89,13 @@ export default {
     }
   },
   methods: {
-    async openMusicUploader() {
-      let { name } = await browser.runtime.getBrowserInfo();
-      if (name == 'Fennec') {
-        browser.tabs.create({
-          url: browser.extension.getURL(
-            'source/panels/musicpicker/index.html'
-          ),
-          active: true
-        });
-      } else {
-        browser.windows.create({
-          type: 'detached_panel',
-          url: browser.extension.getURL('source/panels/musicpicker/index.html'),
-          width: 300,
-          height: 50
-        });
-      }
+    openMusicEditor() {
+      browser.tabs.create({
+        url: browser.extension.getURL(
+          'source/panels/musiceditor/index.html'
+        ),
+        active: true
+      });
     },
     openMusicGraphEditor() {
       browser.tabs.create({
@@ -131,29 +103,6 @@ export default {
           'source/panels/musicgrapheditor/index.html'
         ),
         active: true
-      });
-    },
-    refreshSongs() {
-      this.cache.songs = null;
-      this.editing = null;
-    },
-    editSong(song) {
-      this.editing = JSON.parse(JSON.stringify(song));
-    },
-    deleteSong(toDelete) {
-      browser.storage.local.get('music').then(({ music }) => {
-        music = music.filter(song => {
-          if (song.id == toDelete.id) {
-            browser.storage.local.remove('song-' + song.id);
-            return false;
-          }
-          return true;
-        });
-        return browser.storage.local.set({ music });
-      }).then(() => {
-        return browser.storage.local.get('music');
-      }).then(({ music }) => {
-        this.cache.music = music;
       });
     }
   }
