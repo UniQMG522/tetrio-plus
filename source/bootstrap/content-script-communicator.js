@@ -33,6 +33,7 @@ browser.runtime.onConnect.addListener(port => {
           'sfxEnabled': 'custom sfx',
           'skin': 'custom block skins',
           'enableCustomMaps': 'custom maps',
+          'enableAllSongTweaker': 'All Songs in music tweaker',
           'enableOSD': 'key display',
           'enableTouchControls': 'touch controls',
           'bypassBootstrapper': 'bootstrap.js bypass',

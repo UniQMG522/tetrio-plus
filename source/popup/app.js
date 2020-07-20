@@ -38,7 +38,15 @@ const app = new Vue({
         <background-manager />
       </fieldset>
       <fieldset class="section">
-        <legend>Miscellaneous</legend>
+        <legend>Custom features</legend>
+        <option-toggle storageKey="enableAllSongTweaker">
+          <span :title="(
+            'Adds a field to the in-game music tweaker that allows you to ' +
+            'set the occurance rate for all songs at once.'
+          )">
+            Enable 'All Songs' in music tweaker
+          </span>
+        </option-toggle>
         <div class="option-group">
           <option-toggle storageKey="enableCustomMaps">
             <span :title="(
@@ -46,14 +54,6 @@ const app = new Vue({
               'and set the map string under solo -> custom -> meta.'
             )">
               Enable custom maps
-            </span>
-          </option-toggle>
-          <option-toggle storageKey="enableOSD">
-            <span :title="(
-              'Shows what keys are pressed, for streaming or recording. ' +
-              'Works on replays too!'
-            )">
-              Enable key OSD
             </span>
           </option-toggle>
           <div>
@@ -72,6 +72,19 @@ const app = new Vue({
               <button @click="openTouchEditor">Edit</button>
             </option-toggle>
           </div>
+          <option-toggle storageKey="enableOSD">
+            <span :title="(
+              'Shows what keys are pressed, for streaming or recording. ' +
+              'Works on replays too!'
+            )">
+              Enable key OSD
+            </span>
+          </option-toggle>
+        </div>
+      </fieldset>
+      <fieldset class="section">
+        <legend>Miscellaneous</legend>
+        <div class="option-group">
           <option-toggle storageKey="bypassBootstrapper">
             <span :title="(
               'Disables integrity checks on the tetrio.js file and loads ' +
@@ -80,6 +93,22 @@ const app = new Vue({
             )">
               Bypass bootstrapper
             </span>
+          </option-toggle>
+          <option-toggle storageKey="showLegacyOptions">
+            <span title="Enables deprecated legacy options">
+              Show legacy options
+            </span>
+            <option-toggle inline storageKey="showLegacyOptions" mode="show">
+              <span
+                class="warning-icon"
+                :title="(
+                  'These are features which are no longer relevent due to ' +
+                  'the introduction of comparable base game features. ' +
+                  'They\\'re not maintained and have a higher chance of ' +
+                  'breaking something.'
+                )"
+              >⚠️</span>
+            </option-toggle>
           </option-toggle>
           <option-toggle storageKey="openDevtoolsOnStart" v-if="isElectron">
             <span :title="(

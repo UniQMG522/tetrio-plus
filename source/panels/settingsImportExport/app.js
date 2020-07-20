@@ -39,6 +39,10 @@ const importers = {
   transparentBgEnabled: electronOnly(parseBoolean('transparentBgEnabled')),
   opaqueTransparentBackground: parseBoolean('opaqueTransparentBackground'),
   openDevtoolsOnStart: electronOnly(parseBoolean('openDevtoolsOnStart')),
+  enableAllSongTweaker: parseBoolean('enableAllSongTweaker'),
+  showLegacyOptions: parseBoolean('showLegacyOptions'),
+  bypassBootstrapper: parseBoolean('bypassBootstrapper'),
+  enableCustomMaps: parseBoolean('enableCustomMaps'),
   skin: async svgText => {
     let parser = new DOMParser();
     let svg = parser.parseFromString(svgText, 'application/xhtml+xml');

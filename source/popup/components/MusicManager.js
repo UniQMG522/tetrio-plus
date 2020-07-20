@@ -1,5 +1,6 @@
 import AudioEditor from './AudioEditor.js';
 import OptionToggle from './OptionToggle.js';
+import MultiShow from './MultiShow.js';
 const html = arg => arg.join(''); // NOOP, for editor integration.
 
 export default {
@@ -25,32 +26,38 @@ export default {
             Enable music graph
           </span>
         </option-toggle>
-        <option-toggle storageKey="disableVanillaMusic" enabledIfKey="musicEnabled">
-          <span title="Removes the game's existing soundtrack">
-            Disable built in music
-          </span>
-          <option-toggle inline storageKey="musicEnabled" mode="show">
-            <option-toggle inline storageKey="disableVanillaMusic" mode="show">
-              <option-toggle inline storageKey="enableMissingMusicPatch" mode="hide">
-                <span
-                  class="warning-icon"
-                  :title="(
-                    'Missing songs may render the game unplayable. This ' +
-                    'often manifests as a softlock once a game starts where ' +
-                    'pieces won\\'t fall. Make sure to set a specific song, ' +
-                    'have at least one \\'calm\\' song and one \\'battle\\' ' +
-                    'song, or enable the missing music patch below.'
-                  )"
-                >⚠️</span>
+        <multi-show :storageKeys="[
+          'showLegacyOptions',
+          'disableVanillaMusic',
+          'enableMissingMusicPatch'
+        ]">
+          <option-toggle storageKey="disableVanillaMusic" enabledIfKey="musicEnabled">
+            <span title="Removes the game's existing soundtrack">
+              Disable built in music (legacy)
+            </span>
+            <option-toggle inline storageKey="musicEnabled" mode="show">
+              <option-toggle inline storageKey="disableVanillaMusic" mode="show">
+                <option-toggle inline storageKey="enableMissingMusicPatch" mode="hide">
+                  <span
+                    class="warning-icon"
+                    :title="(
+                      'Missing songs may render the game unplayable. This ' +
+                      'often manifests as a softlock once a game starts where ' +
+                      'pieces won\\'t fall. Make sure to set a specific song, ' +
+                      'have at least one \\'calm\\' song and one \\'battle\\' ' +
+                      'song, or enable the missing music patch below.'
+                    )"
+                  >⚠️</span>
+                </option-toggle>
               </option-toggle>
             </option-toggle>
           </option-toggle>
-        </option-toggle>
-        <div title="Prevents crashes when disabling built-in music">
-          <option-toggle storageKey="enableMissingMusicPatch" enabledIfKey="musicEnabled">
-            Enable missing music patch
-          </option-toggle>
-        </div>
+          <div title="Prevents crashes when disabling built-in music">
+            <option-toggle storageKey="enableMissingMusicPatch" enabledIfKey="musicEnabled">
+              Enable missing music patch (legacy)
+            </option-toggle>
+          </div>
+        </multi-show>
       </div>
 
       <option-toggle storageKey="musicEnabled" mode="show">
@@ -89,7 +96,7 @@ export default {
     },
     editing: null
   }),
-  components: { AudioEditor, OptionToggle },
+  components: { AudioEditor, OptionToggle, MultiShow },
   computed: {
     music() {
       browser.storage.local.get('music').then(({ music }) => {

@@ -1,11 +1,5 @@
+import cacheStorage from './SharedCache.js';
 const html = arg => arg.join(''); // NOOP, for editor integration.
-
-/**
- * This is a storage object shared among all instances of
- * OptionToggle and used to cache respones from the storage
- * object reactively.
- */
-const cacheStorage = {};
 
 /**
  * A watcher that ensures a value is set reactively
