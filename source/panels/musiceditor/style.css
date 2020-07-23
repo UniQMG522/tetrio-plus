@@ -15,6 +15,15 @@ button {
   width: max-content;
 }
 
+.tab {
+  float: right;
+}
+
+.tiny {
+  font-size: 0.8rem;
+  font-family: sans-serif;
+}
+
 /* List editor */
 .listeditor {
   font-family: monospace;

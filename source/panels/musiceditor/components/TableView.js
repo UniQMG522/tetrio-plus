@@ -9,6 +9,7 @@ export default {
         <th class="song-artist">artist</th>
         <th class="song-jpartist">jpartist</th>
         <th class="song-genre">genre</th>
+        <th class="song-genre">override</th>
         <th class="song-source">source</th>
         <th class="song-loop">loop</th>
         <th class="song-loop-start">loopStart</th>
@@ -33,7 +34,16 @@ export default {
             <option value="CALM">Calm</option>
             <option value="BATTLE">Battle</option>
             <option value="INTERFACE">Interface</option>
+            <option value="OVERRIDE">Override</option>
             <option value="DISABLED">Disabled/Music graph only</option>
+          </select>
+        </td>
+        <td>
+          <select v-model="song.override" v-if="song.metadata.genre == 'OVERRIDE'">
+            <option value="null">Nothing</option>
+            <option :value="key" v-for="[key, song] of Object.entries(builtin || {})">
+              {{ song.name }}
+            </option>
           </select>
         </td>
         <td class="song-source">
@@ -51,11 +61,7 @@ export default {
       </tr>
     </table>
 
-    <!--
-    <div v-if="builtinError" class="built-in-music error">
-      Oh no! {{ builtinError }}
-    </div>
-    <div v-else-if="!builtin" class="built-in-music loading">
+    <!-- <div v-if="!builtin" class="built-in-music loading">
       Fetching built-in music list...
     </div>
     <table v-else class="music-table built-in-music">
@@ -81,8 +87,7 @@ export default {
         <td class="song-loop-start">{{ song.loopStart }}</td>
         <td class="song-loop-length">{{ song.loopLength }}</td>
       </tr>
-    </table>
-    -->
+    </table> -->
   `,
-  props: ['music']
+  props: ['music', 'builtin']
 }

@@ -12,6 +12,7 @@ export default {
       @drop.prevent="drop"
       @click="$refs.fileupload.click()">
         {{ this.status || 'Upload music' }}
+        <div class="tiny">Autosaves changes</div>
         <input
           type="file"
           style="display: none"

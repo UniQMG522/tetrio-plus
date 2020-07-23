@@ -9,6 +9,12 @@ const app = new Vue({
         <button class="tab" v-for="itab of tabs" @click="tab = itab">
           {{ itab.name }}
         </button>
+        <button @click="save">
+          Save changes
+        </button>
+        <span :style="{ opacity: saveOpacity }">
+          Saved!
+        </span>
       </header>
       <keep-alive>
         <component
@@ -31,7 +37,8 @@ const app = new Vue({
     builtin: null,
     builtinError: null,
     deleteOnSave: [],
-    saveTimeout: null
+    saveTimeout: null,
+    saveOpacity: 0
   },
   created() {
     this.tab = this.tabs[0];
@@ -57,18 +64,6 @@ const app = new Vue({
       this.builtinError = ex;
     }
   },
-  watch: {
-    music: {
-      deep: true,
-      handler() {
-        clearTimeout(this.saveTimeout);
-        this.saveTimeout = setTimeout(() => {
-          this.save();
-          this.saveTimeout = null;
-        }, 250);
-      }
-    }
-  },
   methods: {
     sanitizeJson(json) {
       return json
@@ -86,9 +81,16 @@ const app = new Vue({
         return browser.storage.local.remove(this.deleteOnSave);
       }).then(() => {
         this.deleteOnSave.length = 0;
+
+        this.saveOpacity = 1.25;
+        let timeout = setInterval(() => {
+          this.saveOpacity -= 0.1;
+          if (this.saveOpacity <= 0)
+            clearTimeout(timeout);
+        }, 50);
       }).catch(ex => {
         alert('Failed to save changes: ' + ex);
-      })
+      });
     },
     deleteSong(song) {
       this.$emit('delete', song);
