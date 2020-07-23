@@ -32,6 +32,10 @@
       "Try the following first:"
     );
     paragraph(
+      "• Waiting for a bit. This screen can appear if the game is taking " +
+      "longer to load than expected."
+    );
+    paragraph(
       "• Refreshing the page (ctrl-F5)"
     );
     paragraph("• Disabling features in the TETRIO PLUS menu");
