@@ -145,7 +145,12 @@ const app = new Vue({
         { x: 50, y: 50, w: 20, h: 20, behavior: 'hover', bind: 'hold'      }
       ]
     },
-    boundingRect: { width: 0, height: 0 }
+    boundingRect: { width: 1, height: 1 }
+  },
+  watch: {
+    'config.mode': function() {
+      this.updateBoundingRect();
+    }
   },
   methods: {
     toPercent({ x, y, w, h }) {
