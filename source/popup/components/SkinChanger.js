@@ -17,24 +17,33 @@ export default {
           title="This is the current block skin you are using."
           class="skin"
           :src="skinUrl"
-          v-if="skinUrl">
+          v-if="skinUrl"
+          @load="rmSkinBlob">
         <div class="no-skin" v-else>
           No skin set
         </div>
       </div>
     </div>
   `,
-  data: () => ({ cachedSkin: null }),
+  data: () => ({ cachedSkin: null, skinBlob: null }),
   computed: {
     skinUrl() {
       browser.storage.local.get('skin').then(({ skin: newSkin }) => {
         if (newSkin != this.cachedSkin) this.cachedSkin = newSkin;
       });
       if (!this.cachedSkin) return false;
-      return 'data:image/svg+xml;base64,' + btoa(this.cachedSkin);
+      let blob = new Blob([this.cachedSkin], { type: 'image/svg+xml' });
+      this.skinBlob = URL.createObjectURL(blob);
+      return this.skinBlob;
     }
   },
   methods: {
+    rmSkinBlob() {
+      if (!this.skinBlob) return;
+      URL.revokeObjectURL(this.skinBlob);
+      this.skinBlob = null;
+      console.log("Cleared blob");
+    },
     async openImageChanger() {
       let { name } = await browser.runtime.getBrowserInfo();
       if (name == 'Fennec') {
