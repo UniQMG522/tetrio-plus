@@ -1,8 +1,27 @@
+const TABS_TO_URL = {
+
+}
+
 browser.runtime.onConnect.addListener(port => {
   console.log("New content script connection");
   port.onMessage.addListener(async (msg, sender) => {
     console.log(msg);
     switch (msg.type) {
+      case 'getUrlFromTab':
+        port.postMessage({
+          type: 'getUrlFromTabResult',
+          url: TABS_TO_URL[msg.tabId]
+        });
+        break;
+
+      case 'fetchContentPack':
+        TABS_TO_URL[port.sender.tab.id] = msg.url;
+        port.postMessage({
+          type: 'fetchContentPackResult',
+          value: await getDataForDomain(msg.url)
+        });
+        break;
+
       case 'openMapEditor':
         browser.tabs.create({
           url: browser.extension.getURL('source/panels/mapeditor/index.html') +

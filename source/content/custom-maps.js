@@ -1,5 +1,6 @@
 (async function setupMapUI() {
-  let { enableCustomMaps } = await browser.storage.local.get('enableCustomMaps');
+  let storage = await getDataSourceForDomain(window.location);
+  let { enableCustomMaps } = await storage.get('enableCustomMaps');
   if (!enableCustomMaps) return;
 
   let roomConfigItem;

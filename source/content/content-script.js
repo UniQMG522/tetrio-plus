@@ -5,10 +5,6 @@
   port.postMessage({ type: 'getInfoString' });
   port.postMessage({ type: 'showPageAction' });
 
-  port.onMessage.addListener(msg => {
-    console.log(msg.value);
-  });
-
   let jsLoadErr = document.getElementById("js_load_error");
   if (!jsLoadErr) {
     console.error("[Tetr.io+] Can't find '#js_load_error'?");

@@ -5,8 +5,8 @@
 */
 
 createRewriteFilter("Tetrio.js BG", "https://tetr.io/js/tetrio.js", {
-  enabledFor: async request => {
-    let res = await browser.storage.local.get([
+  enabledFor: async (storage, request) => {
+    let res = await storage.get([
       'transparentBgEnabled',
       'animatedBackground',
       'animatedBgEnabled',
@@ -25,8 +25,8 @@ createRewriteFilter("Tetrio.js BG", "https://tetr.io/js/tetrio.js", {
 
     return false;
   },
-  onStop: async (url, src, callback) => {
-    let res = await browser.storage.local.get([
+  onStop: async (storage, url, src, callback) => {
+    let res = await storage.get([
       'transparentBgEnabled',
       'animatedBgEnabled',
       'animatedBackground',

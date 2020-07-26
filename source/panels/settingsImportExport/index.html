@@ -9,7 +9,8 @@
         font-family: sans-serif;
       }
     </style>
-    <script src="../../migrations/migrate.js" defer></script>
+    <script src="../../shared/migrate.js" defer></script>
+    <script src="../../shared/tpse-sanitizer.js" defer></script>
     <script src="./app.js" defer></script>
   </head>
   <body>
@@ -25,6 +26,11 @@
       Tetrio settings</em> (e.g. DAS, ARR, graphical settings)
     </p>
 
+    <fieldset id="url-importer" style="display: none;">
+      <legend>Import settings from URL</legend>
+      <a id="url-anchor"></a><br>
+      <button id="import-from-url">Import</button>
+    </fieldset>
     <fieldset>
       <legend>Import settings from a file</legend>
       <input type="file" id="import" multiple accept=".tpse">

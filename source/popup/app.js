@@ -4,6 +4,7 @@ import SkinChanger from './components/SkinChanger.js';
 import SfxManager from './components/SfxManager.js';
 import MusicManager from './components/MusicManager.js';
 import BackgroundManager from './components/BackgroundManager.js';
+import UrlPackLoader from './components/URLPackLoader.js';
 const html = arg => arg.join(''); // NOOP, for editor integration.
 
 const app = new Vue({
@@ -20,6 +21,13 @@ const app = new Vue({
           <span v-if="debugMode">| Developer mode</span>
         </span>
       </h1>
+
+      <fieldset class="section contentPackInfo" v-if="contentPack">
+        <legend>Content Pack</legend>
+        This page is using a remote content pack.<br>
+        <a class="longLink" :href="contentPack">{{ contentPack }}</a><br>
+        <button @click="openSettingsIO(contentPack)">Install this pack</button>
+      </fieldset>
 
       <fieldset class="section">
         <legend>Skins</legend>
@@ -85,6 +93,7 @@ const app = new Vue({
       <fieldset class="section">
         <legend>Miscellaneous</legend>
         <div class="option-group">
+          <url-pack-loader />
           <option-toggle storageKey="bypassBootstrapper">
             <span :title="(
               'Disables integrity checks on the tetrio.js file and loads ' +
@@ -133,7 +142,7 @@ const app = new Vue({
           <theme-manager v-if="!isElectron" />
         </div>
         <div class="control-group">
-          <button @click="openSettingsIO" title="Opens the settings manager">
+          <button @click="openSettingsIO()" title="Opens the settings manager">
             Manage data
           </button>
         </div>
@@ -148,6 +157,7 @@ const app = new Vue({
   `,
   components: {
     OptionToggle,
+    UrlPackLoader,
     ThemeManager,
     SkinChanger,
     SfxManager,
@@ -155,7 +165,8 @@ const app = new Vue({
     BackgroundManager
   },
   data: {
-    debugMode: false
+    debugMode: false,
+    contentPack: null
   },
   computed: {
     isElectron() {
@@ -172,27 +183,46 @@ const app = new Vue({
       if (str == 'debug')
         this.enableDebugMode();
     });
+    browser.tabs.query({
+      active: true,
+      windowId: browser.windows.WINDOW_ID_CURRENT
+    }).then(tabs => {
+      let port = browser.runtime.connect({ name: 'info-channel' });
+      port.postMessage({ type: 'getUrlFromTab', tabId: tabs[0].id });
+      port.onMessage.addListener(msg => {
+        if (msg.type != 'getUrlFromTabResult') return;
+        let { useContentPack } = new URL(msg.url)
+          .search
+          .slice(1)
+          .split('&')
+          .map(e => e.split('='))
+          .reduce((obj, [key, value]) => {
+            obj[key] = value;
+            return obj;
+          }, {});
+        this.contentPack = useContentPack;
+      });
+    })
   },
   methods: {
     enableDebugMode() {
       console.log("Enabled debug mode")
       this.debugMode = true;
     },
-    async openSettingsIO() {
+    async openSettingsIO(installUrl) {
+      let url = 'source/panels/settingsImportExport/index.html';
+      if (installUrl) url += '?install=' + encodeURIComponent(installUrl);
+
       let { name } = await browser.runtime.getBrowserInfo();
       if (name == 'Fennec') {
         browser.tabs.create({
-          url: browser.extension.getURL(
-            'source/panels/settingsImportExport/index.html'
-          ),
+          url: browser.extension.getURL(url),
           active: true
         });
       } else {
         browser.windows.create({
           type: 'detached_panel',
-          url: browser.extension.getURL(
-            'source/panels/settingsImportExport/index.html'
-          ),
+          url: browser.extension.getURL(url),
           width: 600,
           height: 520
         });

@@ -1,9 +1,9 @@
 createRewriteFilter("Break the game hooks", "https://tetr.io/js/tetrio.js", {
-  enabledFor: async request => {
-    let res = await browser.storage.local.get('debugBreakTheGame');
+  enabledFor: async (storage, request) => {
+    let res = await storage.get('debugBreakTheGame');
     return res.debugBreakTheGame;
   },
-  onStart: async (url, src, callback) => {
+  onStart: async (storage, url, src, callback) => {
     callback({
       type: 'text/javascript',
       data: `console.log("` +

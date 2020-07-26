@@ -1,5 +1,6 @@
 (async () => {
-  let res = await browser.storage.local.get([
+  let storage = await getDataSourceForDomain(window.location);
+  let res = await storage.get([
     'bgEnabled', 'animatedBgEnabled', 'transparentBgEnabled'
   ]);
 

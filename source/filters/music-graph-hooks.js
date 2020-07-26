@@ -1,13 +1,13 @@
 /*
 */
 createRewriteFilter("Music graph hooks", "https://tetr.io/js/tetrio.js", {
-  enabledFor: async url => {
-    let res = await browser.storage.local.get([
+  enabledFor: async (storage, url) => {
+    let res = await storage.get([
       'musicEnabled', 'musicGraphEnabled'
     ]);
     return res.musicEnabled && res.musicGraphEnabled;
   },
-  onStop: async (url, src, callback) => {
+  onStop: async (storage, url, src, callback) => {
     try {
       /**
        * This regex locates the variable holding the 'full'/'tiny' value and

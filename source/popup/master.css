@@ -122,3 +122,12 @@ img.skin, .no-skin {
 .audioeditor input[type=number] {
     -moz-appearance:textfield;
 }
+
+
+.longLink {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: inline-block;
+  max-width: 360px;
+}

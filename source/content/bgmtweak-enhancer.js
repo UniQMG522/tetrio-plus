@@ -1,5 +1,6 @@
 (async () => {
-  let cfg = await browser.storage.local.get('enableAllSongTweaker');
+  let storage = await getDataSourceForDomain(window.location);
+  let cfg = await storage.get('enableAllSongTweaker');
   if (!cfg.enableAllSongTweaker) return;
 
   const bgmtweak = document.getElementById('bgmtweak');

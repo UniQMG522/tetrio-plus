@@ -5,8 +5,8 @@
 */
 
 createRewriteFilter("Music Request", "https://tetr.io/res/bgm/*", {
-  enabledFor: async url => {
-    let { musicEnabled, music } = await browser.storage.local.get(
+  enabledFor: async (storage, url) => {
+    let { musicEnabled, music } = await storage.get(
       ['musicEnabled', 'music']
     );
     if (!musicEnabled) return false;
@@ -23,14 +23,14 @@ createRewriteFilter("Music Request", "https://tetr.io/res/bgm/*", {
     }
     return true;
   },
-  onStart: async (url, src, callback) => {
+  onStart: async (storage, url, src, callback) => {
     let match = /\?song=([^&]+)/.exec(url);
     if (!match) {
-      let { music } = await browser.storage.local.get('music');
+      let { music } = await storage.get('music');
       let [_, songname] = /bgm\/(.+).mp3$/.exec(url);
       let override = music.filter(song => song.override == songname)[0];
       let key = `song-${override.id}`;
-      let value = (await browser.storage.local.get(key))[key];
+      let value = (await storage.get(key))[key];
       callback({
         type: 'audio/mpeg',
         data: value,
@@ -41,7 +41,7 @@ createRewriteFilter("Music Request", "https://tetr.io/res/bgm/*", {
       console.log("[Music Request filter] Song ID", songId);
 
       let key = `song-${songId}`;
-      let value = (await browser.storage.local.get(key))[key];
+      let value = (await storage.get(key))[key];
       callback({
         type: 'audio/mpeg',
         data: value,

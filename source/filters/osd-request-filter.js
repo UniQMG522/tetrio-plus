@@ -1,9 +1,9 @@
 createRewriteFilter("OSD hooks", "https://tetr.io/js/tetrio.js", {
-  enabledFor: async request => {
-    let res = await browser.storage.local.get('enableOSD');
+  enabledFor: async (storage, request) => {
+    let res = await storage.get('enableOSD');
     return res.enableOSD;
   },
-  onStop: async (url, src, callback) => {
+  onStop: async (storage, url, src, callback) => {
     /*
       This patch emits a custom event when a new board is initialized
     */

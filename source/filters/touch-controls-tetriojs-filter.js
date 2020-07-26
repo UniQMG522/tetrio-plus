@@ -1,6 +1,6 @@
 createRewriteFilter("Touch control hooks", "https://tetr.io/js/tetrio.js", {
-  enabledFor: async request => {
-    let res = await browser.storage.local.get('enableTouchControls');
+  enabledFor: async (storage, request) => {
+    let res = await storage.get('enableTouchControls');
     return res.enableTouchControls;
   },
   onStop: async (url, src, callback) => {

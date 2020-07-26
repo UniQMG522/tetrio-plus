@@ -71,6 +71,25 @@ const migrate = (() => {
       for (let song of music)
         song.override = null;
     }
+  });
+
+  /*
+    v0.14.0 - TPSE integration update
+    Added the 'useContentPack' URL-based loader.
+  */
+  migrations.push({
+    version: '0.14.0',
+    run: async dataSource => {
+      await dataSource.set({
+        version: '0.14.0',
+        whitelistedLoaderDomains: [
+          '# One protocol and domain per',
+          '# line. https recommended.',
+          'https://tetrio.team2xh.net',
+          'https://you.have.fail'
+        ]
+      });
+    }
   })
 
   return async function migrate(dataSource) {

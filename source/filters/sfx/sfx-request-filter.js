@@ -4,17 +4,17 @@
 */
 
 createRewriteFilter("Sfx Request", "https://tetr.io/sfx/tetrio.ogg", {
-  enabledFor: async request => {
-    let {sfxEnabled} = await browser.storage.local.get('sfxEnabled');
+  enabledFor: async (storage, request) => {
+    let {sfxEnabled} = await storage.get('sfxEnabled');
     if (!sfxEnabled) return false; // Custom sfx disabled
 
-    let {customSoundAtlas} = await browser.storage.local.get('customSoundAtlas');
+    let {customSoundAtlas} = await storage.get('customSoundAtlas');
     if (!customSoundAtlas) return false; // No custom sfx configured
 
     return true;
   },
-  onStart: async (url, src, callback) => {
-    let { customSounds } = await browser.storage.local.get('customSounds');
+  onStart: async (storage, url, src, callback) => {
+    let { customSounds } = await storage.get('customSounds');
     callback({
       type: 'audio/ogg',
       data: customSounds,

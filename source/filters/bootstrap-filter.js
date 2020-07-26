@@ -1,13 +1,13 @@
 /*
 */
-createRewriteFilter("Music graph hooks", "https://tetr.io/bootstrap.js", {
-  enabledFor: async url => {
-    let res = await browser.storage.local.get([
+createRewriteFilter("Bootstrap.js hooks", "https://tetr.io/bootstrap.js", {
+  enabledFor: async (storage, url) => {
+    let res = await storage.get([
       'bypassBootstrapper'
     ]);
     return res.bypassBootstrapper;
   },
-  onStop: async (url, src, callback) => {
+  onStop: async (storage, url, src, callback) => {
     callback({
       type: 'text/javascript',
       data: `

@@ -3,14 +3,14 @@
   the tetrio.js source file to facillitate adding new music.
 */
 createRewriteFilter("Tetrio.js Music", "https://tetr.io/js/tetrio.js", {
-  enabledFor: async url => {
+  enabledFor: async (storage, url) => {
     if (url.indexOf('tetrio-plus-bypass') != -1) return false;
-    let { musicEnabled } = await browser.storage.local.get('musicEnabled');
+    let { musicEnabled } = await storage.get('musicEnabled');
     return musicEnabled;
   },
-  onStop: async (url, src, callback) => {
-    let { disableVanillaMusic } = await browser.storage.local.get('disableVanillaMusic');
-    let songs = (await browser.storage.local.get('music')).music || [];
+  onStop: async (storage, url, src, callback) => {
+    let { disableVanillaMusic } = await storage.get('disableVanillaMusic');
+    let songs = (await storage.get('music')).music || [];
 
 
     let newSongObject = {};

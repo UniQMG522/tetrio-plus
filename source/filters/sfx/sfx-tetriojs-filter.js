@@ -5,17 +5,17 @@
 */
 
 createRewriteFilter("Tetrio.js Sfx", "https://tetr.io/js/tetrio.js", {
-  enabledFor: async request => {
-    let {sfxEnabled} = await browser.storage.local.get('sfxEnabled');
+  enabledFor: async (storage, request) => {
+    let {sfxEnabled} = await storage.get('sfxEnabled');
     if (!sfxEnabled) return false; // Custom sfx disabled
 
-    let {customSoundAtlas} = await browser.storage.local.get('customSoundAtlas');
+    let {customSoundAtlas} = await storage.get('customSoundAtlas');
     if (!customSoundAtlas) return false; // No custom sfx configured
 
     return true;
   },
-  onStop: async (url, src, callback) => {
-    let {customSoundAtlas} = await browser.storage.local.get('customSoundAtlas');
+  onStop: async (storage, url, src, callback) => {
+    let {customSoundAtlas} = await storage.get('customSoundAtlas');
 
     let replaced = false;
     src = src.replace(

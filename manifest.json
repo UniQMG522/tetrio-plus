@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Tetr.io+",
-  "version": "0.13.2",
+  "version": "0.14.0",
 
   "description": "Tetr.io client enhancer",
   "icons": { "256": "icons/tetrio-256.png" },
@@ -23,10 +23,12 @@
 
   "background": {
     "scripts": [
-      "source/migrations/migrate.js",
+      "source/shared/migrate.js",
+      "source/shared/tpse-sanitizer.js",
       "source/bootstrap/browser/migration.js",
 
       "source/lib/base64-recoder.js",
+      "source/bootstrap/domain-specific-storage-fetcher.js",
       "source/bootstrap/browser/createRewriteFilter.js",
 
       "source/filters/bootstrap-filter.js",
@@ -48,12 +50,16 @@
   },
 
   "content_scripts": [{
-    "matches": ["https://tetr.io/"],
+    "matches": ["https://tetr.io/*"],
+    "include_globs": ["https://tetr.io/", "https://tetr.io/?*"],
     "css": [
       "source/content/touch-controls.css",
       "source/content/osd.css"
     ],
     "js": [
+      "source/shared/migrate.js",
+      "source/shared/tpse-sanitizer.js",
+      "source/content/domain-specific-storage-content.js",
       "source/content/content-script.js",
       "source/content/touch-controls.js",
       "source/content/animated-bg.js",

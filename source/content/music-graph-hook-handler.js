@@ -3,7 +3,7 @@ try {
   let lastUpdate = 0;
   function getGlobalVolume() {
     if (Date.now() - lastUpdate > 1000) {
-      globalVolume = JSON.parse(localStorage.userConfig).volume.music;;
+      globalVolume = JSON.parse(localStorage.userConfig).volume.music;
       lastUpdate = Date.now();
     }
     return globalVolume;
@@ -13,9 +13,10 @@ try {
   // window.addEventListener('storage', () => console.log("STORAGE"));
 
   (async function() {
+    let storage = await getDataSourceForDomain(window.location);
     let {
       music, musicGraph, musicEnabled, musicGraphEnabled
-    } = await browser.storage.local.get([
+    } = await storage.get([
       'music', 'musicGraph', 'musicEnabled', 'musicGraphEnabled'
     ]);
     if (!musicEnabled || !musicGraphEnabled || !musicGraph)

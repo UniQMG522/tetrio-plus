@@ -3,7 +3,7 @@
   query parameter and replaces them with user-specified backgrounds.
 */
 createRewriteFilter("Bg Request", "https://tetr.io/res/bg/*", {
-  enabledFor: async url => {
+  enabledFor: async (storage, url) => {
     let match = /\?bgId=([^&]+)/.exec(url);
     if (!match) {
       console.log("[Bg Request filter] Ignoring, no bg ID:", url);
@@ -11,16 +11,16 @@ createRewriteFilter("Bg Request", "https://tetr.io/res/bg/*", {
     }
     return true;
   },
-  onStart: async (url, src, callback) => {
+  onStart: async (storage, url, src, callback) => {
     let [_, bgId] = /\?bgId=([^&]+)/.exec(url);
     console.log("[Bg Request filter] Background ID", bgId);
 
     if (bgId == 'animated') {
-      let res = await browser.storage.local.get('animatedBackground');
+      let res = await storage.get('animatedBackground');
       let animBg = res.animatedBackground;
       if (!animBg) return;
       let key = 'background-' + animBg.id;
-      let value = (await browser.storage.local.get(key))[key];
+      let value = (await storage.get(key))[key];
       callback({
         type: dataUriMime(value),
         data: value,
@@ -31,7 +31,7 @@ createRewriteFilter("Bg Request", "https://tetr.io/res/bg/*", {
     }
 
     if (bgId == 'transparent') {
-      let { opaqueTransparentBackground } = await browser.storage.local.get(
+      let { opaqueTransparentBackground } = await storage.get(
         'opaqueTransparentBackground'
       );
       callback({
@@ -53,7 +53,7 @@ createRewriteFilter("Bg Request", "https://tetr.io/res/bg/*", {
     }
 
     let key = `background-${bgId}`;
-    let value = (await browser.storage.local.get(key))[key];
+    let value = (await storage.get(key))[key];
     callback({
       type: dataUriMime(value),
       data: value,

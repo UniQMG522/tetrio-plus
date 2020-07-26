@@ -1,12 +1,13 @@
 (async () => {
-  let res = await browser.storage.local.get('enableTouchControls');
+  let storage = await getDataSourceForDomain(window.location);
+  let res = await storage.get('enableTouchControls');
   if (!res.enableTouchControls) return;
   let script = document.createElement('script');
   script.src = browser.runtime.getURL("source/injected/touch-controls.js");
   document.head.appendChild(script);
 
   async function dispatchConfig() {
-    let { touchControlConfig: config } = await browser.storage.local.get(
+    let { touchControlConfig: config } = await storage.get(
       'touchControlConfig'
     );
     if (config) {

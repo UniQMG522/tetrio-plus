@@ -2,16 +2,18 @@
  * @param {string} name
  * @param {string} url
  * @param {Object} options
- * @param {Function<Filter, boolean>} options.enabledFor
- * @param {Function<Request, Filter, string?>} options.onStart
- * @param {Function<Request, Filter, string?>} options.onStop
+ * @param {Function<DataSource, Filter, boolean>} options.enabledFor
+ * @param {Function<DataSource, Request, Filter, string?>} options.onStart
+ * @param {Function<DataSource, Request, Filter, string?>} options.onStop
  */
 function createRewriteFilter(name, url, options) {
   browser.webRequest.onBeforeRequest.addListener(
     async request => {
+      console.log("Request origin URL", request.originUrl);
+      const dataSource = await getDataSourceForDomain(request.originUrl);
 
       if (options.enabledFor) {
-        let enabled = await options.enabledFor(request.url);
+        let enabled = await options.enabledFor(dataSource, request.url);
         if (!enabled) {
           console.log(`[${name} filter] Disabled, ignoring ${url}`);
           return;
@@ -38,7 +40,7 @@ function createRewriteFilter(name, url, options) {
 
         if (options.onStart) {
           filter.onstart = async evt => {
-            await options.onStart(request.url, null, callback);
+            await options.onStart(dataSource, request.url, null, callback);
             // Close the filter now if there's no onStop handler to close it.
             if (!options.onStop)
               filter.close();
@@ -56,7 +58,7 @@ function createRewriteFilter(name, url, options) {
 
         if (options.onStop) {
           filter.onstop = async evt => {
-            await options.onStop(request.url, originalData.join(''), callback);
+            await options.onStop(dataSource, request.url, originalData.join(''), callback);
             filter.close();
           }
         }

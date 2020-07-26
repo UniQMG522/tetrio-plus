@@ -6,15 +6,15 @@
   element underneath the pixijs canvas.
 */
 createRewriteFilter("Tetrio.js Animated BG", "https://tetr.io/js/tetrio.js", {
-  enabledFor: async request => {
-    let res = await browser.storage.local.get([
+  enabledFor: async (storage, request) => {
+    let res = await storage.get([
       'bgEnabled', 'animatedBgEnabled', 'transparentBgEnabled'
     ]);
     if (res.transparentBgEnabled) return true;
     if (res.bgEnabled && res.animatedBgEnabled) return true;
     return false;
   },
-  onStop: async (url, src, callback) => {
+  onStop: async (storage, url, src, callback) => {
     let regex = /(new PIXI\.Application\({[^}]+)(transparent:[^,]+),([^}]+}\))/g;
     let newSrc = src.replace(regex, '$1transparent:true,$3');
     if (newSrc === src) console.log(

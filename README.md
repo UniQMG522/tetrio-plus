@@ -47,6 +47,10 @@ Contains general purpose *extension background* scripts for bootstrapping other 
 ### source/bootstrap/electron
 Contains general purpose scripts for bootstrapping other scripts that are executed in a custom (non-secure) sandbox.
 
+### source/shared
+Contains scripts that are both loaded in the background process and in content scripts. Mostly
+just utilities.
+
 ### source/electron
 Contains scripts that are used in various contexts in the electron client.
 

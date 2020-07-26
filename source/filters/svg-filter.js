@@ -1,10 +1,10 @@
 createRewriteFilter('SVG', 'https://tetr.io/res/minos.svg', {
-  enabledFor: async url => {
-    let { skin } = await browser.storage.local.get('skin');
+  enabledFor: async (storage, url) => {
+    let { skin } = await storage.get('skin');
     return !!skin;
   },
-  onStop: async (url, src, callback) => {
-    let { skin } = await browser.storage.local.get('skin');
+  onStop: async (storage, url, src, callback) => {
+    let { skin } = await storage.get('skin');
     callback({ type: 'image/svg+xml', data: skin, encoding: 'text' });
     // filter.write(new TextEncoder().encode(skin));
   }
@@ -13,12 +13,12 @@ createRewriteFilter('SVG', 'https://tetr.io/res/minos.svg', {
 // Tetrio uses a png texture instead of svg textures on low and medium graphics
 // The PNGs are generated at upload-time
 createRewriteFilter('PNG', 'https://tetr.io/res/minos.png', {
-  enabledFor: async url => {
-    let { skinPng } = await browser.storage.local.get('skinPng');
+  enabledFor: async (storage, url) => {
+    let { skinPng } = await storage.get('skinPng');
     return !!skinPng;
   },
-  onStop: async (url, src, callback) => {
-    let { skinPng } = await browser.storage.local.get('skinPng');
+  onStop: async (storage, url, src, callback) => {
+    let { skinPng } = await storage.get('skinPng');
     callback({
       type: 'image/png',
       data: skinPng,
