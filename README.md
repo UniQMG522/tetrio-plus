@@ -19,18 +19,26 @@ These are pre-packaged versions, the following instructions are for developers w
 - `cd resources`
 - Unpack the asar with `asar extract app.asar out`
 - Clone tetrio+ into `out/tetrioplus`
+- `npm install` in `out/tetrioplus`
 - Modify main.js like so:
 ```javascript
 // At the top of the file
 const {
   onMainWindow,
-  modifyWindowSettings
+  modifyWindowSettings,
+  handleWindowOpen
 } = require('./tetrioplus/source/electron/electron-main');
 
 // Wrap options passed to new BrowserWindow with modifyWindowSettings()
 const win = new BrowserWindow(modifyWindowSettings({
   ...
 }));
+
+// in app.on('open-url'), add the hook
+if (mainWindow && !handleWindowOpen(url)) { ... }
+
+// in app.on('second-instance'), add the hook
+if (arg.startsWith('tetrio://') && !handleWindowOpen(arg)) { ... }
 
 // At the end of createWindow()
 onMainWindow(mainWindow);

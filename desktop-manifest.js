@@ -8,8 +8,11 @@ const manifest = JSON.parse(fs.readFileSync(
 // "firefox settings that firefox will complain about if you add your own entry"
 manifest.browser_specific_settings.desktop_client = {
   "scripts": [
-    "source/migrations/migrate.js",
+    "source/shared/migrate.js",
+    "source/shared/tpse-sanitizer.js",
     "source/bootstrap/electron/migration.js",
+    "source/bootstrap/domain-specific-storage-fetcher.js",
+
     "source/bootstrap/electron/createRewriteFilter.js",
     "source/lib/base64-recoder.js",
     "source/filters/svg-filter.js",
@@ -27,6 +30,9 @@ manifest.browser_specific_settings.desktop_client = {
     "source/filters/debug-tetriojs-filter.js"
   ],
   "preload_scripts": [
+    "source/shared/migrate.js",
+    "source/shared/tpse-sanitizer.js",
+    "source/bootstrap/domain-specific-storage-fetcher.js",
     "source/bootstrap/content-script-communicator.js",
     "source/content/content-script.js",
     "source/content/touch-controls.js",

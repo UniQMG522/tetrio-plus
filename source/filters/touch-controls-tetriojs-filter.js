@@ -3,7 +3,7 @@ createRewriteFilter("Touch control hooks", "https://tetr.io/js/tetrio.js", {
     let res = await storage.get('enableTouchControls');
     return res.enableTouchControls;
   },
-  onStop: async (url, src, callback) => {
+  onStop: async (storage, url, src, callback) => {
     /*
       This patch exposes the game's key map as a global variable which is used
       to dispatch touch-to-key events with the correct bindings

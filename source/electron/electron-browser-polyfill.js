@@ -23,7 +23,6 @@
       runtime: {
         getURL(relative) {
           let absolute = 'tetrio-plus-internal://' + relative;
-          console.log(relative, absolute);
           return absolute;
         },
         getManifest() {
@@ -103,6 +102,14 @@
       tabs: {
         create({ url, active }) {
           browser.windows.create({ type: null, url, width: 800, height: 800 });
+        },
+        electronOnMainNavigate(callback) {
+          require('electron').ipcRenderer.on('client-navigated', (event, url) => {
+            callback(url);
+          });
+        },
+        electronClearPack() {
+          require('electron').ipcRenderer.send('tetrio-plus-cmd', 'reset location');
         }
       },
       storage: {

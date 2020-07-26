@@ -16,8 +16,6 @@ const manifest = require('../../desktop-manifest.js');
 const Store = require('electron-store');
 const store = new Store({ name: 'tetrio-plus' });
 
-
-
 function modifyWindowSettings(settings) {
   settings.webPreferences.preload = path.join(__dirname, 'preload.js');
 
@@ -42,11 +40,36 @@ function modifyWindowSettings(settings) {
   return settings;
 }
 
+const greenlog = (...args) => console.log(
+  "\u001b[32mGL>",
+  ...args,
+  "\u001b[37m"
+);
+
+const redlog = (...args) => console.log(
+  "\u001b[31mRL>",
+  ...args,
+  "\u001b[37m"
+);
+
 const mainWindow = new Promise(res => {
   module.exports = {
     // Used by packaging edits (see README)
     onMainWindow: res,
-    modifyWindowSettings
+    modifyWindowSettings,
+    handleWindowOpen(url) {
+      let root = 'tetrio://tetrioplus/tpse/';
+      if (url.startsWith(root)) {
+        let tpse = url.substring(root.length);
+        let target = `https://tetr.io/?useContentPack=` + tpse;
+        redlog('Opening', target);
+        mainWindow.then(win => {
+          win.webContents.loadURL(target)
+        });
+        return true;
+      }
+      return false;
+    }
   }
 });
 
@@ -66,17 +89,22 @@ async function createTetrioPlusWindow() {
     greenlog("Tetrio plus window closed");
     tpWindow = null;
   });
-  (await mainWindow).on('closed', () => {
+  let mainWin = await mainWindow;
+  mainWin.on('closed', () => {
     greenlog("Main window closed");
     if (tpWindow) tpWindow.close();
   });
+  mainWin.webContents.on('did-finish-load', () => {
+    tpWindow.webContents.send('client-navigated', mainWin.getURL())
+  });
+  mainWin.loadURL(`https://tetr.io/?useContentPack=http://localhost:8080/testpack.tpse`);
 }
 
 ipcMain.on('tetrio-plus-cmd', async (evt, arg) => {
   switch(arg) {
     case 'destroy everything':
-      (await mainWindow).destroy();
-      tpWindow.destroy();
+      BrowserWindow.getAllWindows().forEach(window => window.destroy());
+      process.exit();
       break;
 
     case 'create tetrio plus window':
@@ -86,14 +114,16 @@ ipcMain.on('tetrio-plus-cmd', async (evt, arg) => {
     case 'super force reload':
       (await mainWindow).webContents.reloadIgnoringCache()
       break;
+
+    case 'super force reload':
+      (await mainWindow).webContents.reloadIgnoringCache()
+      break;
+
+    case 'reset location':
+      (await mainWindow).loadURL(`https://tetr.io/`);
+      break;
   }
 })
-
-const greenlog = (...args) => console.log(
-  "\u001b[32mGL>",
-  ...args,
-  "\u001b[37m"
-);
 
 if (protocol) {
   protocol.registerSchemesAsPrivileged([{
@@ -125,6 +155,18 @@ function matchesGlob(glob, string) {
   ).test(string);
 }
 
+// https://stackoverflow.com/a/53786254
+// remove so we can register each time as we run the app.
+app.removeAsDefaultProtocolClient('tetrio-plus');
+// If we are running a non-packaged version of the app && on windows
+if(process.env.NODE_ENV === 'development' && process.platform === 'win32') {
+  // Set the path of electron.exe and your app.
+  // These two additional parameters are only available on windows.
+  app.setAsDefaultProtocolClient('tetrio-plus', process.execPath, [path.resolve(process.argv[0])]);
+} else {
+  app.setAsDefaultProtocolClient('tetrio-plus');
+}
+
 app.whenReady().then(async () => {
   let rewriteHandlers = [];
   protocol.registerBufferProtocol('tetrio-plus', (req, callback) => {
@@ -133,10 +175,6 @@ app.whenReady().then(async () => {
       let url = 'https://tetr.io/' + req.url.substring(
         'tetrio-plus://tetrio-plus/'.length
       );
-
-      let handlers = rewriteHandlers.filter(handler => {
-        return matchesGlob(handler.url, url);
-      });
 
       // greenlog("Filtered potential handlers", rewriteHandlers, '->', handlers);
 
@@ -186,10 +224,24 @@ app.whenReady().then(async () => {
         }
       };
 
+      const getDataSourceForDomain = require(
+        '../bootstrap/domain-specific-storage-fetcher'
+      );
+      const dataSource = await getDataSourceForDomain(url);
+
+      if (url.indexOf('?') > 0)
+        url = url.split('?')[0]; // query params break some stuffs
+
+      let handlers = rewriteHandlers.filter(handler => {
+        return matchesGlob(handler.url, url);
+      });
+
+      greenlog("Num handlers:", handlers.length)
+
       for (let handler of handlers) {
         greenlog("Testing handler", handler.name);
 
-        if (!await handler.options.enabledFor(url)) {
+        if (!await handler.options.enabledFor(dataSource, url)) {
           greenlog("Not enabled!");
           continue;
         }
@@ -199,6 +251,7 @@ app.whenReady().then(async () => {
           // If data is a Buffer, it has a 'buffer' property which is an
           // Uint8Array-like. Offer that for browser compatibility.
           await handler.options.onStart(
+            dataSource,
             url,
             (data && data.buffer) || data,
             filterCallback
@@ -211,7 +264,12 @@ app.whenReady().then(async () => {
           // there'll already be generated data, so no need to fetch from source.
           if (!data) await fetchData();
           greenlog("Stop-handling it!", handler.name);
-          await handler.options.onStop(url, data.buffer || data, filterCallback);
+          await handler.options.onStop(
+            dataSource,
+            url,
+            data.buffer || data,
+            filterCallback
+          );
         }
       }
 
@@ -221,7 +279,7 @@ app.whenReady().then(async () => {
       let finalWrite = typeof data == 'string'
         ? Buffer.from(data, 'utf8')
         : data;
-      greenlog("Writing data", contentType, typeof data, finalWrite);
+      greenlog("Writing data", contentType, typeof data)//, finalWrite);
       callback({
         data: finalWrite,
         mimeType: contentType
@@ -246,6 +304,9 @@ app.whenReady().then(async () => {
     app,
     setTimeout,
     TextEncoder: class { encode(val) { return val } }, // noop polyfill
+    fetch: require('node-fetch'),
+    URL: require('whatwg-url').URL,
+    DOMParser: require('xmldom').DOMParser,
     // https://gist.github.com/jmshal/b14199f7402c8f3a4568733d8bed0f25
     atob(a) { return Buffer.from(a, 'base64').toString('binary'); },
     btoa(b) { return Buffer.from(b).toString('base64'); },
@@ -254,6 +315,7 @@ app.whenReady().then(async () => {
   greenlog("loading tetrio plus scripts");
   let scripts = manifest.browser_specific_settings.desktop_client.scripts;
   for (let script of scripts) {
+    greenlog("js: " + script);
     let js = fs.readFileSync(path.join(__dirname, '../..', script));
     try {
       vm.runInContext(js, context);

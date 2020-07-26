@@ -1,3 +1,6 @@
+if (typeof require == 'function')
+  var migrate = require('./migrate');
+
 /**
  * @param {Object} data the data object to load
  * @param {Storage} storage A browser-storage-like object with 'set' method
@@ -53,16 +56,17 @@ async function sanitizeAndLoadTPSE(data, storage) {
     bypassBootstrapper: parseBoolean('bypassBootstrapper'),
     enableCustomMaps: parseBoolean('enableCustomMaps'),
     skin: async svgText => {
-      let parser = new DOMParser();
-      let svg = parser.parseFromString(svgText, 'application/xhtml+xml');
+      try {
+        let parser = new DOMParser();
+        let svg = parser.parseFromString(svgText, 'application/xhtml+xml');
+        if (svg.documentElement.nodeName.indexOf('parsererror') > -1)
+          return 'ERROR: svg is invalid';
 
-      let errs = [...svg.getElementsByTagName('parsererror')];
-      if (errs.length > 0) {
-        return 'ERROR: ' + errs.map(err => err.innerText).join(',');
+        await storage.set({ skin: svgText });
+        return 'success';
+      } catch(ex) {
+        return 'ERROR: unexpected error: ' + ex;
       }
-
-      await storage.set({ skin: svgText });
-      return 'success';
     },
     skinPng: async dataUri => {
       if (typeof dataUri != 'string' || !/^data:image\/.+?;base64,/.test(dataUri))
@@ -434,3 +438,6 @@ async function sanitizeAndLoadTPSE(data, storage) {
 
   return results.join('\n');
 }
+
+if (typeof module !== 'undefined')
+  module.exports = sanitizeAndLoadTPSE;

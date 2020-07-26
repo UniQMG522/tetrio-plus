@@ -18,7 +18,7 @@ const getDataSourceForDomain = (() => {
       return {
         async get(keys) {
           // Prevent infinite loops in some users that don't expect
-          // the promise to resolve syncronously
+          // the promise to resolve synchronously
           await new Promise(r => setTimeout(r));
           return await data; // It's technically complient
         }

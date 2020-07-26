@@ -12,7 +12,6 @@ createRewriteFilter("Tetrio.js Music", "https://tetr.io/js/tetrio.js", {
     let { disableVanillaMusic } = await storage.get('disableVanillaMusic');
     let songs = (await storage.get('music')).music || [];
 
-
     let newSongObject = {};
     for (let song of songs) {
       /*

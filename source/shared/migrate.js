@@ -1,4 +1,4 @@
-const migrate = (() => {
+var migrate = (() => {
   const migrations = [];
 
   function compare(version, target) {
@@ -114,3 +114,7 @@ const migrate = (() => {
     };
   }
 })();
+
+
+if (typeof module !== 'undefined')
+  module.exports = migrate;

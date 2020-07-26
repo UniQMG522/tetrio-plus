@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "author": "UniQMG",
+  "dependencies": {
+    "node-fetch": "^2.6.0",
+    "whatwg-url": "^8.1.0",
+    "xmldom": "^0.3.0"
+  }
+}

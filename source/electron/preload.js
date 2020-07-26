@@ -6,7 +6,20 @@
 
   const { ipcRenderer } = require('electron');
 
+  // Suppress the 'Exit Tetrio' prompt
+  // https://stackoverflow.com/a/47117084
+  EventTarget.prototype.addEventListenerBase = EventTarget.prototype.addEventListener;
+  EventTarget.prototype.addEventListener = function(type, listener, arg) {
+    if (type == 'beforeunload') {
+      console.log('Tetr.io+: Blocked beforeunload event registration');
+      return;
+    }
+    this.addEventListenerBase(type, listener, arg);
+  }
+
   document.addEventListener('keydown', evt => {
+    evt.preventDefault();
+
     if (evt.altKey && evt.key == 'F4')
       ipcRenderer.send('tetrio-plus-cmd', 'destroy everything');
 
@@ -39,7 +52,13 @@
       console.log("js:", script);
       let src = fs.readFileSync(path.join(__dirname, '../..', script), 'utf8');
       try {
-        eval(src);
+        // Scope out require, since some content scripts are used directly and
+        // thus have require null-checks.
+        with({
+          get require() {
+            return null;
+          }
+        }) eval(src);
       } catch(ex) {
         console.error("Error executing content script " + src + ": ", ex);
       }

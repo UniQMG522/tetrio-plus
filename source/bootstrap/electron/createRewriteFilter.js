@@ -1,5 +1,4 @@
 // global rewriteHandlers
-
 function matchesGlob(glob, string) {
   return new RegExp(
     '^' +
@@ -15,7 +14,13 @@ mainWindow.webContents.session.webRequest.onBeforeRequest(
   { urls: ['https://tetr.io/*'] },
   (request, callback) => {
     (async () => {
-      greenlog(`onBeforeRequest: Considering ${request.url}...`);
+      // greenlog("Request origin URL", request);
+
+      let origin = request.referrer;
+      const dataSource = await getDataSourceForDomain(origin);
+
+      // greenlog('Data source for origin', origin, Object.keys(dataSource));
+      // greenlog(`onBeforeRequest: Considering ${request.url}...`);
 
       // FIXME:
       // Temporary stopgap until I find a decent workaround to the whole
@@ -30,24 +35,36 @@ mainWindow.webContents.session.webRequest.onBeforeRequest(
         if (!matchesGlob(url, request.url)) continue;
 
         if (options.enabledFor) {
-          let enabled = await options.enabledFor(request.url);
+          let enabled = await options.enabledFor(dataSource, request.url);
           if (!enabled) {
             greenlog(`[${name} filter] Disabled, ignoring ${request.url}`);
             continue;
           }
         }
 
-        greenlog(`[${name} filter] Filtering ${request.url}`);
+        greenlog(`[${name} filter] Redirecting ${request.url}`);
         let relative = request.url.substring('https://tetr.io/'.length);
-        callback({
-          redirectURL: 'tetrio-plus://tetrio-plus/' + relative
-        });
+
+        let { useContentPack } = new URL(origin)
+          .search
+          .slice(1)
+          .split('&')
+          .map(e => e.split('='))
+          .reduce((obj, [key, value]) => {
+            obj[key] = value;
+            return obj;
+          }, {});
+        if (useContentPack)
+          relative += '?useContentPack=' + useContentPack;
+
+        // handled in electron-main
+        callback({ redirectURL: 'tetrio-plus://tetrio-plus/' + relative });
         return;
       }
 
       callback({});
     })().catch(ex => {
-      greenlog("Err", ex);
+      greenlog("CWR Err", ex);
       callback({});
     })
   }

@@ -27,6 +27,7 @@ const app = new Vue({
         This page is using a remote content pack.<br>
         <a class="longLink" :href="contentPack">{{ contentPack }}</a><br>
         <button @click="openSettingsIO(contentPack)">Install this pack</button>
+        <button @click="clearPack" v-if="isElectron">Stop</button>
       </fieldset>
 
       <fieldset class="section">
@@ -183,28 +184,42 @@ const app = new Vue({
       if (str == 'debug')
         this.enableDebugMode();
     });
-    browser.tabs.query({
-      active: true,
-      windowId: browser.windows.WINDOW_ID_CURRENT
-    }).then(tabs => {
-      let port = browser.runtime.connect({ name: 'info-channel' });
-      port.postMessage({ type: 'getUrlFromTab', tabId: tabs[0].id });
-      port.onMessage.addListener(msg => {
-        if (msg.type != 'getUrlFromTabResult') return;
-        let { useContentPack } = new URL(msg.url)
-          .search
-          .slice(1)
-          .split('&')
-          .map(e => e.split('='))
-          .reduce((obj, [key, value]) => {
-            obj[key] = value;
-            return obj;
-          }, {});
-        this.contentPack = useContentPack;
-      });
-    })
+    if (browser.tabs.query) {
+      browser.tabs.query({
+        active: true,
+        windowId: browser.windows.WINDOW_ID_CURRENT
+      }).then(tabs => {
+        let port = browser.runtime.connect({ name: 'info-channel' });
+        port.postMessage({ type: 'getUrlFromTab', tabId: tabs[0].id });
+        port.onMessage.addListener(msg => {
+          if (msg.type != 'getUrlFromTabResult') return;
+          let { useContentPack } = new URL(msg.url)
+            .search
+            .slice(1)
+            .split('&')
+            .map(e => e.split('='))
+            .reduce((obj, [key, value]) => {
+              obj[key] = value;
+              return obj;
+            }, {});
+          this.contentPack = useContentPack;
+        });
+      })
+    } else {
+      browser.tabs.electronOnMainNavigate(url => {
+        let match = /\?useContentPack=([^&]+)/.exec(url);
+        if (!match) {
+          this.contentPack = null;
+          return;
+        }
+        this.contentPack = match[1];
+      })
+    }
   },
   methods: {
+    clearPack() {
+      browser.tabs.electronClearPack();
+    },
     enableDebugMode() {
       console.log("Enabled debug mode")
       this.debugMode = true;

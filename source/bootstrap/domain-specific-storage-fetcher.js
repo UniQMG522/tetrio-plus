@@ -4,6 +4,12 @@
   wrappers/fallback.
 */
 
+if (typeof require == 'function') {
+  browser = require('../electron/electron-browser-polyfill');
+  fetch = require('node-fetch');
+  sanitizeAndLoadTPSE = require('../shared/tpse-sanitizer');
+}
+
 const REQUEST_CACHE = {};
 async function getDataForDomain(urlString) {
   try {
@@ -37,18 +43,20 @@ async function getDataForDomain(urlString) {
       throw new Error('Domain not whitelisted');
 
     if (!REQUEST_CACHE[url]) {
-      console.log("Fetching uncached", url);
-      let req = await fetch(url, { mode: 'cors' });
-      let unsanitizedData = await req.json();
+      REQUEST_CACHE[url] = new Promise(async res => {
+        let req = await fetch(url, { mode: 'cors' });
+        let unsanitizedData = await req.json();
 
-      let sanitizedData = {};
-      let result = await sanitizeAndLoadTPSE(unsanitizedData, {
-        async set(pairs) {
-          Object.assign(sanitizedData, pairs);
-        }
+        let sanitizedData = {};
+        let result = await sanitizeAndLoadTPSE(unsanitizedData, {
+          async set(pairs) {
+            Object.assign(sanitizedData, pairs);
+          }
+        });
+
+        console.log("Loaded content pack from " + url + ". Result:\n" + result);
+        res(sanitizedData);
       });
-      console.log("Loaded content pack from " + url + ". Result:\n" + result);
-      REQUEST_CACHE[url] = sanitizedData;
 
       // Empty cache after 10 minutes. This should be enough time to load
       // the page and then play a few games (since music isn't fetched until
@@ -60,7 +68,7 @@ async function getDataForDomain(urlString) {
       }, 10 * 60 * 1000);
     }
 
-    return REQUEST_CACHE[url];
+    return await REQUEST_CACHE[url];
   } catch(ex) {
     console.log(ex);
     return null;
@@ -68,7 +76,7 @@ async function getDataForDomain(urlString) {
 }
 
 async function getDataSourceForDomain(urlString) {
-  let data = await this.getDataForDomain(urlString);
+  let data = await getDataForDomain(urlString);
   if (data) {
     return {
       async get(keys) {
@@ -82,3 +90,6 @@ async function getDataSourceForDomain(urlString) {
     return browser.storage.local;
   }
 }
+
+if (typeof module != 'undefined' && module.exports)
+  module.exports = getDataSourceForDomain;
