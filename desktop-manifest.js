@@ -15,7 +15,6 @@ manifest.browser_specific_settings.desktop_client = {
     "source/filters/svg-filter.js",
     "source/filters/bootstrap-filter.js",
     "source/filters/music-graph-hooks.js",
-    "source/filters/music/missing-music-patch-filter.js",
     "source/filters/music/music-tetriojs-filter.js",
     "source/filters/music/music-request-filter.js",
     "source/filters/sfx/sfx-request-filter.js",

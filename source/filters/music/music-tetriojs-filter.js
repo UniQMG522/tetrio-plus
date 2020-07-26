@@ -73,6 +73,7 @@ createRewriteFilter("Tetrio.js Music", "https://tetr.io/js/tetrio.js", {
           let song = music[songkey];
           switch (song.genre) {
             case 'INTERFACE':
+            case 'DISABLED':
               break;
 
             case 'CALM':
@@ -94,7 +95,21 @@ createRewriteFilter("Tetrio.js Music", "https://tetr.io/js/tetrio.js", {
 
         let rewrite = (
           musicVar +
-          b64Recode(JSON.parse(newMusicJson)) +
+          `new Proxy(${b64Recode(JSON.parse(newMusicJson))}, {
+            get(obj, prop) {
+              return (obj[prop] || {
+                name: "Missing song",
+                jpname: "Missing song",
+                artist: "",
+                jpartist: "",
+                genre: 'INTERFACE',
+                source: 'TETR.IO PLUS',
+                loop: false,
+                loopStart: 0,
+                loopLength: 0
+              })
+            }
+          })` +
           musicpoolVar +
           b64Recode(JSON.parse(newMusicPoolJson))
         );

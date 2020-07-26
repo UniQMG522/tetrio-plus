@@ -94,7 +94,7 @@ const app = new Vue({
               Bypass bootstrapper
             </span>
           </option-toggle>
-          <option-toggle storageKey="showLegacyOptions">
+          <!-- <option-toggle storageKey="showLegacyOptions">
             <span title="Enables deprecated legacy options">
               Show legacy options
             </span>
@@ -109,7 +109,7 @@ const app = new Vue({
                 )"
               >⚠️</span>
             </option-toggle>
-          </option-toggle>
+          </option-toggle> -->
           <option-toggle storageKey="openDevtoolsOnStart" v-if="isElectron">
             <span :title="(
               'Opens the developer tools as soon as the game launches. ' +
