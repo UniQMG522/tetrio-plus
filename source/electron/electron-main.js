@@ -57,21 +57,27 @@ const mainWindow = new Promise(res => {
     // Used by packaging edits (see README)
     onMainWindow: res,
     modifyWindowSettings,
-    handleWindowOpen(url) {
-      let root = 'tetrio://tetrioplus/tpse/';
-      if (url.startsWith(root)) {
-        let tpse = url.substring(root.length);
-        let target = `https://tetr.io/?useContentPack=` + tpse;
-        redlog('Opening', target);
-        mainWindow.then(win => {
-          win.webContents.loadURL(target)
-        });
-        return true;
-      }
-      return false;
-    }
+    handleWindowOpen
   }
 });
+
+function handleWindowOpen(url) {
+  let root = 'tetrio://tetrioplus/tpse/';
+  if (url.startsWith(root)) {
+    let tpse = url.substring(root.length);
+    let target = `https://tetr.io/?useContentPack=` + tpse;
+    redlog('Opening', target);
+    mainWindow.then(win => {
+      win.webContents.loadURL(target)
+    });
+    return true;
+  }
+  return false;
+}
+
+for (let arg of process.argv)
+  if (arg.startsWith('tetrio://'))
+    handleWindowOpen(arg);
 
 let tpWindow = null;
 async function createTetrioPlusWindow() {
@@ -97,7 +103,6 @@ async function createTetrioPlusWindow() {
   mainWin.webContents.on('did-finish-load', () => {
     tpWindow.webContents.send('client-navigated', mainWin.getURL())
   });
-  mainWin.loadURL(`https://tetr.io/?useContentPack=http://localhost:8080/testpack.tpse`);
 }
 
 ipcMain.on('tetrio-plus-cmd', async (evt, arg) => {

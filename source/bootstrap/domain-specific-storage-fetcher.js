@@ -24,7 +24,7 @@ async function getDataForDomain(urlString) {
     if (!allowURLPackLoader)
       throw 'URL pack loading is disabled';
 
-    let { useContentPack } = new URL(urlString)
+    let { useContentPack } = new URL(decodeURI(urlString))
       .search
       .slice(1)
       .split('&')
@@ -37,7 +37,7 @@ async function getDataForDomain(urlString) {
     if (!useContentPack)
       throw 'URL does not specify a content pack';
 
-    let url = new URL(useContentPack);
+    let url = new URL(decodeURIComponent(useContentPack));
 
     if (whitelistedLoaderDomains.indexOf(url.origin) == -1)
       throw new Error('Domain not whitelisted');
@@ -56,6 +56,9 @@ async function getDataForDomain(urlString) {
 
         console.log("Loaded content pack from " + url + ". Result:\n" + result);
         res(sanitizedData);
+      }).catch(ex => {
+        console.error(ex);
+        return null;
       });
 
       // Empty cache after 10 minutes. This should be enough time to load

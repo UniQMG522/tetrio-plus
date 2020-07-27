@@ -202,7 +202,7 @@ const app = new Vue({
               obj[key] = value;
               return obj;
             }, {});
-          this.contentPack = useContentPack;
+          this.contentPack = decodeURIComponent(useContentPack);
         });
       })
     } else {
@@ -212,7 +212,7 @@ const app = new Vue({
           this.contentPack = null;
           return;
         }
-        this.contentPack = match[1];
+        this.contentPack = decodeURIComponent(match[1]);
       })
     }
   },

@@ -1,5 +1,7 @@
-if (typeof require == 'function')
+if (typeof require == 'function') {
   var migrate = require('./migrate');
+  var DOMParser = require('xmldom').DOMParser;
+}
 
 /**
  * @param {Object} data the data object to load
