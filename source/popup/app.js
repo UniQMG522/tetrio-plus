@@ -150,7 +150,7 @@ const app = new Vue({
         </div>
         <div class="control-group">
           <button @click="openSettingsIO()" title="Opens the settings manager">
-            Manage data
+            Manage data / import TPSE
           </button>
         </div>
       </fieldset>
