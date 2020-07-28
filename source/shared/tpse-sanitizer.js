@@ -72,7 +72,7 @@ async function sanitizeAndLoadTPSE(data, storage) {
     },
     skinPng: async dataUri => {
       if (typeof dataUri != 'string' || !/^data:image\/.+?;base64,/.test(dataUri))
-        return `ERROR: Missing/invalid image ${bg.id}`
+        return `ERROR: Missing/invalid image`
       await storage.set({ skinPng: dataUri });
       return 'success';
     },
