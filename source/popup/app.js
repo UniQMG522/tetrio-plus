@@ -244,7 +244,7 @@ const app = new Vue({
         'whitelistedLoaderDomains'
       ]).then(cfg => {
         this.allowURLPackLoader = cfg.allowURLPackLoader;
-        this.whitelistedLoaderDomains = cfg.whitelistedLoaderDomains;
+        this.whitelistedLoaderDomains = cfg.whitelistedLoaderDomains || "";
       });
     },
     clearPack() {
