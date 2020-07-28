@@ -40,10 +40,10 @@ async function getDataForDomain(urlString) {
     let url = new URL(decodeURIComponent(useContentPack));
 
     if (whitelistedLoaderDomains.indexOf(url.origin) == -1)
-      throw new Error('Domain not whitelisted');
+      throw new Error('Domain ' + url.origin + ' not whitelisted');
 
     if (!REQUEST_CACHE[url]) {
-      REQUEST_CACHE[url] = new Promise(async res => {
+      REQUEST_CACHE[url] = (async () => {
         let req = await fetch(url, { mode: 'cors' });
         let unsanitizedData = await req.json();
 
@@ -55,8 +55,8 @@ async function getDataForDomain(urlString) {
         });
 
         console.log("Loaded content pack from " + url + ". Result:\n" + result);
-        res(sanitizedData);
-      }).catch(ex => {
+        return sanitizedData;
+      })().catch(ex => {
         console.error(ex);
         return null;
       });
