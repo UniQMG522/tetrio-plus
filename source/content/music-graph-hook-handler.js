@@ -33,7 +33,7 @@ try {
       if (audioBuffers[src.audio]) continue;
 
       let key = 'song-' + src.audio;
-      let base64 = (await browser.storage.local.get(key))[key];
+      let base64 = (await storage.get(key))[key];
       let rawBuffer = await fetch(base64).then(res => res.arrayBuffer());
       // let rawBuffer = convertDataURIToArrayBuffer(base64);
       let decoded = await context.decodeAudioData(rawBuffer);

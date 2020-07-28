@@ -24,10 +24,16 @@ const app = new Vue({
 
       <fieldset class="section contentPackInfo" v-if="contentPack">
         <legend>Content Pack</legend>
-        This page is using a remote content pack.<br>
-        <a class="longLink" :href="contentPack">{{ contentPack }}</a><br>
-        <button @click="openSettingsIO(contentPack)">Install this pack</button>
-        <button @click="clearPack" v-if="isElectron">Stop</button>
+        <div v-if="contentPackIssue" style="max-width: 400px">
+          This page is attempting to use a remote content pack, but
+          {{ contentPackIssue }}.
+        </div>
+        <div v-else>
+          This page is using a remote content pack.<br>
+          <a class="longLink" :href="contentPack">{{ contentPack }}</a><br>
+          <button @click="openSettingsIO(contentPack)">Install this pack</button>
+          <button @click="clearPack" v-if="isElectron">Stop</button>
+        </div>
       </fieldset>
 
       <fieldset class="section">
@@ -167,7 +173,9 @@ const app = new Vue({
   },
   data: {
     debugMode: false,
-    contentPack: null
+    contentPack: null,
+    allowURLPackLoader: null,
+    whitelistedLoaderDomains: null
   },
   computed: {
     isElectron() {
@@ -175,6 +183,16 @@ const app = new Vue({
     },
     version() {
       return browser.runtime.getManifest().version;
+    },
+    contentPackIssue() {
+      if (!this.allowURLPackLoader)
+        return 'remote pack loading by URL is not enabled';
+
+      let url = new URL(this.contentPack);
+      if (this.whitelistedLoaderDomains.indexOf(url.origin) == -1)
+        return 'the domain (' + url.origin + ') isn\'t whitelisted';
+
+      return null;
     }
   },
   mounted() {
@@ -192,6 +210,7 @@ const app = new Vue({
         let port = browser.runtime.connect({ name: 'info-channel' });
         port.postMessage({ type: 'getUrlFromTab', tabId: tabs[0].id });
         port.onMessage.addListener(msg => {
+          this.refreshContentPackInfo();
           if (msg.type != 'getUrlFromTabResult') return;
           let { useContentPack } = new URL(msg.url)
             .search
@@ -202,11 +221,13 @@ const app = new Vue({
               obj[key] = value;
               return obj;
             }, {});
+          if (!useContentPack) return;
           this.contentPack = decodeURIComponent(useContentPack);
         });
       })
     } else {
       browser.tabs.electronOnMainNavigate(url => {
+        this.refreshContentPackInfo();
         let match = /\?useContentPack=([^&]+)/.exec(url);
         if (!match) {
           this.contentPack = null;
@@ -217,6 +238,15 @@ const app = new Vue({
     }
   },
   methods: {
+    refreshContentPackInfo() {
+      browser.storage.local.get([
+        'allowURLPackLoader',
+        'whitelistedLoaderDomains'
+      ]).then(cfg => {
+        this.allowURLPackLoader = cfg.allowURLPackLoader;
+        this.whitelistedLoaderDomains = cfg.whitelistedLoaderDomains;
+      });
+    },
     clearPack() {
       browser.tabs.electronClearPack();
     },

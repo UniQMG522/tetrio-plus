@@ -349,7 +349,6 @@ async function sanitizeAndLoadTPSE(data, storage) {
       }
 
       toSet.musicGraph = JSON.stringify(graph);
-      console.log("Set", toSet);
       await storage.set(toSet);
       return 'success';
     },

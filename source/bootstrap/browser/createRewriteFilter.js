@@ -9,8 +9,9 @@
 function createRewriteFilter(name, url, options) {
   browser.webRequest.onBeforeRequest.addListener(
     async request => {
-      console.log("Request origin URL", request.originUrl);
-      const dataSource = await getDataSourceForDomain(request.originUrl);
+      let origin = request.originUrl || request.url;
+      console.log("Request origin URL", origin);
+      const dataSource = await getDataSourceForDomain(origin);
 
       if (options.enabledFor) {
         let enabled = await options.enabledFor(dataSource, request.url);
