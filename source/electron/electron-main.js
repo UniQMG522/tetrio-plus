@@ -101,7 +101,8 @@ async function createTetrioPlusWindow() {
     if (tpWindow) tpWindow.close();
   });
   mainWin.webContents.on('did-finish-load', () => {
-    tpWindow.webContents.send('client-navigated', mainWin.getURL())
+    if (tpWindow && tpWindow.webContents)
+      tpWindow.webContents.send('client-navigated', mainWin.getURL())
   });
 }
 
