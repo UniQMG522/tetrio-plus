@@ -18,16 +18,21 @@
   }
 
   document.addEventListener('keydown', evt => {
-    evt.preventDefault();
 
-    if (evt.altKey && evt.key == 'F4')
+    if (evt.altKey && evt.key == 'F4') {
       ipcRenderer.send('tetrio-plus-cmd', 'destroy everything');
+      evt.preventDefault();
+    }
 
-    if (evt.ctrlKey && evt.key == 't')
+    if (evt.ctrlKey && evt.key == 't') {
       ipcRenderer.send('tetrio-plus-cmd', 'create tetrio plus window');
+      evt.preventDefault();
+    }
 
-    if (evt.ctrlKey && (evt.key == 'r' || evt.key == 'F5'))
+    if (evt.ctrlKey && (evt.key == 'r' || evt.key == 'F5')) {
       ipcRenderer.send('tetrio-plus-cmd', 'super force reload');
+      evt.preventDefault();
+    }
   });
 
   // FIXME
