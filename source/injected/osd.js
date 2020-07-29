@@ -46,9 +46,14 @@
   resizeHandle.innerText = '🡦';
   handleContainer.appendChild(resizeHandle);
 
-  let x = 40, y = 40, w = 180, h = 90;
+  // too lazy to write hooks back to browser storage from an injected script
+  let x = +localStorage.tp_osd_x || 40;
+  let y = +localStorage.tp_osd_y || 40;
+  let w = +localStorage.tp_osd_w || 180;
+  let h = +localStorage.tp_osd_h || 90;
   const minWidth = 100;
   const minHeight = 50;
+
   function resize() {
     let _x = x, _y = y, _w = w, _h = h;
     if (_w < minWidth) _w = minWidth;
@@ -95,8 +100,19 @@
   document.body.addEventListener('mouseup', evt => {
     dragging = false;
     resizing = false;
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
     if (w < minWidth) w = minWidth;
     if (h < minHeight) h = minHeight;
+    if (x > window.innerWidth - w) x = window.innerWidth - w;
+    if (y > window.innerHeight - h) y = window.innerHeight - h;
+    if (w > window.innerWidth) w = window.innerWidth;
+    if (h > window.innerHeight) w = window.innerHeight;
+    localStorage.tp_osd_x = x;
+    localStorage.tp_osd_y = y;
+    localStorage.tp_osd_w = w;
+    localStorage.tp_osd_h = h;
+    resize();
   });
 
   function onGameKey(obj) {
