@@ -44,4 +44,5 @@
 
 .tetrio-plus-osd-key.active {
   filter: invert();
+  background-color: black;
 }
