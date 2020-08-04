@@ -72,7 +72,15 @@
   }],
 
   "web_accessible_resources": [
-    "resource/template.svg",
+    "resources/template.svg",
+    "resources/osd/icon-moveLeft.png",
+    "resources/osd/icon-moveRight.png",
+    "resources/osd/icon-softDrop.png",
+    "resources/osd/icon-hardDrop.png",
+    "resources/osd/icon-rotateCW.png",
+    "resources/osd/icon-rotateCCW.png",
+    "resources/osd/icon-rotate180.png",
+    "resources/osd/icon-hold.png",
     "source/injected/osd.js",
     "source/injected/touch-controls.js"
   ],

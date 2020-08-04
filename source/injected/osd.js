@@ -3,8 +3,15 @@
   DOM events appear to stringify objects passed to them only for content
   scripts, and I need to call a function on an event's detail object
 */
-(() => {
+(async () => {
   [...document.getElementsByClassName('tetrio-plus-osd')].forEach(c => c.remove());
+
+  const baseIconURL = await new Promise(res => {
+    window.addEventListener("baseIconURL", event => {
+      res(event.detail);
+    }, { once: true });
+    window.dispatchEvent(new CustomEvent("getBaseIconURL"));
+  });
 
   let osd = document.createElement('div');
   osd.classList.toggle('tetrio-plus-osd', true);
@@ -12,34 +19,30 @@
 
   let buttons = [];
   let buttonMap = {};
-  function button(name, tetrioName, icon) {
+  function button(name, tetrioName) {
     let elem = document.createElement('div');
     elem.classList.toggle('tetrio-plus-osd-key', true);
     elem.classList.toggle(name, true);
     elem.style.gridArea = name;
-    elem.innerText = icon;
+    let icon = `url("${baseIconURL}icon-${tetrioName}.png")`;
+    elem.style.setProperty('background-image', icon);
     osd.appendChild(elem);
     buttons.push(elem);
     buttonMap[tetrioName] = elem;
   }
 
-  button('left', 'moveLeft', '🡠');
-  button('right', 'moveRight', '🡢');
-  button('softdrop', 'softDrop', '🡣');
-  button('harddrop', 'hardDrop', '⮇');
-  button('spin-cw', 'rotateCW', '↻');
-  button('spin-ccw', 'rotateCCW', '↺');
-  button('spin-180', 'rotate180', '⟳');
-  button('hold', 'hold', '♻');
+  button('left', 'moveLeft');
+  button('right', 'moveRight');
+  button('softdrop', 'softDrop');
+  button('harddrop', 'hardDrop');
+  button('spin-cw', 'rotateCW');
+  button('spin-ccw', 'rotateCCW');
+  button('spin-180', 'rotate180');
+  button('hold', 'hold');
 
   let handleContainer = document.createElement('div');
   handleContainer.classList.toggle('tetrio-plus-osd-handle-container');
   osd.appendChild(handleContainer);
-
-  let dragHandle = document.createElement('div');
-  dragHandle.classList.toggle('tetrio-plus-osd-drag-handle');
-  dragHandle.innerText = '✢';
-  handleContainer.appendChild(dragHandle);
 
   let resizeHandle = document.createElement('div');
   resizeHandle.classList.toggle('tetrio-plus-osd-resize-handle');

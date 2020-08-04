@@ -31,18 +31,17 @@
 }
 
 .tetrio-plus-osd-key {
-  color: white;
   margin: 1px;
   border: 1px solid white;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-origin: content-box;
 
-  font-size: 2rem;
+  padding: 10%;
 }
 
 .tetrio-plus-osd-key.active {
-  background-color: white;
-  color: black;
+  filter: invert();
 }
