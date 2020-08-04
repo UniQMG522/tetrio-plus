@@ -235,6 +235,7 @@ app.whenReady().then(async () => {
       );
       const dataSource = await getDataSourceForDomain(url);
 
+      const originalUrl = url;
       if (url.indexOf('?') > 0)
         url = url.split('?')[0]; // query params break some stuffs
 
@@ -247,7 +248,7 @@ app.whenReady().then(async () => {
       for (let handler of handlers) {
         greenlog("Testing handler", handler.name);
 
-        if (!await handler.options.enabledFor(dataSource, url)) {
+        if (!await handler.options.enabledFor(dataSource, originalUrl)) {
           greenlog("Not enabled!");
           continue;
         }
@@ -258,7 +259,7 @@ app.whenReady().then(async () => {
           // Uint8Array-like. Offer that for browser compatibility.
           await handler.options.onStart(
             dataSource,
-            url,
+            originalUrl,
             (data && data.buffer) || data,
             filterCallback
           );
@@ -272,7 +273,7 @@ app.whenReady().then(async () => {
           greenlog("Stop-handling it!", handler.name);
           await handler.options.onStop(
             dataSource,
-            url,
+            originalUrl,
             data.buffer || data,
             filterCallback
           );
