@@ -1,5 +1,5 @@
 # Tetrio plus
-Tetr.io block skin, music, and sfx customizer
+Tetr.io block skin, music, sfx customizer and also some other things.
 
 ## Warnings
 * **This software is not associated with or created by Tetr.io or osk**
@@ -10,7 +10,6 @@ bugs, remove the extension and try again *before* reporting it**
 * Chromium-based browsers are not supported as [they lack](https://bugs.chromium.org/p/chromium/issues/detail?id=487422) an [important API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/filterResponseData) used by this project.
 
 ## Electron packaging instructions
-
 These are instructions for *packaging electron releases*.
 ***If you just want to install tetrio-plus, download an `app.asar` from the releases page and replace the existing `app.asar` file in your tetrio install directory***.
 These are pre-packaged versions, the following instructions are for developers who modify tetrio-plus themselves.
@@ -45,6 +44,10 @@ onMainWindow(mainWindow);
 ```
 - Repack the asar file: `asar pack out app.asar`
 - Distribute the asar file!
+
+## Desktop packaging instructions
+The files can be zipped and distributed as-in, but you can run `pack.sh` to
+generate a zipfile without unnecessary (i.e. electron-related) files.
 
 ## Directory structure
 Tetrio plus is designed to be loaded in two contexts: As a firefox extension, and as a native modification for the desktop client.
@@ -83,3 +86,6 @@ Code for various windows
 
 ### source/popup
 Code for the main extension popup
+
+### source/shared
+Contains some library-like files which are used by both content scripts and directly from electron
