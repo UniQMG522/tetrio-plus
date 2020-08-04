@@ -13,6 +13,8 @@ try {
   // window.addEventListener('storage', () => console.log("STORAGE"));
 
   (async function() {
+    if (window.location.pathname != '/') return;
+
     let storage = await getDataSourceForDomain(window.location);
     let {
       music, musicGraph, musicEnabled, musicGraphEnabled
