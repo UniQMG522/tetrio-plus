@@ -46,6 +46,7 @@
   z-index: 9999999999;
 
   user-select: none;
+  -moz-user-select: none;
 
   text-align: center;
   display: flex;

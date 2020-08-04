@@ -11,7 +11,8 @@
     rotate180: new Set(),
     hold: new Set(),
     exit: new Set(),
-    retry: new Set()
+    retry: new Set(),
+    fullscreen: new Set()
   }
   let buttons = [];
 
@@ -198,21 +199,36 @@
     if (!keypresses[key]) return;
     if (pressed && !keypresses[key].has(presserId)) {
       if (keypresses[key].size == 0) {
-        let evt = new KeyboardEvent('keydown', {
-          bubbles: true,
-          code: keyMap[key][0] // global exposed from hook
-        });
-        document.body.dispatchEvent(evt);
+        switch (key) {
+          case 'fullscreen':
+            document.body.requestFullscreen();
+            break;
+
+          default:
+            let evt = new KeyboardEvent('keydown', {
+              bubbles: true,
+              code: keyMap[key][0] // global exposed from hook
+            });
+            document.body.dispatchEvent(evt);
+            break;
+        }
       }
       keypresses[key].add(presserId);
     } else if (!pressed && keypresses[key].has(presserId)) {
       keypresses[key].delete(presserId);
       if (keypresses[key].size == 0) {
-        let evt = new KeyboardEvent('keyup', {
-          bubbles: true,
-          code: keyMap[key][0] // global exposed from hook
-        });
-        document.body.dispatchEvent(evt);
+        switch (key) {
+          case 'fullscreen':
+            break;
+
+          default:
+            let evt = new KeyboardEvent('keyup', {
+              bubbles: true,
+              code: keyMap[key][0] // global exposed from hook
+            });
+            document.body.dispatchEvent(evt);
+            break;
+        }
       }
     }
   }
