@@ -26,6 +26,7 @@ manifest.browser_specific_settings.desktop_client = {
     "source/filters/bg/bg-request-filter.js",
     "source/filters/bg/bg-tetriojs-filter.js",
     "source/filters/touch-controls-tetriojs-filter.js",
+    "source/filters/emote-tab-tetriojs-filter.js",
     "source/filters/osd-request-filter.js",
     "source/filters/debug-tetriojs-filter.js"
   ],
@@ -38,6 +39,7 @@ manifest.browser_specific_settings.desktop_client = {
     "source/content/touch-controls.js",
     "source/content/animated-bg.js",
     "source/content/osd.js",
+    "source/content/emote-tab.js",
     "source/content/music-graph-hook-handler.js",
     "source/content/custom-maps.js",
     "source/content/bgmtweak-enhancer.js"

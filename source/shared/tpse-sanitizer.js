@@ -50,6 +50,7 @@ async function sanitizeAndLoadTPSE(data, storage) {
     bgEnabled: parseBoolean('bgEnabled'),
     animatedBgEnabled: parseBoolean('animatedBgEnabled'),
     enableTouchControls: parseBoolean('enableTouchControls'),
+    enableEmoteTab: parseBoolean('enableEmoteTab'),
     transparentBgEnabled: electronOnly(parseBoolean('transparentBgEnabled')),
     opaqueTransparentBackground: parseBoolean('opaqueTransparentBackground'),
     openDevtoolsOnStart: electronOnly(parseBoolean('openDevtoolsOnStart')),
