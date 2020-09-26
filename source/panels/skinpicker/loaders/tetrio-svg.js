@@ -28,9 +28,7 @@ export async function load(files) {
       frames: 1,
       frameWidth: canvas.width,
       frameHeight: canvas.height,
-      delay: 60,
-      loopStart: 0,
-      synchronized: true
+      delay: 60
     }
   });
 }

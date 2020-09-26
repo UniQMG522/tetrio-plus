@@ -34,14 +34,6 @@ const app = new Vue({
           <input type="number" v-model.number="delay" min="1">
         </div>
         <div>
-          Loop start:
-          <input type="number" v-model.number="loopStart" min="0">
-        </div>
-        <div>
-          <input type="checkbox" v-model="synchronized" />
-          Synchronized
-        </div>
-        <div>
           <input type="checkbox" v-model="combine" />
           Combine frames
         </div>
@@ -58,8 +50,6 @@ const app = new Vue({
   data: {
     loader: null,
     delay: 30,
-    loopStart: 0,
-    synchronized: true,
     combine: true,
     loaders: loaders
   },

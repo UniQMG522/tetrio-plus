@@ -22,6 +22,8 @@ createRewriteFilter("Animated skins", "https://tetr.io/js/tetrio.js", {
     ) => {
       outerTextureList = textureList;
       outerShinyTextureList = shinyTextureList;
+      // Intercepts the mino canvas setup and replaces it with our own texture
+      // generation, and also obtains the texture variable names it outputs to
       return `
         Object.keys(${ canvasesContainer }.minoCanvases).forEach((e, minoIndex) => {
           let {
@@ -33,7 +35,6 @@ createRewriteFilter("Animated skins", "https://tetr.io/js/tetrio.js", {
           let baseUrl = frameCount > 1
             ? 'https://tetr.io/res/minos.png?animated'
             : 'https://tetr.io/res/minos.svg';
-          console.log(frameCount, baseUrl);
           let base = PIXI.BaseTexture.from(baseUrl);
           for (let i = 0; i < frameCount; i++) {
             let rect = new PIXI.Rectangle(
@@ -66,12 +67,26 @@ createRewriteFilter("Animated skins", "https://tetr.io/js/tetrio.js", {
       `;
     });
     if (!outerTextureList) {
-      console.log('Animated skins hooks filter broke, stage 1/2');
+      console.log('Animated skins hooks filter broke, stage 1/3');
       callback({ type: 'text/javascript', data: src, encoding: 'text' });
       return;
     }
 
+    // Extracts a function that calculates the size of a mino relative to
+    // its base size and the current canvas size.
+    let scaleFunc = /function (\w+)\((\w+)\)\s*{\s*return\s*\2\s*\*\w+\s*}/;
+    let match = scaleFunc.exec(src);
+    console.log("scaleFunctionResult", match)
+    if (!match) {
+      console.log('Animated skins hooks filter broke, stage 2/3');
+      callback({ type: 'text/javascript', data: src, encoding: 'text' });
+      return;
+    }
+    let [_match, scaleFuncName, _arg] = match;
 
+
+    // Replace anywhere using the previously captured texture variables with an
+    // AnimatedSprite instead of a regular one, and also set up animation logic.
     let matches = 0;
     let spritemaker = new RegExp(`(new PIXI\\.Sprite\\()([^)]*${outerTextureList}[^)]*\\).*?)(;)`, 'g');
     src = src.replace(spritemaker, (match, _constructor, contents, postmatch) => {
@@ -81,32 +96,24 @@ createRewriteFilter("Animated skins", "https://tetr.io/js/tetrio.js", {
       contents = contents.replace(/\)$/, '');
       return `
         (() => {
-          let { frames, delay, synchronized, loopStart } = ${b64Recode(res.skinAnimMeta)};
+          let { frames, delay } = ${b64Recode(res.skinAnimMeta)};
           let sprite = new PIXI.AnimatedSprite(${contents});
           sprite.animationSpeed = 1/delay;
-          // 0.95 is an experimentally determined magic number
-          // because I can't figure out how tetrio is scaling stuff
-          // sprite.scale.set(${outerTextureList}.z.ratio * 0.95);
-          sprite.scale.set(yt(1));
-          sprite.play();
+          sprite.scale.set(${scaleFuncName}(31/30), ${scaleFuncName}(1));
 
-          let target = () => ~~(((Date.now()/1000) * 60 / delay) % frames);
-          let looped = false;
-          sprite.onFrameChange = function() {
-            if (synchronized && (!loopStart || looped))
-              try { sprite.gotoAndPlay(target()); } catch(ex) { console.error(target(), ex); }
-          }
-          sprite.onLoop = function() {
-            sprite.gotoAndPlay(loopStart);
-            looped = true;
-          }
+          let target = () => ~~(((PIXI.Ticker.shared.lastTime/1000) * 60 / delay) % frames);
+          sprite.gotoAndStop(target());
+          let int = setInterval(() => {
+            sprite.gotoAndStop(target());
+            if (!sprite.parent) clearInterval(int);
+          }, 16);
           return sprite;
         })()${postmatch}
       `
     });
     if (matches !== 4) {
       // Warning only
-      console.warn(`Animated skins stage 2/2 expected to match 4 times, but matched ${matches} times.`)
+      console.warn(`Animated skins stage 3/3 expected to match 4 times, but matched ${matches} times.`)
     }
 
     callback({

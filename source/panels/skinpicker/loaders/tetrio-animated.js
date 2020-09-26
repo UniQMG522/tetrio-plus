@@ -48,9 +48,7 @@ export async function load(files) {
       frames: files.length,
       frameWidth: canvas.width,
       frameHeight: step,
-      delay: app.delay,
-      loopStart: app.loopStart,
-      synchronized: app.synchronized
+      delay: app.delay
     }
   });
 }

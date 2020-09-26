@@ -57,6 +57,7 @@ async function sanitizeAndLoadTPSE(data, storage) {
     showLegacyOptions: parseBoolean('showLegacyOptions'),
     bypassBootstrapper: parseBoolean('bypassBootstrapper'),
     enableCustomMaps: parseBoolean('enableCustomMaps'),
+    advancedSkinLoading: parseBoolean('advancedSkinLoading'),
     skinSvg: async svgText => {
       try {
         let parser = new DOMParser();
@@ -74,6 +75,33 @@ async function sanitizeAndLoadTPSE(data, storage) {
       if (typeof dataUri != 'string' || !/^data:image\/.+?;base64,/.test(dataUri))
         return `ERROR: Missing/invalid image`
       await storage.set({ skinPng: dataUri });
+      return 'success';
+    },
+    skinAnim: async dataUri => {
+      if (typeof dataUri != 'string' || !/^data:image\/.+?;base64,/.test(dataUri))
+        return `ERROR: Missing/invalid image`
+      await storage.set({ skinAnim: dataUri });
+      return 'success';
+    },
+    skinAnimMeta: async object => {
+      if (typeof object != 'object')
+        return `ERROR: Expected object`;
+
+      if (typeof object.frames != 'number' || object.frames < 1)
+        return `ERROR: Expected positive numerical value at frame`;
+      if (typeof object.frameWidth != 'number' || object.frameWidth < 1)
+        return `ERROR: Expected positive numerical value at frameWidth`;
+      if (typeof object.frameHeight != 'number' || object.frameHeight < 1)
+        return `ERROR: Expected positive numerical value at frameHeight`;
+      if (typeof object.delay != 'number' || object.delay < 1)
+        return `ERROR: Expected positive numerical value at delay`;
+
+      let whitelist = ['frames', 'frameWidth', 'frameHeight', 'delay'];
+      for (let key of Object.keys(object))
+        if (whitelist.indexOf(key) == -1)
+          return `ERROR: Unexpected value at ${key}`;
+
+      await storage.set({ skinAnimMeta: object });
       return 'success';
     },
     customSoundAtlas: async (atlas, importData) => {

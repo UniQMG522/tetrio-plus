@@ -23,9 +23,7 @@ export async function load(files) {
       frames: 1,
       frameWidth: file.image.width,
       frameHeight: file.image.height,
-      delay: 60,
-      loopStart: 0,
-      synchronized: true
+      delay: 60
     }
   });
 }
