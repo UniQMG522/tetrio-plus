@@ -3,31 +3,17 @@
   <head>
     <meta charset="utf-8">
     <title>Tetr.io+</title>
+    <script src="../../lib/vue.js"></script>
+    <script src="../../lib/gif-frames.js"></script>
+    <script src="app.js" type="module"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+    </style>
   </head>
   <body>
-    <!--
-      This popup is necessary since using a file input closes the extension
-      window, long standing firefox bug
-    -->
-    <strong>Reload Tetr.io after changing your skin!</strong><br>
-    Make sure you have the correct size images
-    <a href="https://tetr.io/res/minos.svg">(reference image)</a>.
-
-    <fieldset>
-      <legend>Tetrio-format SVG</legend>
-      <input type="file" id="tetrio-svg" accept=".svg">
-    </fieldset>
-
-    <fieldset>
-      <legend>Tetrio-format PNG/JPG</legend>
-      <input type="file" id="tetrio-png" accept=".png,.jpg,.jpeg">
-    </fieldset>
-
-    <fieldset>
-      <legend>JStris-format PNG</legend>
-      <input type="file" id="jstris-png" accept=".png,.jpg,.jpeg">
-      <div>Colors should be in order: Garbage, Ghost, ROYGBIV</div>
-    </fieldset>
-    <script src="app.js"></script>
+    <strong>Reload Tetr.io after changing your skin!</strong>
+    <div id="app"></div>
   </body>
 </html>

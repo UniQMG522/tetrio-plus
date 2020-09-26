@@ -1,4 +1,5 @@
 const html = arg => arg.join(''); // NOOP, for editor integration.
+import OptionToggle from './OptionToggle.js';
 
 export default {
   template: html`
@@ -23,12 +24,27 @@ export default {
           No skin set
         </div>
       </div>
+      <option-toggle storageKey="advancedSkinLoading">
+        Use advanced skin loading
+        <option-toggle inline storageKey="advancedSkinLoading" mode="hide">
+          <span
+            class="warning-icon"
+            :title="(
+              'This option is required for animated skins, but is more ' +
+              'likely to break. Tetrio is currently planning an overhaul to ' +
+              'the skins system which will almost definitely break this ' +
+              'in the future.'
+            )"
+          >⚠️</span>
+        </option-toggle>
+      </option-toggle>
     </div>
   `,
+  components: { OptionToggle },
   data: () => ({ cachedSkin: null, skinBlob: null }),
   computed: {
     skinUrl() {
-      browser.storage.local.get('skin').then(({ skin: newSkin }) => {
+      browser.storage.local.get('skinSvg').then(({ skinSvg: newSkin }) => {
         if (newSkin != this.cachedSkin) this.cachedSkin = newSkin;
       });
       if (!this.cachedSkin) return false;
@@ -55,8 +71,8 @@ export default {
         browser.windows.create({
           type: 'detached_panel',
           url: browser.extension.getURL('source/panels/skinpicker/index.html'),
-          width: 600,
-          height: 285
+          width: 659,
+          height: 387
         });
       }
     },

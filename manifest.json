@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Tetr.io+",
-  "version": "0.14.4",
+  "version": "0.15.0",
 
   "description": "Tetr.io client enhancer",
   "icons": { "256": "icons/tetrio-256.png" },
@@ -35,12 +35,13 @@
       "source/filters/music-graph-hooks.js",
       "source/filters/music/music-tetriojs-filter.js",
       "source/filters/music/music-request-filter.js",
+      "source/filters/skin/skin-tetriojs-filter.js",
+      "source/filters/skin/skin-request-filter.js",
       "source/filters/sfx/sfx-tetriojs-filter.js",
       "source/filters/sfx/sfx-request-filter.js",
       "source/filters/bg/animated-bg-tetriojs-filter.js",
       "source/filters/bg/bg-tetriojs-filter.js",
       "source/filters/bg/bg-request-filter.js",
-      "source/filters/svg-filter.js",
 
       "source/bootstrap/content-script-communicator.js",
       "source/filters/touch-controls-tetriojs-filter.js",

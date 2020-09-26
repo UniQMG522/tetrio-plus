@@ -57,14 +57,14 @@ async function sanitizeAndLoadTPSE(data, storage) {
     showLegacyOptions: parseBoolean('showLegacyOptions'),
     bypassBootstrapper: parseBoolean('bypassBootstrapper'),
     enableCustomMaps: parseBoolean('enableCustomMaps'),
-    skin: async svgText => {
+    skinSvg: async svgText => {
       try {
         let parser = new DOMParser();
         let svg = parser.parseFromString(svgText, 'application/xhtml+xml');
         if (svg.documentElement.nodeName.indexOf('parsererror') > -1)
           return 'ERROR: svg is invalid';
 
-        await storage.set({ skin: svgText });
+        await storage.set({ skinSvg: svgText });
         return 'success';
       } catch(ex) {
         return 'ERROR: unexpected error: ' + ex;

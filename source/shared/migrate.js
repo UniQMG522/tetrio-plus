@@ -90,6 +90,21 @@ var migrate = (() => {
         ]
       });
     }
+  });
+
+  /*
+    v0.15.0 - Better:tm: skins update
+    'skin' -> 'skinSvg'
+  */
+  migrations.push({
+    version: '0.14.0',
+    run: async dataSource => {
+      await dataSource.set({
+        version: '0.15.0',
+        skin: null,
+        skinSvg: await dataSource.get('skin')
+      });
+    }
   })
 
   return async function migrate(dataSource) {
