@@ -56,6 +56,7 @@
     "include_globs": ["https://tetr.io/", "https://tetr.io/?*"],
     "css": [
       "source/content/touch-controls.css",
+      "source/content/emote-tab.css",
       "source/content/osd.css"
     ],
     "js": [

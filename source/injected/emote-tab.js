@@ -1,79 +1,48 @@
 /* Added by Jabster28 | MIT Licensed */
+/* Modified by UniQMG */
 (async () => {
-
-  var get = await fetch(`/api/users/${localStorage.userID}`, {
+  const get = await fetch(`/api/users/${localStorage.userID}`, {
     headers: new Headers({
       Authorization: 'Bearer ' + localStorage.userToken,
     }),
   });
-  var { user } = await get.json();
+  const { user } = await get.json();
 
+  while (!window.emoteMap)
+    await new Promise(res => setTimeout(res, 100));
+  const emotes = window.emoteMap;
+  const emoteList = [];
 
-  var emotes = window.emoteMap;
-  var cycle = '';
-  var cyclenum = 0;
-  var emote = document.querySelector('#chat_input');
+  function add(emotes, allowed) {
+    for (let key of Object.keys(emotes))
+      emoteList.push({ name: key, url: emotes[key], allowed });
+  }
+  add(emotes.base, true);
+  add(emotes.supporter, user.supporter);
+  add(emotes.verified, user.verified);
+  add(emotes.staff, user.role == 'admin');
 
-  var emoteChecker = () => {
-    var text = emote.value.split(' ').pop();
-    if (text && /^:\w*$/.exec(text)) return text;
-    else return undefined;
-  };
-  
-  window.addEventListener('keydown', (e) => {
-    if (e.key == 'Tab') {
-      var results, text;
-      if (!cycle) {
-        text = emoteChecker();
-        if (text) {
-          results = fuzzball.extract(text, [
-            ...Object.keys(emotes.base),
-            ...(user.supporter ? Object.keys(emotes.supporter) : []),
-            ...(user.verified ? Object.keys(emotes.verified) : []),
-            ...(user.role == 'admin' ? Object.keys(emotes.staff) : []),
-          ]);
-          if (results[0][1] < 50) return;
-          var oldtext = emote.value.split(' ');
-          oldtext.pop();
-          emote.value = [...oldtext, ':' + results[0][0] + ':'].join(' ');
-          cycle = text;
-          cyclenum = 1;
-        }
-      } else {
-        results = fuzzball.extract(cycle, [
-          ...Object.keys(emotes.base),
-          ...(user.supporter ? Object.keys(emotes.supporter) : []),
-          ...(user.verified ? Object.keys(emotes.verified) : []),
-          ...(user.role == 'admin' ? Object.keys(emotes.staff) : []),
-        ]);
-        if (results[cyclenum][1] < 50) {
-          cyclenum = 0;
-          text = emoteChecker();
-          if (text) {
-            results = fuzzball.extract(text, [
-              ...Object.keys(emotes.base),
-              ...(user.supporter ? Object.keys(emotes.supporter) : []),
-              ...(user.verified ? Object.keys(emotes.verified) : []),
-              ...(user.role == 'admin' ? Object.keys(emotes.staff) : []),
-            ]);
-            if (results[0][1] < 50) return;
-            oldtext = emote.value.split(' ');
-            oldtext.pop();
-            emote.value = [...oldtext, ':' + results[0][0] + ':'].join(' ');
-            cycle = text;
-            cyclenum = 1;
-          }
-          return;
-        }
-        if (cyclenum >= results.length || cyclenum >= 10) cyclenum = 0;
-        oldtext = emote.value.split(' ');
-        oldtext.pop();
-        emote.value = [...oldtext, ':' + results[cyclenum][0] + ':'].join(' ');
-        cyclenum++;
-      }
-    } else {
-      cycle = '';
-      cyclenum = 0;
+  const picker = document.createElement('div');
+  picker.classList.add('tetrioplus-emote-picker');
+  for (let { name, url, allowed } of emoteList) {
+    let img = document.createElement('img');
+    img.classList.toggle('disallowed', !allowed);
+    picker.appendChild(img);
+    if (allowed) {
+      img.addEventListener('click', () => {
+        console.log("Clicky");
+        chatbox.value += `:${name}:`;
+      });
     }
+    img.src = '/res/' + url;
+  }
+
+  const chat = document.getElementById('room_chat');
+  const chatbox = document.getElementById('chat_input');
+  chatbox.addEventListener('keydown', evt => {
+    if (evt.key != 'Tab') return;
+    evt.preventDefault();
+    chat.appendChild(picker); // Gets removed when chat is cleared so replace it
+    picker.classList.toggle('visible');
   });
 })()
