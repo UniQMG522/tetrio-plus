@@ -45,6 +45,7 @@
 
       "source/bootstrap/content-script-communicator.js",
       "source/filters/touch-controls-tetriojs-filter.js",
+      "source/filters/emote-tab-tetriojs-filter.js",
       "source/filters/osd-request-filter.js",
       "source/filters/debug-tetriojs-filter.js"
     ]
@@ -62,6 +63,7 @@
       "source/shared/tpse-sanitizer.js",
       "source/content/domain-specific-storage-content.js",
       "source/content/content-script.js",
+      "source/content/emote-tab.js",
       "source/content/touch-controls.js",
       "source/content/animated-bg.js",
       "source/content/osd.js",
@@ -83,6 +85,7 @@
     "resources/osd/icon-rotate180.png",
     "resources/osd/icon-hold.png",
     "source/injected/osd.js",
+    "source/injected/emote-tab.js",
     "source/injected/touch-controls.js"
   ],
 

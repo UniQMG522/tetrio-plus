@@ -55,6 +55,7 @@ browser.runtime.onConnect.addListener(port => {
           'enableAllSongTweaker': 'All Songs in music tweaker',
           'enableOSD': 'key display',
           'enableTouchControls': 'touch controls',
+          'enableEmoteTab': 'emote tab',
           'bypassBootstrapper': 'bootstrap.js bypass',
           'openDevtoolsOnStart': 'automatic devtools',
           'debugBreakTheGame': 'DEBUG: INTENTIONALLY BREAK THE GAME'
