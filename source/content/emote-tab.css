@@ -1,0 +1,30 @@
+.tetrioplus-emote-picker {
+  position: absolute;
+  bottom: 40px;
+}
+
+.tetrioplus-emote-picker:not(.visible) {
+  display: none;
+}
+
+.tetrioplus-emote-picker img {
+  width: 1.3em;
+  height: 1.3em;
+  vertical-align: middle;
+  object-fit: contain;
+}
+
+.tetrioplus-emote-picker img.disallowed {
+  filter: saturate(0%);
+  cursor: not-allowed;
+}
+
+.tetrioplus-emote-picker img:hover {
+  background-color: #333;
+  border: 2px solid white;
+  box-sizing: border-box;
+}
+
+.tetrioplus-emote-picker img:not(.disallowed):active {
+  transform: scale(0.9);
+}
