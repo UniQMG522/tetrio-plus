@@ -83,6 +83,9 @@ const app = new Vue({
                 Enable touch controls
               </span>
             </option-toggle>
+            <option-toggle inline storageKey="enableTouchControls" mode="show">
+              <button @click="openTouchEditor">Edit</button>
+            </option-toggle>
             <option-toggle storageKey="enableEmoteTab">
               <span :title="(
                 'Allows you to press tab and autocomplete emotes, and press ' +
@@ -90,9 +93,6 @@ const app = new Vue({
               )">
                 Enable emote tabbing
               </span>
-            </option-toggle>
-            <option-toggle inline storageKey="enableTouchControls" mode="show">
-              <button @click="openTouchEditor">Edit</button>
             </option-toggle>
           </div>
           <option-toggle storageKey="enableOSD">

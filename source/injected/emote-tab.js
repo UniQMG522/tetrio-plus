@@ -1,15 +1,17 @@
 /* Added by Jabster28 | MIT Licensed */
 /* Modified by UniQMG */
 (async () => {
-  const get = await fetch(`/api/users/${localStorage.userID}`, {
-    headers: new Headers({
-      Authorization: 'Bearer ' + localStorage.userToken,
-    }),
-  });
-  const { user } = await get.json();
+  let user = localStorage.userId
+    ? (await (await fetch(`/api/users/${localStorage.userID}`, {
+        headers: new Headers({
+          Authorization: 'Bearer ' + localStorage.userToken,
+        }),
+      })).json()).user
+    : { supporter: false, verified: false, staff: false };
 
   while (!window.emoteMap)
     await new Promise(res => setTimeout(res, 100));
+
   const emotes = window.emoteMap;
   const emoteList = [];
 
@@ -30,7 +32,6 @@
     picker.appendChild(img);
     if (allowed) {
       img.addEventListener('click', () => {
-        console.log("Clicky");
         chatbox.value += `:${name}:`;
       });
     }

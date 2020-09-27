@@ -156,7 +156,7 @@ function matchesGlob(glob, string) {
     glob
       .split('*')
       .map(seg => seg.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'))
-      .join('.+') +
+      .join('.*') +
     '$'
   ).test(string);
 }

@@ -15,7 +15,8 @@ manifest.browser_specific_settings.desktop_client = {
 
     "source/bootstrap/electron/createRewriteFilter.js",
     "source/lib/base64-recoder.js",
-    "source/filters/svg-filter.js",
+    "source/filters/skin/skin-tetriojs-filter.js",
+    "source/filters/skin/skin-request-filter.js",
     "source/filters/bootstrap-filter.js",
     "source/filters/music-graph-hooks.js",
     "source/filters/music/music-tetriojs-filter.js",
@@ -47,6 +48,7 @@ manifest.browser_specific_settings.desktop_client = {
   "inject_css": [
     "source/content/draggable-header.css",
     "source/content/touch-controls.css",
+    "source/content/emote-tab.css",
     "source/content/osd.css"
   ]
 };
